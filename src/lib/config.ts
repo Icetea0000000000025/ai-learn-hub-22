@@ -19,13 +19,27 @@ export const STRIPE_SECRET_KEY = ""; // sk_test_...
 export const STRIPE_WEBHOOK_SECRET = ""; // whsec_...
 
 // Application URL
+const PRODUCTION_URL = "https://ai-learn-hub-22.lovable.app";
+
 const getDefaultUrl = () => {
   if (typeof window !== "undefined") return window.location.origin;
   if (process.env.APP_URL) return process.env.APP_URL;
-  return "http://localhost:8080";
+  return PRODUCTION_URL;
 };
 
 export const APP_URL = getDefaultUrl();
+
+/**
+ * Returns the canonical URL for Stripe redirect targets (success_url / cancel_url).
+ * Always prefers the APP_URL env var (set in Lovable Secrets), falls back to the
+ * production domain, and only uses localhost when running on a local dev port.
+ */
+export const getAppUrl = (): string => {
+  const envUrl = process.env.APP_URL?.trim();
+  if (envUrl && !envUrl.includes("localhost:3000")) return envUrl.replace(/\/$/, "");
+  return PRODUCTION_URL;
+};
+
 
 // Course Categories
 export const COURSE_CATEGORIES = [
