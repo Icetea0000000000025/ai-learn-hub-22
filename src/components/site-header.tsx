@@ -232,12 +232,8 @@ export function SiteHeader() {
             to="/"
             className="flex items-center gap-3 group transition-transform hover:scale-105 active:scale-95"
           >
-            <div className="h-9 w-9 rounded-xl bg-primary flex items-center justify-center text-primary-foreground shadow-lg shadow-primary/20 group-hover:shadow-primary/40 transition-all duration-300 overflow-hidden">
-              {branding?.logo_url ? (
-                <img src={branding.logo_url} alt="Logo" className="h-full w-full object-contain" />
-              ) : (
-                <Sparkles className="h-5 w-5 fill-current" />
-              )}
+            <div className="h-9 w-9 rounded-xl bg-primary flex items-center justify-center text-primary-foreground shadow-lg shadow-primary/20 group-hover:shadow-primary/40 transition-all duration-300">
+              <Sparkles className="h-5 w-5 fill-current" />
             </div>
             <span className="text-base font-black tracking-tighter text-foreground hidden sm:inline-block uppercase italic tracking-[0.05em]">
               {branding?.name || "LearnLab"}
