@@ -149,16 +149,8 @@ export function SiteHeader() {
                     className="flex items-center gap-3 transition-transform hover:scale-105"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
-                    <div className="h-9 w-9 rounded-xl bg-primary flex items-center justify-center text-primary-foreground shadow-lg shadow-primary/20 overflow-hidden">
-                      {branding?.logo_url ? (
-                        <img
-                          src={branding.logo_url}
-                          alt="Logo"
-                          className="h-full w-full object-contain"
-                        />
-                      ) : (
-                        <Sparkles className="h-5 w-5 fill-current" />
-                      )}
+                    <div className="h-9 w-9 rounded-xl bg-primary flex items-center justify-center text-primary-foreground shadow-lg shadow-primary/20">
+                      <Sparkles className="h-5 w-5 fill-current" />
                     </div>
                     <span className="text-base font-black tracking-tight text-foreground uppercase italic tracking-wider">
                       {branding?.name || "LearnLab"}
