@@ -1,0 +1,231 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/*
+ * Premium SaaS Design System (Vercel/Linear Style)
+ * Focuses on a refined Light Theme with calm, intelligent vibes.
+ */
+
+:root {
+  --radius: 0.75rem;
+
+  /* LIGHT MODE (Primary Target) */
+  --background: #fafbfc; /* Calm off-white base */
+  --foreground: #0f172a; /* Deep Slate for high readability */
+
+  --card: #ffffff;
+  --card-foreground: #0f172a;
+
+  --popover: rgba(255, 255, 255, 0.85); /* Translucent */
+  --popover-foreground: #0f172a;
+
+  --primary: #4f46e5; /* Indigo 600 - Main Brand */
+  --primary-foreground: #ffffff;
+
+  --secondary: #f1f5f9; /* Slate 100 */
+  --secondary-foreground: #1e293b; /* Slate 800 */
+
+  --muted: #f8fafc; /* Slate 50 */
+  --muted-foreground: #64748b; /* Slate 500 */
+
+  --accent: #f1f5f9; /* Slate 100 */
+  --accent-foreground: #0f172a;
+
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+
+  --border: rgba(15, 23, 42, 0.08); /* Extremely subtle border */
+  --input: rgba(15, 23, 42, 0.08);
+  --ring: rgba(79, 70, 229, 0.2); /* Soft primary ring */
+
+  /* Sidebar (Light Mode) */
+  --sidebar: #f8fafc;
+  --sidebar-foreground: #334155;
+  --sidebar-primary: #4f46e5;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: rgba(15, 23, 42, 0.04);
+  --sidebar-accent-foreground: #0f172a;
+  --sidebar-border: rgba(15, 23, 42, 0.06);
+  --sidebar-ring: rgba(79, 229, 0.2);
+}
+
+.dark {
+  /* DARK MODE (Refined Fallback) */
+  --background: #09090b; /* Zinc 950 */
+  --foreground: #fafafa; /* Zinc 50 */
+
+  --card: #18181b; /* Zinc 900 */
+  --card-foreground: #fafafa;
+
+  --popover: rgba(24, 24, 27, 0.85);
+  --popover-foreground: #fafafa;
+
+  --primary: #6366f1; /* Indigo 500 */
+  --primary-foreground: #ffffff;
+
+  --secondary: #27272a; /* Zinc 800 */
+  --secondary-foreground: #fafafa;
+
+  --muted: #27272a;
+  --muted-foreground: #a1a1aa; /* Zinc 400 */
+
+  --accent: #27272a;
+  --accent-foreground: #fafafa;
+
+  --destructive: #7f1d1d;
+  --destructive-foreground: #fafafa;
+
+  --border: rgba(255, 255, 255, 0.08);
+  --input: rgba(255, 255, 255, 0.08);
+  --ring: rgba(99, 102, 241, 0.3);
+
+  /* Sidebar (Dark Mode) */
+  --sidebar: #09090b;
+  --sidebar-foreground: #a1a1aa;
+  --sidebar-primary: #6366f1;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: rgba(255, 255, 255, 0.05);
+  --sidebar-accent-foreground: #fafafa;
+  --sidebar-border: rgba(255, 255, 255, 0.05);
+  --sidebar-ring: rgba(99, 102, 241, 0.3);
+}
+
+@theme inline {
+  --font-sans: "Inter", "Geist", system-ui, sans-serif;
+  --font-mono: "Geist Mono", "JetBrains Mono", monospace;
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 12px);
+  --radius-3xl: calc(var(--radius) + 20px);
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+    outline-color: var(--color-ring);
+  }
+
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Professional Typography Scale */
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply tracking-tight font-semibold text-slate-900 dark:text-zinc-100;
+  }
+}
+
+/* Premium Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(15, 23, 42, 0.1);
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(15, 23, 42, 0.2);
+}
+.dark ::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+}
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* Shimmer Animation for Skeletons */
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.shimmer {
+  background: linear-gradient(
+    90deg,
+    var(--color-muted) 25%,
+    rgba(15, 23, 42, 0.05) 50%,
+    var(--color-muted) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite;
+}
+.dark .shimmer {
+  background: linear-gradient(
+    90deg,
+    var(--color-muted) 25%,
+    rgba(255, 255, 255, 0.05) 50%,
+    var(--color-muted) 75%
+  );
+}
+@keyframes breathe {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.12);
+  }
+}
+
+/* Global Fix for CommandList and Popover scrolling */
+[data-radix-popover-content-wrapper] {
+  pointer-events: auto !important;
+}
+
+.force-scroll {
+  overflow-y: auto !important;
+  pointer-events: auto !important;
+  max-height: 400px;
+}
