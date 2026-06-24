@@ -6,8 +6,8 @@
  */
 
 // Supabase Configuration
-export const SUPABASE_URL = "https://psnyqioyyhdbytqhgxqi.supabase.co";
-export const SUPABASE_ANON_KEY = "sb_publishable_i0tPR--33ZsBWuTUSd7CHg_VDciPTzG";
+export const SUPABASE_URL = "https://fjiyvmfogiyvecixocnt.supabase.co";
+export const SUPABASE_ANON_KEY = "sb_publishable_vTBN1Tc1y8lRrWGff0x4OQ_z02xC2zD";
 
 // Gemini AI Configuration
 // Note: Keep this empty if using Lovable Secrets or local .env
