@@ -96,7 +96,10 @@ export default {
       STRIPE_WEBHOOK_SECRET
     )?.trim();
     let serviceRoleKey = (
-      env?.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY
+      env?.SUPABASE_SERVICE_ROLE_KEY ||
+      process.env.SUPABASE_SERVICE_ROLE_KEY ||
+      env?.SB_SERVICE_ROLE_KEY ||
+      process.env.SB_SERVICE_ROLE_KEY
     )?.trim();
 
     if (serviceRoleKey) serviceRoleKey = serviceRoleKey.split(/\s+/)[0];
