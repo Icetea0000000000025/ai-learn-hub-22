@@ -1,6 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import Stripe from "stripe";
-import { STRIPE_SECRET_KEY, APP_URL } from "./config";
+import { STRIPE_SECRET_KEY, getAppUrl } from "./config";
 
 // Use environment variable first, fallback to config for local dev
 const apiKey = (process.env.STRIPE_SECRET_KEY || STRIPE_SECRET_KEY)?.trim();
@@ -47,7 +47,7 @@ export const createSubscriptionCheckoutSession = createServerFn({ method: "POST"
     }
 
     // Amount is in THB (already)
-    const finalUrl = APP_URL.includes("localhost:3000") ? "http://localhost:8080" : APP_URL;
+    const finalUrl = getAppUrl();
 
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card", "promptpay"],
@@ -86,7 +86,7 @@ export const createAdCheckoutSession = createServerFn({ method: "POST" }).handle
       throw new Error("Stripe is not configured.");
     }
 
-    const finalUrl = APP_URL.includes("localhost:3000") ? "http://localhost:8080" : APP_URL;
+    const finalUrl = getAppUrl();
 
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card", "promptpay"],
@@ -130,7 +130,7 @@ export const createEnterpriseCheckoutSession = createServerFn({ method: "POST" }
     // Conversion Logic: PromptPay requires THB. We convert USD to THB for the checkout.
     const USD_TO_THB_RATE = 36.5;
     const amountInThbCents = Math.round(amount * USD_TO_THB_RATE * 100);
-    const finalUrl = APP_URL.includes("localhost:3000") ? "http://localhost:8080" : APP_URL;
+    const finalUrl = getAppUrl();
 
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card", "promptpay"],
@@ -186,7 +186,7 @@ export const createOrgPackageCheckoutSession = createServerFn({ method: "POST" }
     // Conversion Logic: PromptPay requires THB.
     const USD_TO_THB_RATE = 36.5;
     const discountedAmountPerSeatThb = Math.round(amountPerSeat * discount * USD_TO_THB_RATE * 100);
-    const finalUrl = APP_URL.includes("localhost:3000") ? "http://localhost:8080" : APP_URL;
+    const finalUrl = getAppUrl();
 
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card", "promptpay"],
@@ -238,7 +238,7 @@ export const createBundleCheckoutSession = createServerFn({ method: "POST" }).ha
     // Conversion Logic: PromptPay requires THB.
     const USD_TO_THB_RATE = 36.5;
     const amountInThbCents = Math.round(amount * USD_TO_THB_RATE * 100);
-    const finalUrl = APP_URL.includes("localhost:3000") ? "http://localhost:8080" : APP_URL;
+    const finalUrl = getAppUrl();
 
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card", "promptpay"],
@@ -352,7 +352,7 @@ export const createStripeCheckoutSession = createServerFn({ method: "POST" }).ha
     const amountInThbCents = Math.round(finalAmount * USD_TO_THB_RATE * 100);
 
     // Fallback URL logic to ensure local testing works on 8080
-    const finalUrl = APP_URL.includes("localhost:3000") ? "http://localhost:8080" : APP_URL;
+    const finalUrl = getAppUrl();
 
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card", "promptpay"],
