@@ -23,12 +23,8 @@ export function SiteFooter() {
       <div className="mx-auto grid max-w-7xl gap-8 px-4 py-12 md:grid-cols-4">
         <div>
           <div className="mb-4 flex items-center gap-3">
-            <div className="h-8 w-8 rounded-xl bg-primary flex items-center justify-center text-primary-foreground overflow-hidden shadow-sm shadow-primary/20">
-              {branding?.logo_url ? (
-                <img src={branding.logo_url} alt="Logo" className="h-full w-full object-contain" />
-              ) : (
-                <Sparkles className="h-4 w-4" />
-              )}
+            <div className="h-8 w-8 rounded-xl bg-primary flex items-center justify-center text-primary-foreground shadow-sm shadow-primary/20">
+              <Sparkles className="h-4 w-4" />
             </div>
             <span className="text-base font-black tracking-tighter uppercase italic">
               {siteName}
