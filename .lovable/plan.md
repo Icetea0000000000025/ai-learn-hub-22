@@ -1,198 +1,118 @@
+# Refactor `src/server.ts` → `src/server-runtime/`
 
-# Implementation Plan: Incremental Refactor `src/server.ts` (Gated + Hard Constraints)
+แยกไฟล์ `src/server.ts` (459 บรรทัด) ออกเป็นโมดูลย่อยใต้โฟลเดอร์ใหม่ `src/server-runtime/` โดย**รักษาพฤติกรรมเดิม 100%**
 
-แผนนี้ไม่มีโค้ด ทุก phase หยุดรอ approval ก่อนทำ และก่อน-หลังแต่ละ phase ต้องรายงานตาม protocol ด้านล่าง
+## ขอบเขต
 
----
+- **แตะแค่:** `src/server.ts` และ `src/server-runtime/**`
+- **ไม่แตะ:** ไฟล์อื่นทั้งหมด, schema, migrations, RLS, dependencies
+- **คงเดิมทุกตัวอักษร:** endpoint path, status code, response shape, log message text, env variable names, fallback order
 
-## 0. Hard Constraints (บังคับตลอด refactor)
+## ไฟล์ที่จะสร้างใหม่ (7 ไฟล์)
 
-### Whitelist ไฟล์ที่อนุญาตให้แตะ
-- `src/server.ts`
-- `src/server-runtime/**` (ทั้ง tree, สร้างใหม่)
+### 1. `src/server-runtime/env.ts`
+Pure function `resolveEnv(env, processEnv)` รับ `env` object (worker bindings) คืน:
+- `effectiveApiKey` (STRIPE_SECRET_KEY)
+- `effectiveWebhookSecret` (STRIPE_WEBHOOK_SECRET)
+- `serviceRoleKey` (SUPABASE_SERVICE_ROLE_KEY / SB_SERVICE_ROLE_KEY, split whitespace)
+- `effectiveSupabaseUrl` (SUPABASE_URL / VITE_SUPABASE_URL)
 
-### ไฟล์/โฟลเดอร์ที่ห้ามแตะเด็ดขาด
-- `src/lib/**`, `src/routes/**`, `src/components/**`, `src/integrations/**`
-- `src/hooks/**`, `src/styles.css`, `src/router.tsx`, `src/start.ts`, `src/client.tsx`
-- `src/routeTree.gen.ts`
-- `supabase/**` (migrations, config, functions, RLS)
-- `vite.config.ts`, `tsconfig*.json`, `package.json`, `bun.lock`
-- `public/**`
-- Database / RLS / secrets / edge functions ใน Supabase
+รวมทั้ง logic propagate `env[key]` → `process.env` ที่อยู่ต้น fetch handler
 
-### Public contract ที่ห้ามเปลี่ยน
-- Export names ใน `src/server.ts` (default export object ที่มี `fetch`)
-- Function signatures ของ default export
-- Endpoint paths: `/api/stripe-webhook`, `/api/stripe/webhook` (+ SSR passthrough)
-- Request/response shape ทุก endpoint
-- Status codes (200, 400, 405, 500)
-- Log message text ทุกตัวอักษร (ที่ส่งออก `addLog` หรือ `console.error`)
-- Env variable names (`STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `SUPABASE_URL`, `VITE_SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `SB_SERVICE_ROLE_KEY`)
+คง fallback order เดิมทุกตัวอักษร: `env?.X || process.env.X || X_CONSTANT` พร้อม `.trim()` ตรงเดิม
 
-### กฎปฏิบัติ
-- ห้ามลบไฟล์ใด ๆ
-- ห้าม rename / move directory เดิม
-- ห้ามเพิ่ม npm dependency
-- ห้ามแตะ DB / schema / RLS / migrations
-- หาก phase ใดจำเป็นต้องแตะนอก whitelist → **หยุดทันที** และขอ approval ก่อน
+### 2. `src/server-runtime/stripe.ts`
+- module-level `let stripeClient: Stripe | null = null`
+- export `getStripeClient(apiKey)` ที่ทำ lazy init + re-init เมื่อ key เปลี่ยน (เช็ก `(stripeClient as any)._api?.auth !== Bearer ${apiKey}`)
+- คง `apiVersion: "2026-04-22.dahlia"` ตามเดิม
 
----
+### 3. `src/server-runtime/webhook-log.ts`
+- `export const WEBHOOK_LOGS: string[] = []`
+- `export function addLog(msg)` — รวม timestamp format, unshift, slice ที่ 50, console.log
+- รักษา log text exact
 
-## A. Pre-phase Protocol (ก่อนเริ่มทุก phase)
+### 4. `src/server-runtime/fulfillment.ts`
+ฟังก์ชันเดียว `runFulfillment({ db, meta, obj, isSession, addLog })` คืน `{ fulfilled: boolean }`
 
-รายงานต่อ user แล้วรอ approval:
-1. ไฟล์ที่จะ **สร้าง** ใน phase นี้
-2. ไฟล์ที่จะ **แก้** ใน phase นี้
-3. ประมาณจำนวนบรรทัดที่เปลี่ยน (ต่อไฟล์)
-4. ความเสี่ยง + scope confirmation ว่าอยู่ใน whitelist
+ภายในมี 6 priorities ตามลำดับเดิมเป๊ะ:
+- P1: B2B Organization License (orgId + courseId)
+- P2: Enterprise Plan (type === "enterprise_plan")
+- P2.1: Creator Subscriptions (type === "subscription_purchase")
+- P2.2: Ad Purchases (type === "ad_purchase")
+- P3: Bundle (bundleId && !fulfilled)
+- P4: Standard Course (!fulfilled && courseId && !isB2B) — รวม `increment_coupon_usage` RPC
 
-## B. Post-phase Protocol (หลังจบทุก phase)
+หมายเหตุ: `incrementCouponUsage` จาก `./lib/coupons` ปัจจุบัน import แต่ไม่ได้ใช้ในโค้ด (ใช้ `db.rpc` ตรงๆ). จะคงสถานะนี้ — ไม่ลบ import ที่ฝั่ง `server.ts` เพื่อกัน side-effect ใดๆ (หรือถ้าไม่จำเป็นจะ verify อีกครั้งตอน implement)
 
-รายงานต่อ user:
-1. Build result (Vite + TanStack)
-2. Typecheck result (`tsgo`)
-3. ยืนยัน `/api/stripe-webhook` GET diagnostics + POST flow ยังทำงาน
-4. ยืนยัน SSR (route ปกติ + error path) ยังทำงาน
-5. จำนวนไฟล์ที่ถูกแก้/สร้าง **จริง** (vs ที่ประกาศไว้ pre-phase)
-6. Rollback note: snapshot `src/server.ts` + รายการไฟล์ใหม่ที่สร้าง
+### 5. `src/server-runtime/payments.ts`
+ฟังก์ชัน `recordPayment({ db, baseFields, addLog })` — บันทึก 3 tier:
+- ATTEMPT 1: Full upsert (`onConflict: "transaction_id"`)
+- ATTEMPT 2: Insert ไม่มี `transaction_id`
+- ATTEMPT 3: Legacy minimal insert (course_id fallback `00000000-...`, provider field)
 
-หากข้อใดข้อหนึ่งไม่ผ่าน → ไม่ขอ approval phase ถัดไป + เสนอ rollback
+รักษา log messages exact: "SUCCESS: Payment recorded via Full Upsert.", "FULL UPSERT FAILED: ...", "SUCCESS: Recorded via Insert (No transaction_id).", "INSERT FAILED: ...", "LEGACY FATAL: ...", "SUCCESS: Recorded via Legacy Minimal.", "CRITICAL DB EXCEPTION: ..."
 
----
+### 6. `src/server-runtime/webhook.ts`
+`handleWebhook(request, resolvedEnv)`:
+- GET → diagnostics JSON เดิมเป๊ะ (key order + field names + WEBHOOK_LOGS)
+- non-POST → `405 "Method Not Allowed"`
+- POST → verify signature (msg เดิม "ERROR: Missing config (Sig:..., Client:..., Secret:...)"), call `runFulfillment` แล้ว `recordPayment`, return `{received: true}` 200
 
-## C. รายการไฟล์ "สร้างใหม่" (รวม 29 ไฟล์, ทุกตัวอยู่ใต้ `src/server-runtime/`)
+รักษา metadata extraction helpers (`getMeta`, `clean`) และ ID derivation (transactionId, paymentIntentId) ตรงตำแหน่งเดิม (อยู่ใน webhook.ts เพราะใช้ก่อน fulfillment + payments)
 
-| # | ไฟล์ | สร้างใน phase | เหตุผล |
-|---|---|---|---|
-| 1 | `README.md` | 1 | บันทึก import rule + dependency graph |
-| 2 | `shared/id-extractors.ts` | 1→2 | pure: เลือก tx/PI id จาก checkout vs payment_intent |
-| 3 | `shared/money.ts` | 1→2 | pure: cents → dollars |
-| 4 | `shared/time.ts` | 1→2 | pure: `daysFromNow(n)` ISO string |
-| 5 | `observability/webhook-log.ts` | 1→2 | ย้าย `WEBHOOK_LOGS` + `addLog` |
-| 6 | `infrastructure/stripe-client.ts` | 1→2 | stripe singleton + re-init |
-| 7 | `infrastructure/supabase-admin.ts` | 1→2 | factory `createDb(url, key)` |
-| 8 | `bootstrap/env.ts` | 1→3 | resolve env layered (env / process.env / config) |
-| 9 | `bootstrap/ssr-entry.ts` | 1→3 | lazy load TanStack server-entry |
-| 10 | `bootstrap/container.ts` | 1→3 | composition root: build `RequestDeps` |
-| 11 | `http/error-response.ts` | 1→3 | brandedErrorResponse + normalize |
-| 12 | `http/ssr-handler.ts` | 1→3 | try/catch รอบ SSR |
-| 13 | `http/router.ts` | 1→8 | dispatch pathname → handler |
-| 14 | `stripe-webhook/index.ts` | 1→7 | entry `handleStripeWebhook(req, deps)` |
-| 15 | `stripe-webhook/diagnostics.ts` | 1→4 | GET diagnostics JSON |
-| 16 | `stripe-webhook/verify.ts` | 1→4 | verify signature + construct event |
-| 17 | `stripe-webhook/metadata.ts` | 1→4 | `getMeta` / `clean` / extract |
-| 18 | `stripe-webhook/dispatcher.ts` | 1→7 | ลำดับ priority + call payments |
-| 19 | `stripe-webhook/fulfillment/types.ts` | 1→5 | shared types |
-| 20 | `fulfillment/b2b-org-seats.ts` | 1→5e | PRIORITY 1 |
-| 21 | `fulfillment/enterprise-plan.ts` | 1→5a | PRIORITY 2 |
-| 22 | `fulfillment/creator-subscription.ts` | 1→5b | PRIORITY 2.1 |
-| 23 | `fulfillment/ad-purchase.ts` | 1→5f | PRIORITY 2.2 |
-| 24 | `fulfillment/bundle.ts` | 1→5c | PRIORITY 3 |
-| 25 | `fulfillment/standard-course.ts` | 1→5d | PRIORITY 4 + coupon |
-| 26 | `payments/record-payment.ts` | 1→6 | orchestrator 3-tier |
-| 27 | `payments/attempt-full-upsert.ts` | 1→6 | ATTEMPT 1 |
-| 28 | `payments/attempt-insert-no-tx.ts` | 1→6 | ATTEMPT 2 |
-| 29 | `payments/attempt-legacy-minimal.ts` | 1→6 | ATTEMPT 3 |
+รับ `stripeClient`, `effectiveWebhookSecret`, `effectiveApiKey`, `serviceRoleKey`, `effectiveSupabaseUrl` เป็น argument
 
-> "phase 1→N" = สร้างเป็น stub ใน Phase 1, ใส่ logic จริงใน Phase N
+### 7. `src/server-runtime/ssr.ts`
+- `getServerEntry()` (memoized promise)
+- `brandedErrorResponse()`
+- `isCatastrophicSsrErrorBody()` (internal)
+- `normalizeCatastrophicSsrResponse()`
 
-## D. รายการไฟล์ที่ "ถูกแก้"
+import `consumeLastCapturedError`, `renderErrorPage` จาก `../lib/*` (path เปลี่ยนเป็น `../lib/...`)
 
-| ไฟล์ | ถูกแก้ใน phase | สรุปการแก้ |
-|---|---|---|
-| `src/server.ts` | 2, 3, 4, 5a–5f, 6, 7, 8 | แต่ละ phase แทน inline block ด้วย import จาก `server-runtime/*` — Phase 8 ตัดให้เหลือ ~30–50 บรรทัด (entry + delegate) |
+หมายเหตุ: `import "./lib/error-capture"` (side-effect) จะ**คงไว้ที่ `src/server.ts`** เพื่อ guarantee ว่า capture handler ถูก register ที่จุดเดิม
 
-**ไม่มีไฟล์อื่นถูกแก้ตลอด refactor**
+## ไฟล์ที่จะแก้ (1 ไฟล์)
 
-## E. รายการไฟล์ที่ "รับประกันไม่ถูกแตะ"
+### `src/server.ts` (459 → ~40 บรรทัด)
+- คง `import "./lib/error-capture"` บรรทัดแรก
+- import จาก `./server-runtime/*`
+- export default `{ async fetch(request, env, ctx) { ... } }` ที่:
+  1. resolve env (env.ts) + propagate env→process.env
+  2. ensure stripe client (stripe.ts)
+  3. ถ้า path เป็น `/api/stripe-webhook` หรือ `/api/stripe/webhook` → delegate ไป `handleWebhook`
+  4. มิฉะนั้น → `getServerEntry().fetch()` + `normalizeCatastrophicSsrResponse` + branded fallback (ssr.ts)
 
-ทุกไฟล์นอก whitelist §0 (`src/lib/**`, `src/routes/**`, `src/components/**`, `src/integrations/**`, `src/hooks/**`, `supabase/**`, config files, generated route tree, public assets, ทุก migration, RLS, secret)
+## Dependency Graph
 
----
+```text
+server.ts
+ ├── server-runtime/env.ts        (pure, no deps)
+ ├── server-runtime/stripe.ts     (stripe)
+ ├── server-runtime/webhook-log.ts (pure)
+ ├── server-runtime/ssr.ts        (../lib/error-capture, ../lib/error-page)
+ └── server-runtime/webhook.ts
+       ├── @supabase/supabase-js
+       ├── ../lib/config (SUPABASE_ANON_KEY)
+       ├── ./webhook-log
+       ├── ./fulfillment
+       └── ./payments
+```
 
-## F. Phase Execution Plan
+## Acceptance Criteria (verify หลัง refactor)
 
-### Phase 1 — Skeleton (สร้างไฟล์เปล่า)
+- `bun run build` ผ่าน, typecheck ผ่าน
+- `GET /api/stripe-webhook` คืน JSON เดิม (เทียบ key order + diagnostics shape)
+- `POST /api/stripe-webhook` ไม่มี signature → 400 + msg เดิม
+- `POST` method อื่น (PUT/DELETE) → 405 "Method Not Allowed"
+- SSR route ปกติ render ได้ (เปิด `/pricing`)
+- log messages เหมือนเดิมทุกตัวอักษร (grep เทียบกับ server.ts เดิม)
 
-- **สร้าง**: 29 ไฟล์ตาม §C (export stub `export {}` หรือ placeholder type)
-- **แก้**: ไม่มี
-- **บรรทัดเปลี่ยน**: ~29 ไฟล์ × ~2 บรรทัด = ~60 บรรทัด
-- **Acceptance**: build + typecheck ผ่าน, ไม่มีไฟล์ใหม่ถูก import จากใคร
-- **ความเสี่ยง**: ต่ำมาก — dead code
+## Rollback
 
-### Phase 2 — Shared + Observability + Infrastructure
+snapshot `src/server.ts` ก่อนแก้. ถ้า build/runtime fail → restore `src/server.ts` + ลบ `src/server-runtime/` ทั้งโฟลเดอร์
 
-- **แก้ไฟล์**: #2, #3, #4, #5, #6, #7 (logic จริง) + `src/server.ts`
-- **บรรทัดเปลี่ยน**: `src/server.ts` -~15/+~6; ไฟล์ใหม่ ~80 บรรทัดรวม
-- **Acceptance**: log text + Stripe re-init lifecycle เหมือนเดิม
-- **ความเสี่ยง**: ต่ำ — pure ย้าย
+## ข้อสังเกตที่จะชี้แจง (ไม่ใช่ปัญหา)
 
-### Phase 3 — Bootstrap + HTTP
-
-- **แก้ไฟล์**: #8, #9, #10, #11, #12 + `src/server.ts`
-- **บรรทัดเปลี่ยน**: `src/server.ts` -~40/+~10; ไฟล์ใหม่ ~120 บรรทัด
-- **Acceptance**: SSR + branded error page + env propagation เหมือนเดิม
-- **ความเสี่ยง**: กลาง — env resolution มี fallback หลายชั้น ต้อง mirror เป๊ะ
-
-### Phase 4 — Diagnostics + Verify + Metadata
-
-- **แก้ไฟล์**: #15, #16, #17 + `src/server.ts`
-- **บรรทัดเปลี่ยน**: `src/server.ts` -~50/+~15; ไฟล์ใหม่ ~90 บรรทัด
-- **Acceptance**: GET diagnostics JSON keys + values + signature error message เหมือนเดิม
-- **ความเสี่ยง**: ต่ำ
-
-### Phase 5 — Fulfillment (ทีละ priority, รอ approval ทุก sub-phase)
-
-ลำดับ (สั้น → ซับซ้อน):
-- 5a: enterprise-plan (~10 บรรทัด)
-- 5b: creator-subscription (~15)
-- 5c: bundle (~25)
-- 5d: standard-course + coupon (~25)
-- 5e: b2b-org-seats (~35)
-- 5f: ad-purchase (~60)
-
-แต่ละ sub-phase: ย้าย 1 block + `src/server.ts` เรียก function ใหม่; log text + ลำดับ + flag `fulfilled` เหมือนเดิม
-- **ความเสี่ยง**: กลาง — ลำดับ priority สำคัญ; ทำทีละตัวเพื่อจำกัด blast radius
-
-### Phase 6 — Payments 3-tier
-
-- **แก้ไฟล์**: #26, #27, #28, #29 + `src/server.ts`
-- **บรรทัดเปลี่ยน**: `src/server.ts` -~75/+~10; ไฟล์ใหม่ ~130 บรรทัด
-- **Acceptance**: ATTEMPT 1→2→3 order + log text + legacy uuid-zeros fallback เหมือนเดิม
-- **ความเสี่ยง**: กลาง — fallback chain ต้องไม่สลับ
-
-### Phase 7 — Dispatcher
-
-- **แก้ไฟล์**: #14, #18 + `src/server.ts`
-- **บรรทัดเปลี่ยน**: `src/server.ts` -~30/+~5; ไฟล์ใหม่ ~80 บรรทัด
-- **Acceptance**: ลำดับ priority + `isB2B` guard + skip-no-userId + 200 "Missing userId" เหมือนเดิม
-- **ความเสี่ยง**: ต่ำ (orchestration เท่านั้น)
-
-### Phase 8 — Slim entry
-
-- **แก้ไฟล์**: #13 + `src/server.ts`
-- **บรรทัดเปลี่ยน**: `src/server.ts` เหลือ ~30–50 บรรทัด; router ~40 บรรทัด
-- **Acceptance**: ทุก endpoint + SSR + error page + env propagation เหมือนเดิม
-- **ความเสี่ยง**: ต่ำ (โครงสุดท้าย, logic ย้ายครบแล้ว)
-
----
-
-## G. Rollback Strategy
-
-| สถานการณ์ | วิธี rollback |
-|---|---|
-| Build / typecheck fail หลัง edit | ย้อน edit ของ phase นั้นทันที (ไฟล์ใหม่คง stub ไว้ได้, ไม่กระทบ runtime เพราะไม่ถูก import) |
-| Build ผ่านแต่ behavior drift (log / response diff) | restore `src/server.ts` จาก snapshot ที่บันทึกใน pre-phase report; ไฟล์ใหม่คงไว้เป็น dead code |
-| Runtime crash ใน preview | เหมือนด้านบน + ตรวจ webhook GET diagnostics ว่า `hasStripeKey/hasWebhookSecret/hasServiceKey/hasUrl` ยังเป็น true |
-| Phase 5 sub-phase fail | ย้อนเฉพาะ sub-phase นั้น; sub-phase ที่ approved แล้วยังคงอยู่ |
-| Phase 8 fail | ย้อน `src/server.ts` กลับเป็นโครงของ Phase 7 (ใช้ของใหม่ทั้งหมดยกเว้น router) |
-
-Snapshot กลไก: เก็บ `src/server.ts` ฉบับก่อนเริ่มแต่ละ phase ใน post-phase report ครั้งก่อนหน้า (ไม่พึ่ง git operations — harness จัดการ git)
-
-**Invariant ตลอด refactor**: 0 deletions, 0 dependency added, 0 files แตะนอก whitelist, 0 contract change
-
----
-
-## H. หลัง approval แผนนี้
-
-เริ่ม Phase 1: รายงาน pre-phase (29 ไฟล์ใหม่ + 0 ไฟล์แก้) → รอ approval → สร้าง skeleton → รายงาน post-phase → รอ approval Phase 2
+1. `incrementCouponUsage` ถูก import ใน `server.ts` แต่ไม่ได้ถูกเรียก (โค้ดใช้ `db.rpc("increment_coupon_usage", ...)` ตรงๆ). จะ**ไม่ลบ import นี้** เพื่อกันความเสี่ยงด้าน side-effect — ถ้าต้องการลบจะถามก่อน
+2. `import "./lib/error-capture"` (side-effect import) จะอยู่ที่บรรทัดแรกของ `src/server.ts` เหมือนเดิม ไม่ย้ายเข้า ssr.ts เพื่อรักษา load order
