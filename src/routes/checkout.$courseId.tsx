@@ -146,7 +146,15 @@ function CheckoutPage() {
       });
 
       if (url) {
-        window.location.href = url;
+        // Use window.top to break out of Lovable preview iframe.
+        // In production (not iframed), window.top === window, so behavior is unchanged.
+        try {
+          const top = window.top ?? window;
+          top.location.href = url;
+        } catch {
+          // Cross-origin iframe access denied — fall back to opening in a new tab.
+          window.open(url, "_blank", "noopener,noreferrer");
+        }
       } else {
         throw new Error("Failed to create checkout session");
       }
