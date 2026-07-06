@@ -211,16 +211,7 @@ The schema defines the boundary between user-accessible tables (protected via RL
 
 To scale the AI Learn Hub platform and enhance engagement, the following feature additions are recommended:
 
-### A. Botnoi Video & Voiceover Synthesis (TTS)
-
-- **Goal:** Turn generated text scripts into dynamic, localized audio narration or talking-avatar videos.
-- **Flow Details:**
-  1. During course generation, extract the lesson script from the Gemini output.
-  2. Send a backend request to the Botnoi API payload (`generateVideoWithBotnoi` placeholder) with the target script text.
-  3. Save the resulting MP3 audio or MP4 video file to a Supabase storage bucket.
-  4. Render this media automatically in the Lesson Player for the student.
-
-### B. Interactive AI Learning Assistant (In-Course Chatbot)
+### A. Interactive AI Learning Assistant (In-Course Chatbot)
 
 - **Goal:** Provide students with context-aware, immediate answers to questions on lesson materials.
 - **Flow Details:**
@@ -228,7 +219,7 @@ To scale the AI Learn Hub platform and enhance engagement, the following feature
   2. When a student posts a question, send the current lesson content, module descriptions, and student prompt to Gemini.
   3. Stream answers directly to the student without page reloads.
 
-### C. Advanced Plagiarism & Quality Control Checker
+### B. Advanced Plagiarism & Quality Control Checker
 
 - **Goal:** Prevent AI content replication and low-quality generation spam.
 - **Flow Details:**
@@ -236,7 +227,7 @@ To scale the AI Learn Hub platform and enhance engagement, the following feature
   2. Block publication of new courses if similarity checks exceed a defined threshold (e.g., > 60% similarity).
   3. Include an automated quality assessment check that rates readability and instructional alignment.
 
-### D. Verified Certificate Verification & PDF Downloads
+### C. Verified Certificate Verification & PDF Downloads
 
 - **Goal:** Enhance the credibility and shareability of course accomplishments.
 - **Flow Details:**
@@ -244,7 +235,7 @@ To scale the AI Learn Hub platform and enhance engagement, the following feature
   2. Provide a "Download PDF" server-side function.
   3. Allow students to add their certificates to LinkedIn directly via verification hash routes (`/verify/$id`).
 
-### E. Enterprise Analytics Dashboard
+### D. Enterprise Analytics Dashboard
 
 - **Goal:** Provide B2B client organizations with visibility into employee progress.
 - **Flow Details:**
