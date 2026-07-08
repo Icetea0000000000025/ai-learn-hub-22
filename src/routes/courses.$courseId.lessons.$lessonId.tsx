@@ -3,6 +3,7 @@ import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase";
 import { useI18n } from "@/lib/i18n";
+import type { Language } from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Progress } from "@/components/ui/progress";
@@ -66,6 +67,344 @@ import {
 } from "lucide-react";
 import { SelectionTermExplainer } from "@/components/selection-term-explainer";
 
+// --- STRINGS LOOKUP ---
+const lessonStrings: Record<Language, Record<string, string>> = {
+  en: {
+    videoBeingPrepared: "Video Being Prepared",
+    videoBeingPreparedDesc: "Video is being prepared by AI. Please check back in a few moments.",
+    preview: "Preview",
+    video: "Video",
+    videoLesson: "Video Lesson",
+    pdfDocument: "PDF Document",
+    quizLesson: "Quiz Lesson",
+    textArticle: "Text Article",
+    slideDeck: "Slide Deck",
+    lesson: "Lesson",
+    persistentStreaming: "Persistent Streaming",
+    learningResourceAvailable: "Learning Resource Available",
+    learningResourceDesc: "This lesson includes supplemental materials (PDF, Slides, or Code).",
+    openResource: "Open Resource",
+    noSupplementalReading: "Supplemental reading is not available for this module.",
+    assessment: "Assessment",
+    lessonMarkedComplete: "Lesson marked as complete!",
+    courseCurriculum: "Course Curriculum",
+    modulesAndLessons: "Modules & Lessons",
+    section: "Section",
+    claimYourCertificate: "Claim Your Certificate",
+    congratsCompleting: "Congratulations on completing",
+    pleaseConfirmName: "! Please confirm your name as you want it to appear on your official certificate.",
+    fullLegalName: "Full Legal Name",
+    namePlaceholder: "e.g. John Doe",
+    geminiAiStatement:
+      "Gemini AI will now generate a unique, professional validation statement for your achievement based on your performance.",
+    generatingDigitalAsset: "Generating Digital Asset...",
+    issueMycertificate: "Issue My Certificate",
+    certificateOfExcellence: "Certificate of Excellence",
+    completedCourse: "Completed Course",
+    dateIssued: "Date Issued",
+    verifiedId: "Verified ID",
+    printPdf: "Print PDF",
+    saveImage: "Save Image",
+    done: "Done",
+    reportViolation: "Report Violation",
+    whyReporting: "Why are you reporting this content?",
+    violationReason: "Violation Reason",
+    additionalContext: "Additional Context",
+    additionalContextPlaceholder: "Provide specific details about the violation...",
+    cancel: "Cancel",
+    submitReport: "Submit Report",
+    inappropriateContent: "Inappropriate content",
+    copyrightViolation: "Copyright Violation",
+    spamOrMisleading: "Spam or Misleading",
+    harassment: "Harassment",
+    other: "Other",
+    thankYouReport: "Thank you. Our moderation team will review this course.",
+    failedSubmitReport: "Failed to submit report",
+    passQuizzesForCertificate: "Pass all quizzes to unlock certificate",
+    claimCertificate: "Claim Certificate",
+    focusMode: "Focus Mode",
+    syllabus: "Syllabus",
+  },
+  th: {
+    videoBeingPrepared: "วิดีโอกำลังอยู่ระหว่างการจัดเตรียม",
+    videoBeingPreparedDesc: "วิดีโอบทเรียนกำลังถูกจัดเตรียมโดย AI โปรดลองอีกครั้งในอีกสักครู่",
+    preview: "ตัวอย่าง",
+    video: "วิดีโอ",
+    videoLesson: "บทเรียนวิดีโอ",
+    pdfDocument: "เอกสาร PDF",
+    quizLesson: "บทเรียนควิซ",
+    textArticle: "บทความ",
+    slideDeck: "สไลด์การสอน",
+    lesson: "บทเรียนที่",
+    persistentStreaming: "การสตรีมต่อเนื่อง",
+    learningResourceAvailable: "มีสื่อการเรียนรู้พร้อมใช้งาน",
+    learningResourceDesc: "บทเรียนนี้มีสื่อการเรียนการสอนเพิ่มเติม (PDF, สไลด์ หรือ โค้ด)",
+    openResource: "เปิดสื่อการเรียนรู้",
+    noSupplementalReading: "ไม่มีเนื้อหาการอ่านประกอบสำหรับบทเรียนนี้",
+    assessment: "แบบประเมิน",
+    lessonMarkedComplete: "ทำเครื่องหมายว่าบทเรียนเสร็จสิ้นแล้ว!",
+    courseCurriculum: "โครงสร้างหลักสูตร",
+    modulesAndLessons: "โมดูลและบทเรียน",
+    section: "ส่วนที่",
+    claimYourCertificate: "รับใบประกาศนียบัตรของคุณ",
+    congratsCompleting: "ยินดีด้วยที่คุณเรียนจบหลักสูตร",
+    pleaseConfirmName: "! โปรดยืนยันชื่อของคุณเพื่อให้แสดงบนใบประกาศนียบัตรอย่างเป็นทางการ",
+    fullLegalName: "ชื่อ-นามสกุลจริง",
+    namePlaceholder: "เช่น นายสมชาย ดีใจ",
+    geminiAiStatement:
+      "Gemini AI จะสร้างข้อความการรับรองที่เป็นเอกลักษณ์และเป็นมืออาชีพสำหรับความสำเร็จของคุณโดยอิงตามผลการเรียนของคุณ",
+    generatingDigitalAsset: "กำลังสร้างเอกสารดิจิทัล...",
+    issueMycertificate: "ออกใบประกาศนียบัตรของฉัน",
+    certificateOfExcellence: "เกียรติบัตรแห่งความเป็นเลิศ",
+    completedCourse: "หลักสูตรที่เรียนสำเร็จ",
+    dateIssued: "วันที่ออกใบรับรอง",
+    verifiedId: "รหัสการรับรอง",
+    printPdf: "พิมพ์ PDF",
+    saveImage: "บันทึกรูปภาพ",
+    done: "เสร็จสิ้น",
+    reportViolation: "รายงานการละเมิด",
+    whyReporting: "เหตุใดคุณจึงต้องการรายงานเนื้อหานี้?",
+    violationReason: "สาเหตุการละเมิด",
+    additionalContext: "รายละเอียดเพิ่มเติม",
+    additionalContextPlaceholder: "โปรดระบุรายละเอียดเฉพาะเกี่ยวกับการละเมิด...",
+    cancel: "ยกเลิก",
+    submitReport: "ส่งรายงาน",
+    inappropriateContent: "เนื้อหาที่ไม่เหมาะสม",
+    copyrightViolation: "การละเมิดลิขสิทธิ์",
+    spamOrMisleading: "สแปมหรือข้อมูลที่ทำให้เข้าใจผิด",
+    harassment: "การล่วงละเมิดหรือกลั่นแกล้ง",
+    other: "อื่นๆ",
+    thankYouReport: "ขอบคุณ ทีมผู้ดูแลของเราจะทำการตรวจสอบหลักสูตรนี้",
+    failedSubmitReport: "ไม่สามารถส่งรายงานได้",
+    passQuizzesForCertificate: "ผ่านแบบทดสอบทั้งหมดเพื่อปลดล็อกใบรับรอง",
+    claimCertificate: "รับใบรับรอง",
+    focusMode: "โหมดโฟกัส",
+    syllabus: "โครงสร้างหลักสูตร",
+  },
+  es: {
+    videoBeingPrepared: "Video en Preparación",
+    videoBeingPreparedDesc: "El video está siendo preparado por IA. Por favor, vuelve en unos momentos.",
+    preview: "Vista previa",
+    video: "Video",
+    videoLesson: "Lección en Video",
+    pdfDocument: "Documento PDF",
+    quizLesson: "Lección de Cuestionario",
+    textArticle: "Artículo de Texto",
+    slideDeck: "Presentación",
+    lesson: "Lección",
+    persistentStreaming: "Transmisión Persistente",
+    learningResourceAvailable: "Recurso de Aprendizaje Disponible",
+    learningResourceDesc: "Esta lección incluye materiales suplementarios (PDF, Diapositivas o Código).",
+    openResource: "Abrir Recurso",
+    noSupplementalReading: "La lectura suplementaria no está disponible para este módulo.",
+    assessment: "Evaluación",
+    lessonMarkedComplete: "¡Lección marcada como completada!",
+    courseCurriculum: "Plan de Estudios del Curso",
+    modulesAndLessons: "Módulos y Lecciones",
+    section: "Sección",
+    claimYourCertificate: "Reclamar Tu Certificado",
+    congratsCompleting: "¡Felicidades por completar",
+    pleaseConfirmName: "! Por favor confirma tu nombre tal como quieres que aparezca en tu certificado oficial.",
+    fullLegalName: "Nombre Legal Completo",
+    namePlaceholder: "p. ej. Juan García",
+    geminiAiStatement:
+      "Gemini AI generará ahora un enunciado de validación único y profesional para tu logro basado en tu desempeño.",
+    generatingDigitalAsset: "Generando Activo Digital...",
+    issueMycertificate: "Emitir Mi Certificado",
+    certificateOfExcellence: "Certificado de Excelencia",
+    completedCourse: "Curso Completado",
+    dateIssued: "Fecha de Emisión",
+    verifiedId: "ID Verificado",
+    printPdf: "Imprimir PDF",
+    saveImage: "Guardar Imagen",
+    done: "Listo",
+    reportViolation: "Reportar Violación",
+    whyReporting: "¿Por qué estás reportando este contenido?",
+    violationReason: "Motivo de la Violación",
+    additionalContext: "Contexto Adicional",
+    additionalContextPlaceholder: "Proporciona detalles específicos sobre la violación...",
+    cancel: "Cancelar",
+    submitReport: "Enviar Reporte",
+    inappropriateContent: "Contenido inapropiado",
+    copyrightViolation: "Violación de derechos de autor",
+    spamOrMisleading: "Spam o Engañoso",
+    harassment: "Acoso",
+    other: "Otro",
+    thankYouReport: "Gracias. Nuestro equipo de moderación revisará este curso.",
+    failedSubmitReport: "Error al enviar el reporte",
+    passQuizzesForCertificate: "Aprueba todos los cuestionarios para desbloquear el certificado",
+    claimCertificate: "Reclamar Certificado",
+    focusMode: "Modo Enfoque",
+    syllabus: "Temario",
+  },
+  ja: {
+    videoBeingPrepared: "動画を準備中",
+    videoBeingPreparedDesc: "AIが動画を準備しています。しばらくしてからもう一度確認してください。",
+    preview: "プレビュー",
+    video: "動画",
+    videoLesson: "動画レッスン",
+    pdfDocument: "PDF文書",
+    quizLesson: "クイズレッスン",
+    textArticle: "テキスト記事",
+    slideDeck: "スライド",
+    lesson: "レッスン",
+    persistentStreaming: "継続的なストリーミング",
+    learningResourceAvailable: "学習リソースが利用可能",
+    learningResourceDesc: "このレッスンには補足教材（PDF、スライド、またはコード）が含まれています。",
+    openResource: "リソースを開く",
+    noSupplementalReading: "このモジュールには補足読書資料がありません。",
+    assessment: "評価",
+    lessonMarkedComplete: "レッスンが完了としてマークされました！",
+    courseCurriculum: "コースカリキュラム",
+    modulesAndLessons: "モジュールとレッスン",
+    section: "セクション",
+    claimYourCertificate: "修了証を取得する",
+    congratsCompleting: "修了おめでとうございます：",
+    pleaseConfirmName: "！公式修了証に表示するお名前を確認してください。",
+    fullLegalName: "氏名（正式）",
+    namePlaceholder: "例：山田太郎",
+    geminiAiStatement:
+      "Gemini AIがあなたの成果に基づいた、ユニークでプロフェッショナルな認定文を生成します。",
+    generatingDigitalAsset: "デジタル資産を生成中...",
+    issueMycertificate: "修了証を発行する",
+    certificateOfExcellence: "優秀修了証",
+    completedCourse: "修了コース",
+    dateIssued: "発行日",
+    verifiedId: "認証ID",
+    printPdf: "PDFを印刷",
+    saveImage: "画像を保存",
+    done: "完了",
+    reportViolation: "違反を報告",
+    whyReporting: "このコンテンツを報告する理由は何ですか？",
+    violationReason: "違反の理由",
+    additionalContext: "追加の情報",
+    additionalContextPlaceholder: "違反についての具体的な詳細を入力してください...",
+    cancel: "キャンセル",
+    submitReport: "報告を送信",
+    inappropriateContent: "不適切なコンテンツ",
+    copyrightViolation: "著作権侵害",
+    spamOrMisleading: "スパムまたは誤解を招くもの",
+    harassment: "嫌がらせ",
+    other: "その他",
+    thankYouReport: "ありがとうございます。モデレーションチームがこのコースを確認します。",
+    failedSubmitReport: "報告の送信に失敗しました",
+    passQuizzesForCertificate: "すべてのクイズに合格して修了証をアンロック",
+    claimCertificate: "修了証を取得",
+    focusMode: "フォーカスモード",
+    syllabus: "シラバス",
+  },
+  zh: {
+    videoBeingPrepared: "视频准备中",
+    videoBeingPreparedDesc: "AI正在准备视频。请稍后再次查看。",
+    preview: "预览",
+    video: "视频",
+    videoLesson: "视频课程",
+    pdfDocument: "PDF文档",
+    quizLesson: "测验课程",
+    textArticle: "文字文章",
+    slideDeck: "幻灯片",
+    lesson: "课程",
+    persistentStreaming: "持续流媒体",
+    learningResourceAvailable: "学习资源可用",
+    learningResourceDesc: "本课程包含补充材料（PDF、幻灯片或代码）。",
+    openResource: "打开资源",
+    noSupplementalReading: "本模块没有补充阅读材料。",
+    assessment: "评估",
+    lessonMarkedComplete: "课程已标记为完成！",
+    courseCurriculum: "课程大纲",
+    modulesAndLessons: "模块与课程",
+    section: "章节",
+    claimYourCertificate: "领取您的证书",
+    congratsCompleting: "恭喜您完成",
+    pleaseConfirmName: "！请确认您希望显示在官方证书上的姓名。",
+    fullLegalName: "真实姓名",
+    namePlaceholder: "例：张三",
+    geminiAiStatement: "Gemini AI将根据您的表现生成独特、专业的成就验证声明。",
+    generatingDigitalAsset: "正在生成数字资产...",
+    issueMycertificate: "颁发我的证书",
+    certificateOfExcellence: "优秀结业证书",
+    completedCourse: "已完成课程",
+    dateIssued: "颁发日期",
+    verifiedId: "验证ID",
+    printPdf: "打印PDF",
+    saveImage: "保存图片",
+    done: "完成",
+    reportViolation: "举报违规",
+    whyReporting: "您为什么要举报此内容？",
+    violationReason: "违规原因",
+    additionalContext: "补充说明",
+    additionalContextPlaceholder: "请提供关于违规的具体详情...",
+    cancel: "取消",
+    submitReport: "提交举报",
+    inappropriateContent: "不适当内容",
+    copyrightViolation: "版权侵犯",
+    spamOrMisleading: "垃圾信息或误导性内容",
+    harassment: "骚扰",
+    other: "其他",
+    thankYouReport: "感谢您。我们的审核团队将审查此课程。",
+    failedSubmitReport: "提交举报失败",
+    passQuizzesForCertificate: "通过所有测验以解锁证书",
+    claimCertificate: "领取证书",
+    focusMode: "专注模式",
+    syllabus: "课程大纲",
+  },
+  ko: {
+    videoBeingPrepared: "동영상 준비 중",
+    videoBeingPreparedDesc: "AI가 동영상을 준비하고 있습니다. 잠시 후 다시 확인해 주세요.",
+    preview: "미리보기",
+    video: "비디오",
+    videoLesson: "비디오 레슨",
+    pdfDocument: "PDF 문서",
+    quizLesson: "퀴즈 레슨",
+    textArticle: "텍스트 기사",
+    slideDeck: "슬라이드",
+    lesson: "레슨",
+    persistentStreaming: "지속적인 스트리밍",
+    learningResourceAvailable: "학습 자료 이용 가능",
+    learningResourceDesc: "이 레슨에는 보충 자료(PDF, 슬라이드 또는 코드)가 포함되어 있습니다.",
+    openResource: "자료 열기",
+    noSupplementalReading: "이 모듈에 대한 보충 읽기 자료가 없습니다.",
+    assessment: "평가",
+    lessonMarkedComplete: "레슨이 완료로 표시되었습니다!",
+    courseCurriculum: "코스 커리큘럼",
+    modulesAndLessons: "모듈 및 레슨",
+    section: "섹션",
+    claimYourCertificate: "수료증 받기",
+    congratsCompleting: "축하합니다! 다음 과정을 완료하셨습니다:",
+    pleaseConfirmName: "! 공식 수료증에 표시될 이름을 확인해 주세요.",
+    fullLegalName: "실명",
+    namePlaceholder: "예: 홍길동",
+    geminiAiStatement: "Gemini AI가 귀하의 성과를 기반으로 독창적이고 전문적인 검증 문장을 생성합니다.",
+    generatingDigitalAsset: "디지털 자산 생성 중...",
+    issueMycertificate: "내 수료증 발급",
+    certificateOfExcellence: "우수 수료증",
+    completedCourse: "완료한 과정",
+    dateIssued: "발급일",
+    verifiedId: "확인 ID",
+    printPdf: "PDF 인쇄",
+    saveImage: "이미지 저장",
+    done: "완료",
+    reportViolation: "위반 신고",
+    whyReporting: "이 콘텐츠를 신고하는 이유는 무엇인가요?",
+    violationReason: "위반 사유",
+    additionalContext: "추가 정보",
+    additionalContextPlaceholder: "위반에 대한 구체적인 세부 정보를 제공해 주세요...",
+    cancel: "취소",
+    submitReport: "신고 제출",
+    inappropriateContent: "부적절한 콘텐츠",
+    copyrightViolation: "저작권 침해",
+    spamOrMisleading: "스팸 또는 오해의 소지",
+    harassment: "괴롭힘",
+    other: "기타",
+    thankYouReport: "감사합니다. 저희 운영팀이 이 코스를 검토할 것입니다.",
+    failedSubmitReport: "신고 제출 실패",
+    passQuizzesForCertificate: "인증서 잠금 해제를 위해 모든 퀴즈 통과",
+    claimCertificate: "수료증 받기",
+    focusMode: "집중 모드",
+    syllabus: "커리큘럼",
+  },
+};
+
 // --- COMPONENT: Report Course Dialog (Local for Lesson Player) ---
 function ReportCourseDialog({
   courseId,
@@ -74,6 +413,9 @@ function ReportCourseDialog({
   courseId: string;
   userId: string | undefined;
 }) {
+  const { lang } = useI18n();
+  const s = (key: string) => lessonStrings[lang as Language]?.[key] ?? lessonStrings.en[key];
+
   const [reason, setReason] = useState("Inappropriate content");
   const [description, setDescription] = useState("");
   const [isOpen, setIsOpen] = useState(false);
@@ -86,16 +428,24 @@ function ReportCourseDialog({
       return data;
     },
     onSuccess: () => {
-      toast.success("Thank you. Our moderation team will review this course.");
+      toast.success(s("thankYouReport"));
       setIsOpen(false);
       setDescription("");
     },
     onError: (err: any) => {
-      toast.error(err.message || "Failed to submit report");
+      toast.error(err.message || s("failedSubmitReport"));
     },
   });
 
   if (!userId) return null;
+
+  const reasonKeys: { value: string; key: string }[] = [
+    { value: "Inappropriate content", key: "inappropriateContent" },
+    { value: "Copyright Violation", key: "copyrightViolation" },
+    { value: "Spam or Misleading", key: "spamOrMisleading" },
+    { value: "Harassment", key: "harassment" },
+    { value: "Other", key: "other" },
+  ];
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
@@ -104,7 +454,7 @@ function ReportCourseDialog({
         size="icon"
         className="h-10 w-10 text-slate-400 hover:text-rose-500 rounded-xl hover:bg-rose-50 transition-all group"
         onClick={() => setIsOpen(true)}
-        title="Report Violation"
+        title={s("reportViolation")}
       >
         <Flag className="h-5 w-5 group-hover:fill-rose-500/10" />
       </Button>
@@ -115,38 +465,32 @@ function ReportCourseDialog({
               <Flag className="h-6 w-6" />
             </div>
             <DialogTitle className="text-2xl font-black tracking-tight">
-              Report Violation
+              {s("reportViolation")}
             </DialogTitle>
             <DialogDescription className="text-base font-medium text-slate-500">
-              Why are you reporting this content?
+              {s("whyReporting")}
             </DialogDescription>
           </DialogHeader>
 
           <div className="py-6 space-y-6">
             <div className="space-y-2">
               <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">
-                Violation Reason
+                {s("violationReason")}
               </Label>
               <div className="grid grid-cols-1 gap-2">
-                {[
-                  "Inappropriate content",
-                  "Copyright Violation",
-                  "Spam or Misleading",
-                  "Harassment",
-                  "Other",
-                ].map((r) => (
+                {reasonKeys.map(({ value, key }) => (
                   <button
-                    key={r}
-                    onClick={() => setReason(r)}
+                    key={value}
+                    onClick={() => setReason(value)}
                     className={cn(
                       "flex items-center justify-between p-4 rounded-xl border text-sm font-bold transition-all",
-                      reason === r
+                      reason === value
                         ? "bg-rose-50 border-rose-200 text-rose-700"
                         : "bg-slate-50 border-slate-100 text-slate-600 hover:bg-slate-100",
                     )}
                   >
-                    {r}
-                    {reason === r && <CheckCircle2 className="h-4 w-4" />}
+                    {s(key)}
+                    {reason === value && <CheckCircle2 className="h-4 w-4" />}
                   </button>
                 ))}
               </div>
@@ -154,10 +498,10 @@ function ReportCourseDialog({
 
             <div className="space-y-2">
               <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">
-                Additional Context
+                {s("additionalContext")}
               </Label>
               <textarea
-                placeholder="Provide specific details about the violation..."
+                placeholder={s("additionalContextPlaceholder")}
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 className="min-h-[100px] w-full p-4 rounded-xl border-slate-200 bg-slate-50 focus:ring-rose-500/20 resize-none text-sm font-medium"
@@ -171,7 +515,7 @@ function ReportCourseDialog({
               className="rounded-xl h-12 flex-1 font-bold"
               onClick={() => setIsOpen(false)}
             >
-              Cancel
+              {s("cancel")}
             </Button>
             <Button
               className="rounded-xl h-12 flex-1 font-bold bg-rose-600 hover:bg-rose-700 text-white shadow-xl shadow-rose-200/50"
@@ -189,7 +533,7 @@ function ReportCourseDialog({
               {reportMutation.isPending ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
               ) : (
-                "Submit Report"
+                s("submitReport")
               )}
             </Button>
           </DialogFooter>
@@ -279,6 +623,8 @@ function LessonVideoSection({
   isCompleted: boolean;
 }) {
   const { lang } = useI18n();
+  const s = (key: string) => lessonStrings[lang as Language]?.[key] ?? lessonStrings.en[key];
+
   const [isLoaded, setIsLoaded] = useState(false);
   const [signedUrl, setSignedUrl] = useState<string | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -491,14 +837,10 @@ function LessonVideoSection({
               </div>
             </div>
             <h3 className="text-white font-black text-lg tracking-tight mb-2">
-              {lang === "th"
-                ? "วิดีโอกำลังอยู่ระหว่างการจัดเตรียม"
-                : "วิดีโอกำลังอยู่ระหว่างการจัดเตรียม"}
+              {s("videoBeingPrepared")}
             </h3>
             <p className="text-slate-400 text-xs font-medium max-w-xs leading-relaxed uppercase tracking-widest">
-              {lang === "th"
-                ? "วิดีโอบทเรียนกำลังถูกจัดเตรียมโดย AI โปรดลองอีกครั้งในอีกสักครู่"
-                : "Video is being prepared by AI. Please check back in a few moments."}
+              {s("videoBeingPreparedDesc")}
             </p>
             <div className="mt-8 flex items-center gap-3">
               <div className="h-1 w-1 rounded-full bg-primary animate-bounce [animation-delay:-0.3s]" />
@@ -528,6 +870,8 @@ function SidebarItem({
   onClick: () => void;
 }) {
   const { lang } = useI18n();
+  const s = (key: string) => lessonStrings[lang as Language]?.[key] ?? lessonStrings.en[key];
+
   return (
     <Link
       to="/courses/$courseId/lessons/$lessonId"
@@ -562,39 +906,25 @@ function SidebarItem({
           {lesson.title}
           {lesson.isPreview && (
             <Badge className="bg-emerald-500/10 text-emerald-600 border-none font-black text-[7px] uppercase tracking-widest px-1.5 py-0 rounded-md">
-              {lang === "th" ? "ตัวอย่าง" : "Preview"}
+              {s("preview")}
             </Badge>
           )}
         </span>
         <div className="flex items-center gap-2 opacity-60 font-bold text-[8px] uppercase tracking-widest text-slate-400">
           <span>
-            {lesson.contentType === "video"
-              ? lang === "th"
-                ? "วิดีโอ"
-                : "Video"
-              : lesson.contentType || "Video"}
+            {lesson.contentType === "video" ? s("video") : lesson.contentType || s("video")}
           </span>
           <div className="h-1 w-1 rounded-full bg-current opacity-30" />
           <span>
             {lesson.contentType === "video"
-              ? lang === "th"
-                ? "บทเรียนวิดีโอ"
-                : "Video Lesson"
+              ? s("videoLesson")
               : lesson.contentType === "pdf"
-                ? lang === "th"
-                  ? "เอกสาร PDF"
-                  : "PDF Document"
+                ? s("pdfDocument")
                 : lesson.contentType === "quiz"
-                  ? lang === "th"
-                    ? "บทเรียนควิซ"
-                    : "Quiz Lesson"
+                  ? s("quizLesson")
                   : lesson.contentType === "text"
-                    ? lang === "th"
-                      ? "บทความ"
-                      : "Text Article"
-                    : lang === "th"
-                      ? "สไลด์การสอน"
-                      : "Slide Deck"}
+                    ? s("textArticle")
+                    : s("slideDeck")}
           </span>
         </div>
       </div>
@@ -608,6 +938,8 @@ function LessonPlayerPage() {
   const { user, profile } = useAuth();
   const navigate = useNavigate();
   const { lang, t } = useI18n();
+
+  const s = (key: string) => lessonStrings[lang as Language]?.[key] ?? lessonStrings.en[key];
 
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -935,7 +1267,7 @@ function LessonPlayerPage() {
               <div className="hidden xl:flex items-center gap-2 px-4 py-2 bg-rose-50 border border-rose-100 rounded-xl text-rose-600 mr-2">
                 <BrainCircuit className="h-4 w-4" />
                 <span className="text-[9px] font-black uppercase tracking-widest">
-                  Pass all quizzes to unlock certificate
+                  {s("passQuizzesForCertificate")}
                 </span>
               </div>
             )}
@@ -944,7 +1276,7 @@ function LessonPlayerPage() {
                 onClick={() => setIsClaiming(true)}
                 className="h-10 px-5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-black text-[10px] uppercase tracking-widest shadow-lg shadow-amber-500/20 mr-2 animate-pulse hover:animate-none"
               >
-                <Trophy className="h-4 w-4 mr-2" /> Claim Certificate
+                <Trophy className="h-4 w-4 mr-2" /> {s("claimCertificate")}
               </Button>
             )}
             <ReportCourseDialog courseId={courseId} userId={user?.id} />
@@ -952,7 +1284,7 @@ function LessonPlayerPage() {
               onClick={() => setSidebarOpen(!sidebarOpen)}
               className="hidden lg:flex h-10 px-5 items-center gap-3 text-[10px] font-black uppercase tracking-widest text-slate-500 hover:text-slate-900 transition-all bg-slate-50 border border-slate-100 rounded-xl"
             >
-              <Layout className="h-4 w-4" /> {sidebarOpen ? "Focus Mode" : "Syllabus"}
+              <Layout className="h-4 w-4" /> {sidebarOpen ? s("focusMode") : s("syllabus")}
             </button>
             <Button
               variant="ghost"
@@ -1000,12 +1332,12 @@ function LessonPlayerPage() {
                     <div className="flex items-center gap-4 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">
                       <div className="flex items-center gap-2 bg-slate-100 px-3 py-1 rounded-lg text-slate-600">
                         <BookOpen className="h-3.5 w-3.5" />{" "}
-                        {lang === "th" ? "บทเรียนที่" : "Lesson"} {currentIndex + 1}
+                        {s("lesson")} {currentIndex + 1}
                       </div>
                       <div className="h-1 w-1 rounded-full bg-slate-200" />
                       <div className="flex items-center gap-2">
                         <Clock className="h-3.5 w-3.5" />{" "}
-                        {lang === "th" ? "การสตรีมต่อเนื่อง" : "Persistent Streaming"}
+                        {s("persistentStreaming")}
                       </div>
                     </div>
                     <h2 className="text-4xl font-bold text-slate-900 tracking-tight leading-tight">
@@ -1057,11 +1389,7 @@ function LessonPlayerPage() {
                             : "text-slate-400 hover:text-slate-600",
                         )}
                       >
-                        {tab === "content"
-                          ? t("resources")
-                          : lang === "th"
-                            ? "แบบประเมิน"
-                            : "Assessment"}
+                        {tab === "content" ? t("resources") : s("assessment")}
                         {activeTab === tab && (
                           <motion.div
                             layoutId="player-tab-line-light"
@@ -1102,11 +1430,7 @@ function LessonPlayerPage() {
                                 queryClient.invalidateQueries({
                                   queryKey: ["passed-quizzes", user.id, courseId],
                                 });
-                                toast.success(
-                                  lang === "th"
-                                    ? "ทำเครื่องหมายว่าบทเรียนเสร็จสิ้นแล้ว!"
-                                    : "Lesson marked as complete!",
-                                );
+                                toast.success(s("lessonMarkedComplete"));
                               } catch (err) {
                                 console.error("Failed to mark lesson complete:", err);
                               }
@@ -1128,14 +1452,10 @@ function LessonPlayerPage() {
                               </div>
                               <div>
                                 <h3 className="font-bold text-slate-900 text-lg">
-                                  {lang === "th"
-                                    ? "มีสื่อการเรียนรู้พร้อมใช้งาน"
-                                    : "Learning Resource Available"}
+                                  {s("learningResourceAvailable")}
                                 </h3>
                                 <p className="text-slate-500 text-sm font-medium">
-                                  {lang === "th"
-                                    ? "บทเรียนนี้มีสื่อการเรียนการสอนเพิ่มเติม (PDF, สไลด์ หรือ โค้ด)"
-                                    : "This lesson includes supplemental materials (PDF, Slides, or Code)."}
+                                  {s("learningResourceDesc")}
                                 </p>
                               </div>
                             </div>
@@ -1145,7 +1465,7 @@ function LessonPlayerPage() {
                             >
                               <a href={lesson.attachment_url} target="_blank" rel="noreferrer">
                                 <ExternalLink className="h-4 w-4 mr-2" />{" "}
-                                {lang === "th" ? "เปิดสื่อการเรียนรู้" : "Open Resource"}
+                                {s("openResource")}
                               </a>
                             </Button>
                           </motion.div>
@@ -1162,9 +1482,7 @@ function LessonPlayerPage() {
                             <div dangerouslySetInnerHTML={{ __html: lesson.body_text }} />
                           ) : !lesson.attachment_url ? (
                             <div className="py-24 text-center text-slate-300 italic border-2 border-dashed border-slate-100 rounded-[3rem] bg-white/50">
-                              {lang === "th"
-                                ? "ไม่มีเนื้อหาการอ่านประกอบสำหรับบทเรียนนี้"
-                                : "Supplemental reading is not available for this module."}
+                              {s("noSupplementalReading")}
                             </div>
                           ) : null}
                         </div>
@@ -1189,10 +1507,10 @@ function LessonPlayerPage() {
             >
               <div className="p-8 border-b border-slate-100 bg-slate-50/50 flex flex-col gap-1.5">
                 <span className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 leading-none">
-                  {lang === "th" ? "โครงสร้างหลักสูตร" : "Course Curriculum"}
+                  {s("courseCurriculum")}
                 </span>
                 <h3 className="text-base font-bold text-slate-900 tracking-tight">
-                  {lang === "th" ? "โมดูลและบทเรียน" : "Modules & Lessons"}
+                  {s("modulesAndLessons")}
                 </h3>
               </div>
 
@@ -1204,7 +1522,7 @@ function LessonPlayerPage() {
                       <div key={mod.id} className="space-y-4">
                         <div className="flex items-center justify-between px-3">
                           <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                            {lang === "th" ? "ส่วนที่" : "Section"} {mIdx + 1}: {mod.title}
+                            {s("section")} {mIdx + 1}: {mod.title}
                           </h4>
                           <span className="text-[10px] font-bold text-slate-500 bg-slate-100 px-2.5 py-0.5 rounded-full">
                             {moduleLessons.length}
@@ -1250,41 +1568,32 @@ function LessonPlayerPage() {
                     <Trophy className="h-6 w-6" />
                   </div>
                   <DialogTitle className="text-3xl font-black tracking-tight leading-none">
-                    {lang === "th" ? "รับใบประกาศนียบัตรของคุณ" : "Claim Your Certificate"}
+                    {s("claimYourCertificate")}
                   </DialogTitle>
                   <DialogDescription className="text-slate-500 font-medium">
-                    {lang === "th" ? (
-                      <>
-                        ยินดีด้วยที่คุณเรียนจบหลักสูตร <b>{course?.title}</b>!
-                        โปรดยืนยันชื่อของคุณเพื่อให้แสดงบนใบประกาศนียบัตรอย่างเป็นทางการ
-                      </>
-                    ) : (
-                      <>
-                        Congratulations on completing <b>{course?.title}</b>! Please confirm your
-                        name as you want it to appear on your official certificate.
-                      </>
-                    )}
+                    <>
+                      {s("congratsCompleting")} <b>{course?.title}</b>
+                      {s("pleaseConfirmName")}
+                    </>
                   </DialogDescription>
                 </DialogHeader>
 
                 <div className="space-y-4">
                   <div className="space-y-2">
                     <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">
-                      {lang === "th" ? "ชื่อ-นามสกุลจริง" : "Full Legal Name"}
+                      {s("fullLegalName")}
                     </Label>
                     <Input
                       value={recipientName}
                       onChange={(e) => setRecipientName(e.target.value)}
-                      placeholder={lang === "th" ? "เช่น นายสมชาย ดีใจ" : "e.g. John Doe"}
+                      placeholder={s("namePlaceholder")}
                       className="h-14 bg-slate-50 border-slate-200 rounded-2xl focus-visible:ring-primary/50 text-base font-bold"
                     />
                   </div>
                   <div className="flex items-start gap-3 p-4 bg-primary/[0.03] border border-primary/10 rounded-2xl">
                     <SparklesIcon className="h-4 w-4 text-primary mt-0.5 shrink-0" />
                     <p className="text-[10px] text-primary/80 font-bold leading-relaxed">
-                      {lang === "th"
-                        ? "Gemini AI จะสร้างข้อความการรับรองที่เป็นเอกลักษณ์และเป็นมืออาชีพสำหรับความสำเร็จของคุณโดยอิงตามผลการเรียนของคุณ"
-                        : "Gemini AI will now generate a unique, professional validation statement for your achievement based on your performance."}
+                      {s("geminiAiStatement")}
                     </p>
                   </div>
                 </div>
@@ -1298,14 +1607,12 @@ function LessonPlayerPage() {
                     {isGeneratingAi ? (
                       <>
                         <Loader2 className="h-5 w-5 animate-spin" />
-                        {lang === "th"
-                          ? "กำลังสร้างเอกสารดิจิทัล..."
-                          : "Generating Digital Asset..."}
+                        {s("generatingDigitalAsset")}
                       </>
                     ) : (
                       <>
                         <ShieldCheck className="h-5 w-5" />
-                        {lang === "th" ? "ออกใบประกาศนียบัตรของฉัน" : "Issue My Certificate"}
+                        {s("issueMycertificate")}
                       </>
                     )}
                   </Button>
@@ -1331,9 +1638,7 @@ function LessonPlayerPage() {
                     </div>
                     <div className="space-y-2">
                       <p className="text-[10px] font-black uppercase tracking-[0.4em] text-amber-500">
-                        {lang === "th"
-                          ? "เกียรติบัตรแห่งความเป็นเลิศ"
-                          : "Certificate of Excellence"}
+                        {s("certificateOfExcellence")}
                       </p>
                       <h2 className="text-4xl font-black text-white tracking-tight">
                         {recipientName}
@@ -1345,7 +1650,7 @@ function LessonPlayerPage() {
                     </p>
                     <div className="pt-8 space-y-2">
                       <p className="text-[9px] font-black uppercase tracking-widest text-slate-500">
-                        {lang === "th" ? "หลักสูตรที่เรียนสำเร็จ" : "Completed Course"}
+                        {s("completedCourse")}
                       </p>
                       <p className="text-lg font-bold text-white">{course?.title}</p>
                     </div>
@@ -1354,7 +1659,7 @@ function LessonPlayerPage() {
                   <div className="absolute bottom-8 left-0 right-0 flex justify-center gap-12 opacity-20">
                     <div className="text-left">
                       <p className="text-[8px] font-black uppercase text-slate-400">
-                        {lang === "th" ? "วันที่ออกใบรับรอง" : "Date Issued"}
+                        {s("dateIssued")}
                       </p>
                       <p className="text-[10px] font-bold text-white">
                         {new Date().toLocaleDateString()}
@@ -1362,7 +1667,7 @@ function LessonPlayerPage() {
                     </div>
                     <div className="text-left">
                       <p className="text-[8px] font-black uppercase text-slate-400">
-                        {lang === "th" ? "รหัสการรับรอง" : "Verified ID"}
+                        {s("verifiedId")}
                       </p>
                       <p className="text-[10px] font-bold text-white">
                         {issuedCertificateData.id.split("-")[0].toUpperCase()}
@@ -1378,21 +1683,21 @@ function LessonPlayerPage() {
                       className="rounded-xl h-12 px-6 font-bold text-xs gap-2 border-slate-200"
                       onClick={() => window.print()}
                     >
-                      <Printer className="h-4 w-4" /> {lang === "th" ? "พิมพ์ PDF" : "Print PDF"}
+                      <Printer className="h-4 w-4" /> {s("printPdf")}
                     </Button>
                     <Button
                       variant="outline"
                       className="rounded-xl h-12 px-6 font-bold text-xs gap-2 border-slate-200"
                     >
                       <Download className="h-4 w-4" />{" "}
-                      {lang === "th" ? "บันทึกรูปภาพ" : "Save Image"}
+                      {s("saveImage")}
                     </Button>
                   </div>
                   <Button
                     onClick={() => setIsClaiming(false)}
                     className="rounded-xl h-12 px-8 bg-slate-900 text-white font-black text-xs uppercase tracking-widest"
                   >
-                    {lang === "th" ? "เสร็จสิ้น" : "Done"}
+                    {s("done")}
                   </Button>
                 </div>
               </motion.div>

@@ -6,6 +6,7 @@ import { checkEnrollment } from "@/lib/enrollments";
 import { useEffect, useState } from "react";
 import { z } from "zod";
 import { useI18n } from "@/lib/i18n";
+import type { Language } from "@/lib/i18n";
 
 const learnSearchSchema = z.object({
   lessonId: z.string().optional(),
@@ -26,6 +27,69 @@ export const Route = createFileRoute("/courses/$courseId/learn")({
   head: () => ({ meta: [{ title: "Accessing Lessons — LearnLab" }] }),
 });
 
+// --- STRINGS LOOKUP ---
+const learnStrings: Record<Language, Record<string, string>> = {
+  en: {
+    confirmingEnrollment: "Confirming Enrollment",
+    finalizingTransaction:
+      "We are finalizing your transaction with Stripe. Your lessons will load automatically in just a moment...",
+    verificationTimeout: "Verification Timeout",
+    returnToCoursePage: "Return to Course Page",
+    loadingLesson: "LOADING LESSON...",
+    fulfillmentTakingLong:
+      "Fulfillment is taking longer than expected. Please check your dashboard or contact support if your access isn't active soon.",
+  },
+  th: {
+    confirmingEnrollment: "กำลังยืนยันการลงทะเบียนเรียน",
+    finalizingTransaction:
+      "เรากำลังเสร็จสิ้นการทำรายการผ่าน Stripe บทเรียนของคุณจะโหลดโดยอัตโนมัติในอีกสักครู่...",
+    verificationTimeout: "หมดเวลาการตรวจสอบสิทธิ์",
+    returnToCoursePage: "กลับไปที่หน้าหลักสูตร",
+    loadingLesson: "กำลังโหลดบทเรียน...",
+    fulfillmentTakingLong:
+      "การจัดส่งสิทธิ์การเรียนใช้เวลานานกว่าปกติ โปรดตรวจสอบหน้าแดชบอร์ดของคุณ หรือติดต่อฝ่ายช่วยเหลือหากไม่สามารถเข้าเรียนได้ในเร็วๆ นี้",
+  },
+  es: {
+    confirmingEnrollment: "Confirmando Inscripción",
+    finalizingTransaction:
+      "Estamos finalizando tu transacción con Stripe. Tus lecciones se cargarán automáticamente en un momento...",
+    verificationTimeout: "Tiempo de Verificación Agotado",
+    returnToCoursePage: "Volver a la Página del Curso",
+    loadingLesson: "CARGANDO LECCIÓN...",
+    fulfillmentTakingLong:
+      "El procesamiento está tardando más de lo esperado. Por favor revisa tu panel o contacta soporte si tu acceso no está activo pronto.",
+  },
+  ja: {
+    confirmingEnrollment: "登録を確認中",
+    finalizingTransaction:
+      "Stripeでの取引を完了しています。レッスンはすぐに自動的に読み込まれます...",
+    verificationTimeout: "確認タイムアウト",
+    returnToCoursePage: "コースページに戻る",
+    loadingLesson: "レッスンを読み込み中...",
+    fulfillmentTakingLong:
+      "処理に予想以上の時間がかかっています。ダッシュボードを確認するか、アクセスが有効にならない場合はサポートにお問い合わせください。",
+  },
+  zh: {
+    confirmingEnrollment: "正在确认报名",
+    finalizingTransaction: "我们正在通过Stripe完成您的交易。您的课程将在片刻后自动加载...",
+    verificationTimeout: "验证超时",
+    returnToCoursePage: "返回课程页面",
+    loadingLesson: "正在加载课程...",
+    fulfillmentTakingLong:
+      "处理时间超出预期。如果您的访问权限未能及时激活，请检查您的控制面板或联系支持团队。",
+  },
+  ko: {
+    confirmingEnrollment: "등록 확인 중",
+    finalizingTransaction:
+      "Stripe를 통해 거래를 완료하고 있습니다. 잠시 후 수업이 자동으로 로드됩니다...",
+    verificationTimeout: "인증 시간 초과",
+    returnToCoursePage: "코스 페이지로 돌아가기",
+    loadingLesson: "수업 로딩 중...",
+    fulfillmentTakingLong:
+      "처리가 예상보다 오래 걸리고 있습니다. 대시보드를 확인하거나, 곧 액세스가 활성화되지 않으면 지원팀에 문의하세요.",
+  },
+};
+
 /**
  * Redirect route that bridges from a generic /learn link to a specific /lessons/$id path.
  * Wait for Stripe fulfillment webhook when success parameter is present.
@@ -39,6 +103,8 @@ function LearnRedirect() {
   const navigate = useNavigate();
   const { user, loading } = useAuth();
   const { lang } = useI18n();
+
+  const s = (key: string) => learnStrings[lang as Language]?.[key] ?? learnStrings.en[key];
 
   const [isVerifying, setIsVerifying] = useState(isSuccessRedirect);
   const [errorText, setErrorText] = useState<string | null>(null);
@@ -81,11 +147,7 @@ function LearnRedirect() {
           timeoutId = setTimeout(() => {
             if (active && isVerifying) {
               clearInterval(pollInterval);
-              setErrorText(
-                lang === "th"
-                  ? "การจัดส่งสิทธิ์การเรียนใช้เวลานานกว่าปกติ โปรดตรวจสอบหน้าแดชบอร์ดของคุณ หรือติดต่อฝ่ายช่วยเหลือหากไม่สามารถเข้าเรียนได้ในเร็วๆ นี้"
-                  : "Fulfillment is taking longer than expected. Please check your dashboard or contact support if your access isn't active soon.",
-              );
+              setErrorText(s("fulfillmentTakingLong"));
               setIsVerifying(false);
             }
           }, 30000);
@@ -147,12 +209,10 @@ function LearnRedirect() {
           </div>
           <div className="space-y-2">
             <h2 className="text-xl font-bold tracking-tight text-white animate-pulse">
-              {lang === "th" ? "กำลังยืนยันการลงทะเบียนเรียน" : "Confirming Enrollment"}
+              {s("confirmingEnrollment")}
             </h2>
             <p className="text-sm text-slate-400 leading-relaxed">
-              {lang === "th"
-                ? "เรากำลังเสร็จสิ้นการทำรายการผ่าน Stripe บทเรียนของคุณจะโหลดโดยอัตโนมัติในอีกสักครู่..."
-                : "We are finalizing your transaction with Stripe. Your lessons will load automatically in just a moment..."}
+              {s("finalizingTransaction")}
             </p>
           </div>
         </div>
@@ -176,7 +236,7 @@ function LearnRedirect() {
           </div>
           <div className="space-y-2">
             <h2 className="text-lg font-bold text-white">
-              {lang === "th" ? "หมดเวลาการตรวจสอบสิทธิ์" : "Verification Timeout"}
+              {s("verificationTimeout")}
             </h2>
             <p className="text-sm text-slate-400 leading-relaxed">{errorText}</p>
           </div>
@@ -185,7 +245,7 @@ function LearnRedirect() {
             params={{ courseId }}
             className="inline-flex h-10 items-center justify-center rounded-xl bg-slate-800 hover:bg-slate-700 px-6 text-sm font-bold text-white transition-colors"
           >
-            {lang === "th" ? "กลับไปที่หน้าหลักสูตร" : "Return to Course Page"}
+            {s("returnToCoursePage")}
           </Link>
         </div>
       </div>
@@ -197,7 +257,7 @@ function LearnRedirect() {
       <div className="flex flex-col items-center gap-4">
         <div className="h-8 w-8 animate-spin rounded-full border-4 border-indigo-500 border-t-transparent" />
         <p className="text-sm tracking-wide font-medium">
-          {lang === "th" ? "กำลังโหลดบทเรียน..." : "LOADING LESSON..."}
+          {s("loadingLesson")}
         </p>
       </div>
     </div>

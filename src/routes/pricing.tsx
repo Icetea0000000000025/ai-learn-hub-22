@@ -14,7 +14,7 @@ import {
   ArrowRight,
   Loader2,
 } from "lucide-react";
-import { useI18n } from "@/lib/i18n";
+import { useI18n, type Language } from "@/lib/i18n";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/lib/auth";
@@ -37,11 +37,471 @@ export const Route = createFileRoute("/pricing")({
   head: () => ({ meta: [{ title: "Institutional Pricing — LearnLab" }] }),
 });
 
+// ─── Localisation strings ────────────────────────────────────────────────────
+const pricingStrings: Record<Language, Record<string, string | string[]>> = {
+  en: {
+    badge: "Professional Investment",
+    heroHeading1: "Scale your",
+    heroHeading2: "Intelligence.",
+    heroSub: "Choose the right path for your personal growth or global workforce training.",
+    sectionIndividual: "Individual Mastery",
+    sectionPromote: "Promote Your Courses",
+    sectionEnterprise: "Institutional B2B",
+    footerStandards: "Supported by Global Standards",
+    investment: "Investment",
+    startNow: "Start Now",
+    days: "Days",
+    selectCoursePromote: "Select Course to Promote",
+    selectCoursePackage: "Package",
+    selectCourseCampaign: "Select Course for Campaign",
+    noCourses: "You don't have any published courses yet.",
+    currentlyPromoted: "Currently Promoted",
+    activeInCampaign: "Active in Campaign",
+    select: "Select",
+    leave: "Leave",
+    join: "Join",
+    campaignFreeJoin: "Free to join! (+15% fee applied on sale)",
+    pleaseLogin: "Please login first",
+    alreadyFree: "You are already on the free plan",
+    joinedCampaign: "Successfully joined campaign!",
+    leftCampaign: "Successfully left campaign",
+    featuredPlacementTitle: "Featured Placement",
+    featuredPlacementSub: "Top spots in home and categories",
+    revenueShareAdsTitle: "Revenue-share Ads",
+    revenueShareAdsSub: "Pay only when you sell",
+    revenueShareAdsBody:
+      "Join homepage campaigns for free! Offer 10% discount to customers and +5% platform fee (total +15% on your base rate) to scale your student base.",
+    startPromotingToday: "Start Promoting Today",
+  },
+  th: {
+    badge: "การลงทุนระดับมืออาชีพ",
+    heroHeading1: "ยกระดับ",
+    heroHeading2: "ความรู้และความสามารถ",
+    heroSub: "เลือกเส้นทางที่เหมาะสมสำหรับการเติบโตส่วนบุคคลหรือการฝึกอบรมทีมงานระดับโลกของคุณ",
+    sectionIndividual: "ความเชี่ยวชาญเฉพาะบุคคล",
+    sectionPromote: "โปรโมตหลักสูตรของคุณ",
+    sectionEnterprise: "บริการสำหรับสถาบันและองค์กร",
+    footerStandards: "ได้รับการสนับสนุนโดยมาตรฐานระดับโลก",
+    investment: "การลงทุน",
+    startNow: "เริ่มต้นใช้งาน",
+    days: "วัน",
+    selectCoursePromote: "เลือกคอร์สที่จะโปรโมต",
+    selectCoursePackage: "แพ็กเกจ",
+    selectCourseCampaign: "เลือกคอร์สร่วมแคมเปญ",
+    noCourses: "คุณยังไม่มีคอร์สที่เผยแพร่แล้ว",
+    currentlyPromoted: "โปรโมตอยู่",
+    activeInCampaign: "เข้าร่วมอยู่",
+    select: "เลือก",
+    leave: "ยกเลิก",
+    join: "เข้าร่วม",
+    campaignFreeJoin: "ฟรีค่าเข้าร่วม! (หักส่วนแบ่งเพิ่ม 15% เมื่อขายได้)",
+    pleaseLogin: "กรุณาเข้าสู่ระบบก่อน",
+    alreadyFree: "คุณอยู่ในแพลนฟรีอยู่แล้ว",
+    joinedCampaign: "เข้าร่วมแคมเปญสำเร็จ!",
+    leftCampaign: "ยกเลิกการเข้าร่วมสำเร็จ",
+    featuredPlacementTitle: "Featured Placement (ดันคอร์ส)",
+    featuredPlacementSub: "ขึ้นหน้าแรกและอันดับต้นๆ ของหมวดหมู่",
+    revenueShareAdsTitle: "Revenue-share Ads (แคมเปญ)",
+    revenueShareAdsSub: "จ่ายเฉพาะเมื่อขายได้จริง",
+    revenueShareAdsBody:
+      "เข้าร่วมแคมเปญโปรโมตหน้าแรกฟรี! โดยมอบส่วนลด 10% ให้ลูกค้า และเพิ่มส่วนแบ่งให้แพลตฟอร์ม 5% (รวมหักเพิ่ม 15% จากเรตปกติ) เพื่อขยายฐานผู้เรียนให้กว้างขวางขึ้น",
+    startPromotingToday: "เริ่มโปรโมตวันนี้",
+  },
+  es: {
+    badge: "Inversión Profesional",
+    heroHeading1: "Amplía tu",
+    heroHeading2: "Inteligencia.",
+    heroSub: "Elige el camino adecuado para tu crecimiento personal o el entrenamiento de tu equipo.",
+    sectionIndividual: "Dominio Individual",
+    sectionPromote: "Promociona Tus Cursos",
+    sectionEnterprise: "B2B Institucional",
+    footerStandards: "Respaldado por Estándares Globales",
+    investment: "Inversión",
+    startNow: "Empezar Ahora",
+    days: "Días",
+    selectCoursePromote: "Selecciona Curso a Promover",
+    selectCoursePackage: "Paquete",
+    selectCourseCampaign: "Selecciona Curso para Campaña",
+    noCourses: "Aún no tienes cursos publicados.",
+    currentlyPromoted: "Actualmente Promovido",
+    activeInCampaign: "Activo en Campaña",
+    select: "Seleccionar",
+    leave: "Salir",
+    join: "Unirse",
+    campaignFreeJoin: "¡Gratis unirse! (Se aplica +15% de tarifa en la venta)",
+    pleaseLogin: "Por favor inicia sesión primero",
+    alreadyFree: "Ya estás en el plan gratuito",
+    joinedCampaign: "¡Te uniste a la campaña con éxito!",
+    leftCampaign: "Saliste de la campaña con éxito",
+    featuredPlacementTitle: "Colocación Destacada",
+    featuredPlacementSub: "Posiciones destacadas en inicio y categorías",
+    revenueShareAdsTitle: "Anuncios con Reparto de Ingresos",
+    revenueShareAdsSub: "Paga solo cuando vendas",
+    revenueShareAdsBody:
+      "¡Únete a campañas de inicio gratis! Ofrece 10% de descuento a clientes y +5% de tarifa de plataforma (total +15% sobre tu tarifa base) para escalar tu base de estudiantes.",
+    startPromotingToday: "Comienza a Promocionar Hoy",
+  },
+  ja: {
+    badge: "プロフェッショナル投資",
+    heroHeading1: "知識を",
+    heroHeading2: "スケールアップ。",
+    heroSub: "個人の成長またはグローバルな人材育成に適したパスを選択してください。",
+    sectionIndividual: "個人マスタリー",
+    sectionPromote: "コースをプロモート",
+    sectionEnterprise: "法人・組織向けサービス",
+    footerStandards: "グローバル標準に対応",
+    investment: "投資",
+    startNow: "今すぐ始める",
+    days: "日間",
+    selectCoursePromote: "プロモートするコースを選択",
+    selectCoursePackage: "パッケージ",
+    selectCourseCampaign: "キャンペーンに参加するコースを選択",
+    noCourses: "まだ公開済みのコースがありません。",
+    currentlyPromoted: "プロモート中",
+    activeInCampaign: "キャンペーン参加中",
+    select: "選択",
+    leave: "退出",
+    join: "参加",
+    campaignFreeJoin: "参加無料！（販売時+15%の手数料が適用されます）",
+    pleaseLogin: "先にログインしてください",
+    alreadyFree: "すでに無料プランに加入しています",
+    joinedCampaign: "キャンペーンへの参加が完了しました！",
+    leftCampaign: "キャンペーンから退出しました",
+    featuredPlacementTitle: "フィーチャー掲載",
+    featuredPlacementSub: "ホームとカテゴリのトップ掲載枠",
+    revenueShareAdsTitle: "収益シェア広告",
+    revenueShareAdsSub: "売れた時だけ支払い",
+    revenueShareAdsBody:
+      "ホームページキャンペーンに無料参加！顧客に10%割引を提供し、プラットフォーム手数料+5%（ベースレートに+15%合計）で学習者ベースを拡大しましょう。",
+    startPromotingToday: "今日からプロモート開始",
+  },
+  zh: {
+    badge: "专业投资",
+    heroHeading1: "提升您的",
+    heroHeading2: "知识与技能。",
+    heroSub: "为您的个人成长或全球团队培训选择正确的路径。",
+    sectionIndividual: "个人精通",
+    sectionPromote: "推广您的课程",
+    sectionEnterprise: "机构与企业服务",
+    footerStandards: "由全球标准支持",
+    investment: "投资",
+    startNow: "立即开始",
+    days: "天",
+    selectCoursePromote: "选择要推广的课程",
+    selectCoursePackage: "套餐",
+    selectCourseCampaign: "选择参与活动的课程",
+    noCourses: "您还没有已发布的课程。",
+    currentlyPromoted: "正在推广",
+    activeInCampaign: "活动参与中",
+    select: "选择",
+    leave: "退出",
+    join: "加入",
+    campaignFreeJoin: "免费加入！（销售时收取+15%费用）",
+    pleaseLogin: "请先登录",
+    alreadyFree: "您已在免费套餐中",
+    joinedCampaign: "成功加入活动！",
+    leftCampaign: "成功退出活动",
+    featuredPlacementTitle: "精选展示",
+    featuredPlacementSub: "首页和分类页顶部展示位",
+    revenueShareAdsTitle: "收益分成广告",
+    revenueShareAdsSub: "仅在销售时付费",
+    revenueShareAdsBody:
+      "免费参加首页活动！为客户提供10%折扣，并向平台增加5%的分成（总计+15%基础费率），以扩大您的学习者群体。",
+    startPromotingToday: "今天开始推广",
+  },
+  ko: {
+    badge: "전문적인 투자",
+    heroHeading1: "지식과 기술을",
+    heroHeading2: "확장하세요.",
+    heroSub: "개인 성장 또는 세계적인 팀 교육을 위한 올바른 경로를 선택하세요.",
+    sectionIndividual: "개인 마스터리",
+    sectionPromote: "강의 홍보하기",
+    sectionEnterprise: "기관 및 조직 서비스",
+    footerStandards: "글로벌 표준으로 지원",
+    investment: "투자",
+    startNow: "지금 시작",
+    days: "일",
+    selectCoursePromote: "홍보할 강의 선택",
+    selectCoursePackage: "패키지",
+    selectCourseCampaign: "캠페인에 참여할 강의 선택",
+    noCourses: "아직 게시된 강의가 없습니다.",
+    currentlyPromoted: "현재 홍보 중",
+    activeInCampaign: "캠페인 참여 중",
+    select: "선택",
+    leave: "나가기",
+    join: "참여",
+    campaignFreeJoin: "무료로 참여! (판매 시 +15% 수수료 적용)",
+    pleaseLogin: "먼저 로그인해 주세요",
+    alreadyFree: "이미 무료 플랜을 이용 중입니다",
+    joinedCampaign: "캠페인에 성공적으로 참여했습니다!",
+    leftCampaign: "캠페인에서 성공적으로 나갔습니다",
+    featuredPlacementTitle: "추천 게재",
+    featuredPlacementSub: "홈 및 카테고리 최상단 노출",
+    revenueShareAdsTitle: "수익 공유 광고",
+    revenueShareAdsSub: "판매 시에만 비용 지불",
+    revenueShareAdsBody:
+      "홈페이지 캠페인에 무료로 참여하세요! 고객에게 10% 할인을 제공하고 플랫폼 수수료 +5%(기본 요금의 총 +15%)를 추가하여 학습자 기반을 확장하세요.",
+    startPromotingToday: "오늘 홍보 시작",
+  },
+};
+
+// Per-tier translations
+const tierTranslations: Record<
+  Language,
+  {
+    individual: { name: string; desc: string; features: string[] }[];
+    enterprise: { name: string; desc: string; features: string[]; cta: string; suffix: string }[];
+  }
+> = {
+  en: {
+    individual: [
+      {
+        name: "Free",
+        desc: "Try the system and create your first course",
+        features: ["20% Revenue Share", "Free AI course creation (2 times)", "Basic management tools"],
+      },
+      {
+        name: "Starter",
+        desc: "For beginners in earning income",
+        features: ["12% Revenue Share", "10 AI course creations per month", "Course Boost Feature", "Basic data analysis"],
+      },
+      {
+        name: "Growth",
+        desc: "For professionals and agencies",
+        features: ["10% Revenue Share", "30 AI course creations per month", "Advanced analytics", "Early access to new features"],
+      },
+      {
+        name: "Pro",
+        desc: "The ultimate course creation experience",
+        features: ["5% Revenue Share", "Unlimited AI-powered course creation*", "White-label (Coming Soon)", "Personal account assistant"],
+      },
+    ],
+    enterprise: [
+      {
+        name: "Team Starter",
+        desc: "Build your first team of learners",
+        features: ["Maximum 10 member seats", "Basic seat management", "Standard team reports", "Single organization interface"],
+        cta: "Getting Started for Your Team",
+        suffix: "/ month",
+      },
+      {
+        name: "Enterprise Elite",
+        desc: "Large-scale Institutional Training",
+        features: ["Unlimited Seats", "Employee Learning Reports (CSV/PDF)", "AI-Powered Learning Analytics", "White-label Brand Portal (Coming Soon)", "24/7 Personal Account Administrator"],
+        cta: "Enterprise Start",
+        suffix: "/ month",
+      },
+    ],
+  },
+  th: {
+    individual: [
+      {
+        name: "Free (ฟรี)",
+        desc: "ทดลองระบบและสร้างคอร์สแรก",
+        features: ["ส่วนแบ่งรายได้ 20%", "สร้างคอร์สด้วย AI ฟรี 2 ครั้ง", "เครื่องมือจัดการพื้นฐาน"],
+      },
+      {
+        name: "Starter (เริ่มต้น)",
+        desc: "สำหรับผู้เริ่มต้นสร้างรายได้",
+        features: ["ส่วนแบ่งรายได้ 12%", "สร้างคอร์สด้วย AI 10 ครั้ง/เดือน", "ฟีเจอร์ดันคอร์ส (Boost)", "วิเคราะห์ข้อมูลเบื้องต้น"],
+      },
+      {
+        name: "Growth (เติบโต)",
+        desc: "สำหรับมืออาชีพและเอเจนซี่",
+        features: ["ส่วนแบ่งรายได้ 10%", "สร้างคอร์สด้วย AI 30 ครั้ง/เดือน", "การวิเคราะห์ขั้นสูง", "สิทธิ์เข้าถึงฟีเจอร์ใหม่ก่อนใคร"],
+      },
+      {
+        name: "Pro (โปร)",
+        desc: "ขีดสุดของการสร้างคอร์ส",
+        features: ["ส่วนแบ่งรายได้ 5%", "สร้างคอร์สด้วย AI ไม่จำกัด*", "White-label (เร็วๆ นี้)", "ผู้ช่วยส่วนตัวดูแลบัญชี"],
+      },
+    ],
+    enterprise: [
+      {
+        name: "Team Starter (เริ่มต้นทีม)",
+        desc: "สร้างทีมผู้เรียนทีมแรกของคุณ",
+        features: ["ที่นั่งสมาชิกสูงสุด 10 ที่นั่ง", "การจัดการที่นั่งขั้นพื้นฐาน", "รายงานทีมมาตรฐาน", "หน้าตาองค์กรเดี่ยว"],
+        cta: "เริ่มต้นใช้งานสำหรับทีม",
+        suffix: "/ เดือน",
+      },
+      {
+        name: "Enterprise Elite (องค์กร)",
+        desc: "การฝึกอบรมระดับสถาบันขนาดใหญ่",
+        features: ["จัดสรรที่นั่งได้ไม่จำกัด", "รายงานผลการเรียนของพนักงาน (CSV/PDF)", "ระบบวิเคราะห์การเรียนรู้ด้วย AI", "White-label พอร์ทัลเฉพาะแบรนด์ (เร็วๆ นี้)", "ผู้ดูแลบัญชีส่วนตัวตลอด 24/7"],
+        cta: "เริ่มต้นระดับองค์กร",
+        suffix: "/ เดือน",
+      },
+    ],
+  },
+  es: {
+    individual: [
+      {
+        name: "Gratis",
+        desc: "Prueba el sistema y crea tu primer curso",
+        features: ["20% de Reparto de Ingresos", "Creación de cursos con IA gratis (2 veces)", "Herramientas de gestión básicas"],
+      },
+      {
+        name: "Starter",
+        desc: "Para principiantes que generan ingresos",
+        features: ["12% de Reparto de Ingresos", "10 creaciones de cursos con IA por mes", "Función de Impulso de Curso", "Análisis de datos básico"],
+      },
+      {
+        name: "Growth",
+        desc: "Para profesionales y agencias",
+        features: ["10% de Reparto de Ingresos", "30 creaciones de cursos con IA por mes", "Analítica avanzada", "Acceso anticipado a nuevas funciones"],
+      },
+      {
+        name: "Pro",
+        desc: "La experiencia definitiva de creación de cursos",
+        features: ["5% de Reparto de Ingresos", "Creación ilimitada de cursos con IA*", "Marca blanca (Próximamente)", "Asistente personal de cuenta"],
+      },
+    ],
+    enterprise: [
+      {
+        name: "Team Starter",
+        desc: "Construye tu primer equipo de aprendices",
+        features: ["Máximo 10 asientos para miembros", "Gestión básica de asientos", "Informes de equipo estándar", "Interfaz de organización única"],
+        cta: "Comenzar para Tu Equipo",
+        suffix: "/ mes",
+      },
+      {
+        name: "Enterprise Elite",
+        desc: "Formación Institucional a Gran Escala",
+        features: ["Asientos Ilimitados", "Informes de Aprendizaje de Empleados (CSV/PDF)", "Análisis de Aprendizaje con IA", "Portal de Marca White-label (Próximamente)", "Administrador Personal de Cuenta 24/7"],
+        cta: "Inicio Empresarial",
+        suffix: "/ mes",
+      },
+    ],
+  },
+  ja: {
+    individual: [
+      {
+        name: "無料",
+        desc: "システムを試して最初のコースを作成",
+        features: ["収益シェア20%", "AIコース作成無料（2回）", "基本管理ツール"],
+      },
+      {
+        name: "スターター",
+        desc: "収入を始める初心者向け",
+        features: ["収益シェア12%", "AIコース作成10回/月", "コースブースト機能", "基本データ分析"],
+      },
+      {
+        name: "グロース",
+        desc: "プロフェッショナルとエージェンシー向け",
+        features: ["収益シェア10%", "AIコース作成30回/月", "高度な分析", "新機能への早期アクセス"],
+      },
+      {
+        name: "プロ",
+        desc: "究極のコース作成体験",
+        features: ["収益シェア5%", "AIコース作成無制限*", "ホワイトラベル（近日公開）", "個人アカウントアシスタント"],
+      },
+    ],
+    enterprise: [
+      {
+        name: "チームスターター",
+        desc: "最初の学習チームを構築",
+        features: ["最大10メンバーシート", "基本シート管理", "標準チームレポート", "単一組織インターフェース"],
+        cta: "チームを始める",
+        suffix: "/ 月",
+      },
+      {
+        name: "エンタープライズエリート",
+        desc: "大規模な機関トレーニング",
+        features: ["無制限シート", "従業員学習レポート（CSV/PDF）", "AI学習分析", "ホワイトラベルブランドポータル（近日公開）", "24/7専任アカウント管理者"],
+        cta: "エンタープライズ開始",
+        suffix: "/ 月",
+      },
+    ],
+  },
+  zh: {
+    individual: [
+      {
+        name: "免费",
+        desc: "试用系统并创建您的第一个课程",
+        features: ["20% 收益分成", "免费AI课程创建（2次）", "基础管理工具"],
+      },
+      {
+        name: "入门版",
+        desc: "适合初次获得收入的创作者",
+        features: ["12% 收益分成", "每月10次AI课程创建", "课程推广功能", "基础数据分析"],
+      },
+      {
+        name: "成长版",
+        desc: "适合专业人士和机构",
+        features: ["10% 收益分成", "每月30次AI课程创建", "高级分析", "新功能优先体验"],
+      },
+      {
+        name: "专业版",
+        desc: "终极课程创建体验",
+        features: ["5% 收益分成", "无限AI课程创建*", "白标（即将推出）", "个人账户助手"],
+      },
+    ],
+    enterprise: [
+      {
+        name: "团队入门版",
+        desc: "建立您的第一个学习团队",
+        features: ["最多10个成员席位", "基础席位管理", "标准团队报告", "单一组织界面"],
+        cta: "开始您的团队",
+        suffix: "/ 月",
+      },
+      {
+        name: "企业精英版",
+        desc: "大规模机构培训",
+        features: ["无限席位", "员工学习报告（CSV/PDF）", "AI驱动学习分析", "白标品牌门户（即将推出）", "24/7个人账户管理员"],
+        cta: "企业开始",
+        suffix: "/ 月",
+      },
+    ],
+  },
+  ko: {
+    individual: [
+      {
+        name: "무료",
+        desc: "시스템을 체험하고 첫 강의를 만들어보세요",
+        features: ["20% 수익 공유", "AI 강의 생성 무료 (2회)", "기본 관리 도구"],
+      },
+      {
+        name: "스타터",
+        desc: "수익 창출을 시작하는 초보자를 위한",
+        features: ["12% 수익 공유", "월 10회 AI 강의 생성", "강의 부스트 기능", "기본 데이터 분석"],
+      },
+      {
+        name: "그로스",
+        desc: "전문가와 에이전시를 위한",
+        features: ["10% 수익 공유", "월 30회 AI 강의 생성", "고급 분석", "새 기능 조기 접근"],
+      },
+      {
+        name: "프로",
+        desc: "궁극의 강의 제작 경험",
+        features: ["5% 수익 공유", "무제한 AI 강의 생성*", "화이트라벨 (출시 예정)", "개인 계정 어시스턴트"],
+      },
+    ],
+    enterprise: [
+      {
+        name: "팀 스타터",
+        desc: "첫 번째 학습 팀 구성",
+        features: ["최대 10명 회원 좌석", "기본 좌석 관리", "표준 팀 보고서", "단일 조직 인터페이스"],
+        cta: "팀 시작하기",
+        suffix: "/ 월",
+      },
+      {
+        name: "엔터프라이즈 엘리트",
+        desc: "대규모 기관 교육",
+        features: ["무제한 좌석", "직원 학습 보고서 (CSV/PDF)", "AI 기반 학습 분석", "화이트라벨 브랜드 포털 (출시 예정)", "24/7 개인 계정 관리자"],
+        cta: "엔터프라이즈 시작",
+        suffix: "/ 월",
+      },
+    ],
+  },
+};
+
 function Pricing() {
   const { lang, t } = useI18n();
   const { user } = useAuth();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+
+  const s = (key: string) => pricingStrings[lang]?.[key] as string ?? pricingStrings.en[key] as string;
 
   // State for Ad/Campaign Modals
   const [isAdModalOpen, setIsAdModalOpen] = useState(false);
@@ -70,28 +530,24 @@ function Pricing() {
 
   const handleSubscriptionPurchase = async (tierId: string, amount: string | number) => {
     if (!user) {
-      toast.info(lang === "th" ? "กรุณาเข้าสู่ระบบก่อน" : "Please login first");
+      toast.info(s("pleaseLogin"));
       navigate({ to: "/login", search: { mode: "login" } });
       return;
     }
 
-    // Free tier is just a conceptual tier, we don't buy it.
     if (amount === "0" || amount === 0) {
-      toast.success(
-        lang === "th" ? "คุณอยู่ในแพลนฟรีอยู่แล้ว" : "You are already on the free plan",
-      );
+      toast.success(s("alreadyFree"));
       return;
     }
 
     try {
       setIsSubmitting(true);
-      // Remove commas from amount (e.g. "2,499" -> 2499)
       const numericAmount =
         typeof amount === "string" ? parseInt(amount.replace(/,/g, "")) : amount;
 
       const result = await (createSubscriptionCheckoutSession as any)({
         data: {
-          tier: tierId.split(" ")[0].toLowerCase(), // e.g., "Starter" -> "starter"
+          tier: tierId.split(" ")[0].toLowerCase(),
           userId: user.id,
           amount: numericAmount,
         },
@@ -139,14 +595,7 @@ function Pricing() {
       });
     },
     onSuccess: (_, variables) => {
-      const msg = variables.isCampaignActive
-        ? lang === "th"
-          ? "เข้าร่วมแคมเปญสำเร็จ!"
-          : "Successfully joined campaign!"
-        : lang === "th"
-          ? "ยกเลิกการเข้าร่วมสำเร็จ"
-          : "Successfully left campaign";
-      toast.success(msg);
+      toast.success(variables.isCampaignActive ? s("joinedCampaign") : s("leftCampaign"));
       queryClient.invalidateQueries({ queryKey: ["my-courses-for-ads", user?.id] });
     },
     onError: (err: any) => toast.error(err.message || "Failed to update campaign status"),
@@ -156,128 +605,20 @@ function Pricing() {
     updateCourseMutation.mutate({ id: courseId, isCampaignActive: !currentStatus });
   };
 
-  const individualTiers = [
-    {
-      name: lang === "th" ? "Free (ฟรี)" : "Free",
-      price: "0",
-      desc:
-        lang === "th"
-          ? "ทดลองระบบและสร้างคอร์สแรก"
-          : "Test the system and create your first course",
-      features:
-        lang === "th"
-          ? ["ส่วนแบ่งรายได้ 20%", "สร้างคอร์สด้วย AI ฟรี 2 ครั้ง", "เครื่องมือจัดการพื้นฐาน"]
-          : ["20% Revenue Share", "2 Free AI Course Creations", "Basic Management Tools"],
-    },
-    {
-      name: lang === "th" ? "Starter (เริ่มต้น)" : "Starter",
-      price: "299",
-      desc: lang === "th" ? "สำหรับผู้เริ่มต้นสร้างรายได้" : "For growing creators",
-      features:
-        lang === "th"
-          ? [
-              "ส่วนแบ่งรายได้ 12%",
-              "สร้างคอร์สด้วย AI 10 ครั้ง/เดือน",
-              "ฟีเจอร์ดันคอร์ส (Boost)",
-              "วิเคราะห์ข้อมูลเบื้องต้น",
-            ]
-          : [
-              "12% Revenue Share",
-              "10 AI Course Creations / mo",
-              "Course Boost Options",
-              "Basic Analytics",
-            ],
-      featured: true,
-    },
-    {
-      name: lang === "th" ? "Growth (เติบโต)" : "Growth",
-      price: "879",
-      desc: lang === "th" ? "สำหรับมืออาชีพและเอเจนซี่" : "For professionals & agencies",
-      features:
-        lang === "th"
-          ? [
-              "ส่วนแบ่งรายได้ 10%",
-              "สร้างคอร์สด้วย AI 30 ครั้ง/เดือน",
-              "การวิเคราะห์ขั้นสูง",
-              "สิทธิ์เข้าถึงฟีเจอร์ใหม่ก่อนใคร",
-            ]
-          : [
-              "10% Revenue Share",
-              "30 AI Course Creations / mo",
-              "Advanced Analytics",
-              "Priority Feature Access",
-            ],
-    },
-    {
-      name: lang === "th" ? "Pro (โปร)" : "Pro",
-      price: "2,499",
-      desc: lang === "th" ? "ขีดสุดของการสร้างคอร์ส" : "Ultimate creation power",
-      features:
-        lang === "th"
-          ? [
-              "ส่วนแบ่งรายได้ 5%",
-              "สร้างคอร์สด้วย AI ไม่จำกัด*",
-              "White-label (เร็วๆ นี้)",
-              "ผู้ช่วยส่วนตัวดูแลบัญชี",
-            ]
-          : [
-              "5% Revenue Share",
-              "Unlimited AI Course Creations*",
-              "White-label (Coming Soon)",
-              "Dedicated Account Support",
-            ],
-    },
-  ];
+  const localTiers = tierTranslations[lang] ?? tierTranslations.en;
 
-  const enterpriseTiers = [
-    {
-      name: lang === "th" ? "Team Starter (เริ่มต้นทีม)" : "Team Starter",
-      price: lang === "th" ? "1,790" : "1,790",
-      suffix: lang === "th" ? "/ เดือน" : "/ Month",
-      desc: lang === "th" ? "สร้างทีมผู้เรียนทีมแรกของคุณ" : "Build your first workforce",
-      features:
-        lang === "th"
-          ? [
-              "ที่นั่งสมาชิกสูงสุด 10 ที่นั่ง",
-              "การจัดการที่นั่งขั้นพื้นฐาน",
-              "รายงานทีมมาตรฐาน",
-              "หน้าตาองค์กรเดี่ยว",
-            ]
-          : [
-              "Up to 10 Member Seats",
-              "Basic Seat Management",
-              "Standard Team Reports",
-              "Single Org Identity",
-            ],
-      cta: lang === "th" ? "เริ่มต้นใช้งานสำหรับทีม" : "Initialize Team",
-      icon: Users,
-    },
-    {
-      name: lang === "th" ? "Enterprise Elite (องค์กร)" : "Enterprise Elite",
-      price: lang === "th" ? "3,590" : "3,590",
-      suffix: lang === "th" ? "/ เดือน" : "/ Month",
-      desc: lang === "th" ? "การฝึกอบรมระดับสถาบันขนาดใหญ่" : "Institutional scale training",
-      features:
-        lang === "th"
-          ? [
-              "จัดสรรที่นั่งได้ไม่จำกัด",
-              "รายงานผลการเรียนของพนักงาน (CSV/PDF)",
-              "ระบบวิเคราะห์การเรียนรู้ด้วย AI",
-              "White-label พอร์ทัลเฉพาะแบรนด์ (เร็วๆ นี้)",
-              "ผู้ดูแลบัญชีส่วนตัวตลอด 24/7",
-            ]
-          : [
-              "Unlimited Seat Allocation",
-              "Workforce Audit (CSV/PDF)",
-              "AI Learning Intelligence",
-              "White-label Portal (Coming Soon)",
-              "24/7 Account Manager",
-            ],
-      cta: lang === "th" ? "เริ่มต้นระดับองค์กร" : "Launch Enterprise",
-      highlight: true,
-      icon: Building2,
-    },
-  ];
+  const individualTiers = localTiers.individual.map((tier, i) => ({
+    ...tier,
+    price: ["0", "299", "879", "2,499"][i],
+    featured: i === 1,
+  }));
+
+  const enterpriseTiers = localTiers.enterprise.map((tier, i) => ({
+    ...tier,
+    price: ["1,790", "3,590"][i],
+    icon: [Users, Building2][i],
+    highlight: i === 1,
+  }));
 
   return (
     <SiteLayout>
@@ -290,19 +631,14 @@ function Pricing() {
               animate={{ opacity: 1, y: 0 }}
               className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-50 text-indigo-600 text-[10px] font-black uppercase tracking-[0.2em] mb-4"
             >
-              <ShieldCheck className="h-3 w-3" />{" "}
-              {lang === "th" ? "การลงทุนระดับมืออาชีพ" : "Professional Investment"}
+              <ShieldCheck className="h-3 w-3" /> {s("badge")}
             </motion.div>
             <h1 className="text-5xl lg:text-6xl font-black tracking-tighter text-slate-900 uppercase italic">
-              {lang === "th" ? "ยกระดับ" : "Scale your"}{" "}
-              <span className="text-indigo-600">
-                {lang === "th" ? "ความรู้และความสามารถ" : "Intelligence."}
-              </span>
+              {s("heroHeading1")}{" "}
+              <span className="text-indigo-600">{s("heroHeading2")}</span>
             </h1>
             <p className="mt-4 text-slate-500 font-medium text-lg max-w-2xl mx-auto">
-              {lang === "th"
-                ? "เลือกเส้นทางที่เหมาะสมสำหรับการเติบโตส่วนบุคคลหรือการฝึกอบรมทีมงานระดับโลกของคุณ"
-                : "Choose the right path for your personal growth or global workforce training."}
+              {s("heroSub")}
             </p>
           </div>
         </div>
@@ -313,7 +649,7 @@ function Pricing() {
             <div className="flex items-center gap-4">
               <div className="h-px flex-1 bg-slate-200" />
               <h2 className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-400">
-                {lang === "th" ? "ความเชี่ยวชาญเฉพาะบุคคล" : "Individual Mastery"}
+                {s("sectionIndividual")}
               </h2>
               <div className="h-px flex-1 bg-slate-200" />
             </div>
@@ -376,10 +712,8 @@ function Pricing() {
                     >
                       {isSubmitting ? (
                         <Loader2 className="h-4 w-4 animate-spin" />
-                      ) : lang === "th" ? (
-                        "เริ่มต้นใช้งาน"
                       ) : (
-                        "Start Now"
+                        s("startNow")
                       )}
                     </Button>
                   </CardContent>
@@ -393,7 +727,7 @@ function Pricing() {
             <div className="flex items-center gap-4">
               <div className="h-px flex-1 bg-slate-200" />
               <h2 className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-400">
-                {lang === "th" ? "โปรโมตหลักสูตรของคุณ" : "Promote Your Courses"}
+                {s("sectionPromote")}
               </h2>
               <div className="h-px flex-1 bg-slate-200" />
             </div>
@@ -406,12 +740,10 @@ function Pricing() {
                   </div>
                   <div>
                     <h3 className="text-xl font-black uppercase tracking-tight">
-                      {lang === "th" ? "Featured Placement (ดันคอร์ส)" : "Featured Placement"}
+                      {s("featuredPlacementTitle")}
                     </h3>
                     <p className="text-sm text-slate-500 font-medium">
-                      {lang === "th"
-                        ? "ขึ้นหน้าแรกและอันดับต้นๆ ของหมวดหมู่"
-                        : "Top spots in home and categories"}
+                      {s("featuredPlacementSub")}
                     </p>
                   </div>
                 </div>
@@ -426,7 +758,7 @@ function Pricing() {
                       key={ad.days}
                       onClick={() => {
                         if (!user) {
-                          toast.info(lang === "th" ? "กรุณาเข้าสู่ระบบก่อน" : "Please login first");
+                          toast.info(s("pleaseLogin"));
                           navigate({ to: "/login", search: { mode: "login" } });
                           return;
                         }
@@ -436,7 +768,7 @@ function Pricing() {
                       className="p-4 rounded-2xl bg-slate-50 border border-slate-100 flex justify-between items-center hover:bg-indigo-50 hover:border-indigo-200 transition-all active:scale-95 cursor-pointer text-left w-full"
                     >
                       <span className="text-xs font-black uppercase tracking-tighter text-slate-500">
-                        {ad.days} {lang === "th" ? "วัน" : "Days"}
+                        {ad.days} {s("days")}
                       </span>
                       <span className="text-lg font-black text-indigo-600">
                         {ad.price} <small className="text-[8px] opacity-60">THB</small>
@@ -453,22 +785,20 @@ function Pricing() {
                   </div>
                   <div>
                     <h3 className="text-xl font-black uppercase tracking-tight">
-                      {lang === "th" ? "Revenue-share Ads (แคมเปญ)" : "Revenue-share Ads"}
+                      {s("revenueShareAdsTitle")}
                     </h3>
                     <p className="text-sm text-indigo-100 font-medium">
-                      {lang === "th" ? "จ่ายเฉพาะเมื่อขายได้จริง" : "Pay only when you sell"}
+                      {s("revenueShareAdsSub")}
                     </p>
                   </div>
                 </div>
                 <p className="text-sm font-medium leading-relaxed mb-8 opacity-80">
-                  {lang === "th"
-                    ? "เข้าร่วมแคมเปญโปรโมตหน้าแรกฟรี! โดยมอบส่วนลด 10% ให้ลูกค้า และเพิ่มส่วนแบ่งให้แพลตฟอร์ม 5% (รวมหักเพิ่ม 15% จากเรตปกติ) เพื่อขยายฐานผู้เรียนให้กว้างขวางขึ้น"
-                    : "Join homepage campaigns for free! Offer 10% discount to customers and +5% platform fee (total +15% on your base rate) to scale your student base."}
+                  {s("revenueShareAdsBody")}
                 </p>
                 <button
                   onClick={() => {
                     if (!user) {
-                      toast.info(lang === "th" ? "กรุณาเข้าสู่ระบบก่อน" : "Please login first");
+                      toast.info(s("pleaseLogin"));
                       navigate({ to: "/login", search: { mode: "login" } });
                       return;
                     }
@@ -477,7 +807,7 @@ function Pricing() {
                   className="p-4 rounded-2xl bg-white/10 border border-white/20 text-center w-full hover:bg-white/20 transition-all active:scale-95 cursor-pointer"
                 >
                   <span className="text-xs font-black uppercase tracking-widest">
-                    {lang === "th" ? "เริ่มโปรโมตวันนี้" : "Start Promoting Today"}
+                    {s("startPromotingToday")}
                   </span>
                 </button>
               </Card>
@@ -489,7 +819,7 @@ function Pricing() {
             <div className="flex items-center gap-4">
               <div className="h-px flex-1 bg-slate-200" />
               <h2 className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-400">
-                {lang === "th" ? "บริการสำหรับสถาบันและองค์กร" : "Institutional B2B"}
+                {s("sectionEnterprise")}
               </h2>
               <div className="h-px flex-1 bg-slate-200" />
             </div>
@@ -546,7 +876,7 @@ function Pricing() {
                             "text-[10px] font-black uppercase tracking-widest mb-1 opacity-60",
                           )}
                         >
-                          {lang === "th" ? "การลงทุน" : "Investment"}
+                          {s("investment")}
                         </p>
                         <div className="flex items-baseline justify-end gap-1">
                           <span
@@ -605,9 +935,7 @@ function Pricing() {
 
             <div className="text-center pt-10">
               <p className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-300">
-                {lang === "th"
-                  ? "ได้รับการสนับสนุนโดยมาตรฐานระดับโลก"
-                  : "Supported by Global Standards"}
+                {s("footerStandards")}
               </p>
               <div className="flex justify-center gap-12 mt-8 opacity-20 grayscale transition-all hover:grayscale-0 cursor-default">
                 <ShieldCheck className="h-8 w-8" />
@@ -625,21 +953,15 @@ function Pricing() {
         <DialogContent className="sm:max-w-md rounded-3xl p-8">
           <DialogHeader>
             <DialogTitle className="text-2xl font-black uppercase tracking-tight">
-              {lang === "th" ? "เลือกคอร์สที่จะโปรโมต" : "Select Course to Promote"}
+              {s("selectCoursePromote")}
             </DialogTitle>
             <DialogDescription>
-              {lang === "th"
-                ? `แพ็กเกจ: ${selectedAdPackage?.days} วัน (${selectedAdPackage?.price} THB)`
-                : `Package: ${selectedAdPackage?.days} Days (${selectedAdPackage?.price} THB)`}
+              {s("selectCoursePackage")}: {selectedAdPackage?.days} {s("days")} ({selectedAdPackage?.price} THB)
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
             {myCourses.length === 0 ? (
-              <p className="text-sm text-center text-slate-500 py-4">
-                {lang === "th"
-                  ? "คุณยังไม่มีคอร์สที่เผยแพร่แล้ว"
-                  : "You don't have any published courses yet."}
-              </p>
+              <p className="text-sm text-center text-slate-500 py-4">{s("noCourses")}</p>
             ) : (
               myCourses.map((c: any) => (
                 <div
@@ -650,7 +972,7 @@ function Pricing() {
                     <p className="font-bold text-sm truncate">{c.title}</p>
                     {c.ad_type === "featured" && (
                       <Badge className="mt-1 bg-indigo-100 text-indigo-700 hover:bg-indigo-100 text-[10px] border-none">
-                        {lang === "th" ? "โปรโมตอยู่" : "Currently Promoted"}
+                        {s("currentlyPromoted")}
                       </Badge>
                     )}
                   </div>
@@ -661,10 +983,8 @@ function Pricing() {
                   >
                     {isSubmitting ? (
                       <Loader2 className="h-4 w-4 animate-spin" />
-                    ) : lang === "th" ? (
-                      "เลือก"
                     ) : (
-                      "Select"
+                      s("select")
                     )}
                   </Button>
                 </div>
@@ -679,21 +999,13 @@ function Pricing() {
         <DialogContent className="sm:max-w-md rounded-3xl p-8">
           <DialogHeader>
             <DialogTitle className="text-2xl font-black uppercase tracking-tight">
-              {lang === "th" ? "เลือกคอร์สร่วมแคมเปญ" : "Select Course for Campaign"}
+              {s("selectCourseCampaign")}
             </DialogTitle>
-            <DialogDescription>
-              {lang === "th"
-                ? "ฟรีค่าเข้าร่วม! (หักส่วนแบ่งเพิ่ม 15% เมื่อขายได้)"
-                : "Free to join! (+15% fee applied on sale)"}
-            </DialogDescription>
+            <DialogDescription>{s("campaignFreeJoin")}</DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
             {myCourses.length === 0 ? (
-              <p className="text-sm text-center text-slate-500 py-4">
-                {lang === "th"
-                  ? "คุณยังไม่มีคอร์สที่เผยแพร่แล้ว"
-                  : "You don't have any published courses yet."}
-              </p>
+              <p className="text-sm text-center text-slate-500 py-4">{s("noCourses")}</p>
             ) : (
               myCourses.map((c: any) => (
                 <div
@@ -704,7 +1016,7 @@ function Pricing() {
                     <p className="font-bold text-sm truncate">{c.title}</p>
                     {c.is_campaign_active && (
                       <Badge className="mt-1 bg-emerald-100 text-emerald-700 hover:bg-emerald-100 text-[10px] border-none">
-                        {lang === "th" ? "เข้าร่วมอยู่" : "Active in Campaign"}
+                        {s("activeInCampaign")}
                       </Badge>
                     )}
                   </div>
@@ -722,15 +1034,9 @@ function Pricing() {
                     {updateCourseMutation.isPending ? (
                       <Loader2 className="h-4 w-4 animate-spin" />
                     ) : c.is_campaign_active ? (
-                      lang === "th" ? (
-                        "ยกเลิก"
-                      ) : (
-                        "Leave"
-                      )
-                    ) : lang === "th" ? (
-                      "เข้าร่วม"
+                      s("leave")
                     ) : (
-                      "Join"
+                      s("join")
                     )}
                   </Button>
                 </div>

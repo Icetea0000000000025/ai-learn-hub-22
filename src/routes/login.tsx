@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/lib/auth";
 import { useI18n } from "@/lib/i18n";
+import type { Language } from "@/lib/i18n";
 import { toast } from "sonner";
 import {
   Sparkles,
@@ -33,6 +34,168 @@ export const Route = createFileRoute("/login")({
   component: LoginPage,
 });
 
+// ---------------------------------------------------------------------------
+// Localisation strings for the Login page
+// ---------------------------------------------------------------------------
+const loginStrings: Record<Language, Record<string, string>> = {
+  en: {
+    heroDesc:
+      "Join 50,000+ learners worldwide and start generating personalized educational journeys in seconds.",
+    aiGeneration: "AI Generation",
+    fastAsLight: "Fast as light",
+    verifiedPaths: "Verified Paths",
+    expertCurated: "Expert curated",
+    globalAccess: "Global Access",
+    learnAnywhere: "Learn anywhere",
+    smartAssessments: "Smart Assessments",
+    personalizedTests: "Personalized tests",
+    trustedBy: "Trusted by teams at",
+    joinAs: "I want to join as a",
+    studentLabel: "Student",
+    studentSub: "Learning",
+    creatorLabel: "Creator",
+    creatorSub: "Teaching",
+    signIn: "Sign In",
+    backToLogin: "Back to Login",
+    secureAuth: "Secure Authentication",
+    signUpNow: "Sign up now",
+    signInInstead: "Sign in instead",
+    privacy: "Privacy",
+    terms: "Terms",
+    support: "Support",
+  },
+  th: {
+    heroDesc:
+      "เข้าร่วมกับผู้เรียนกว่า 50,000 คนทั่วโลก และเริ่มสร้างเส้นทางการเรียนรู้เฉพาะตัวได้ในไม่กี่วินาที",
+    aiGeneration: "การสร้างด้วย AI",
+    fastAsLight: "รวดเร็วดั่งแสง",
+    verifiedPaths: "เส้นทางที่ตรวจสอบแล้ว",
+    expertCurated: "คัดสรรโดยผู้เชี่ยวชาญ",
+    globalAccess: "เข้าถึงได้ทั่วโลก",
+    learnAnywhere: "เรียนรู้ได้ทุกที่",
+    smartAssessments: "การประเมินอัจฉริยะ",
+    personalizedTests: "การทดสอบเฉพาะบุคคล",
+    trustedBy: "ได้รับความไว้วางใจจากทีมงานที่",
+    joinAs: "ฉันต้องการเข้าร่วมในฐานะ",
+    studentLabel: "นักเรียน / ผู้เรียน",
+    studentSub: "การเรียนรู้",
+    creatorLabel: "ผู้สอน / ผู้สร้าง",
+    creatorSub: "การสอน",
+    signIn: "เข้าสู่ระบบ",
+    backToLogin: "กลับสู่หน้าเข้าสู่ระบบ",
+    secureAuth: "ระบบล็อกอินที่ปลอดภัย",
+    signUpNow: "สมัครใช้งานที่นี่",
+    signInInstead: "เข้าสู่ระบบที่นี่",
+    privacy: "นโยบายความเป็นส่วนตัว",
+    terms: "ข้อกำหนดการใช้งาน",
+    support: "ฝ่ายช่วยเหลือ",
+  },
+  es: {
+    heroDesc:
+      "Únete a más de 50,000 estudiantes en todo el mundo y comienza a generar rutas de aprendizaje personalizadas en segundos.",
+    aiGeneration: "Generación IA",
+    fastAsLight: "Rápido como la luz",
+    verifiedPaths: "Rutas Verificadas",
+    expertCurated: "Seleccionado por expertos",
+    globalAccess: "Acceso Global",
+    learnAnywhere: "Aprende en cualquier lugar",
+    smartAssessments: "Evaluaciones Inteligentes",
+    personalizedTests: "Pruebas personalizadas",
+    trustedBy: "Con la confianza de equipos en",
+    joinAs: "Quiero unirme como",
+    studentLabel: "Estudiante",
+    studentSub: "Aprendizaje",
+    creatorLabel: "Creador",
+    creatorSub: "Enseñanza",
+    signIn: "Iniciar Sesión",
+    backToLogin: "Volver al inicio de sesión",
+    secureAuth: "Autenticación Segura",
+    signUpNow: "Regístrate ahora",
+    signInInstead: "Inicia sesión aquí",
+    privacy: "Privacidad",
+    terms: "Términos",
+    support: "Soporte",
+  },
+  ja: {
+    heroDesc:
+      "世界中の50,000人以上の学習者に参加して、数秒でパーソナライズされた学習の旅を始めましょう。",
+    aiGeneration: "AI生成",
+    fastAsLight: "光の速さ",
+    verifiedPaths: "認定済みパス",
+    expertCurated: "専門家が選定",
+    globalAccess: "グローバルアクセス",
+    learnAnywhere: "どこでも学べる",
+    smartAssessments: "スマート評価",
+    personalizedTests: "個別テスト",
+    trustedBy: "以下のチームに信頼されています",
+    joinAs: "参加する役割を選択",
+    studentLabel: "学生",
+    studentSub: "学習",
+    creatorLabel: "クリエイター",
+    creatorSub: "教育",
+    signIn: "サインイン",
+    backToLogin: "ログインに戻る",
+    secureAuth: "セキュア認証",
+    signUpNow: "今すぐ登録",
+    signInInstead: "サインインはこちら",
+    privacy: "プライバシー",
+    terms: "利用規約",
+    support: "サポート",
+  },
+  zh: {
+    heroDesc:
+      "加入全球50,000多名学习者，即刻开启个性化学习之旅。",
+    aiGeneration: "AI 生成",
+    fastAsLight: "快如闪电",
+    verifiedPaths: "认证学习路径",
+    expertCurated: "专家精选",
+    globalAccess: "全球访问",
+    learnAnywhere: "随时随地学习",
+    smartAssessments: "智能评估",
+    personalizedTests: "个性化测试",
+    trustedBy: "受到以下团队信赖",
+    joinAs: "我想以身份加入",
+    studentLabel: "学生",
+    studentSub: "学习",
+    creatorLabel: "创作者",
+    creatorSub: "教学",
+    signIn: "登录",
+    backToLogin: "返回登录",
+    secureAuth: "安全认证",
+    signUpNow: "立即注册",
+    signInInstead: "在此登录",
+    privacy: "隐私政策",
+    terms: "使用条款",
+    support: "支持",
+  },
+  ko: {
+    heroDesc:
+      "전 세계 50,000명 이상의 학습자와 함께하고 몇 초 만에 개인화된 학습 여정을 시작하세요.",
+    aiGeneration: "AI 생성",
+    fastAsLight: "빛처럼 빠르게",
+    verifiedPaths: "검증된 경로",
+    expertCurated: "전문가 선별",
+    globalAccess: "글로벌 접근",
+    learnAnywhere: "어디서나 학습",
+    smartAssessments: "스마트 평가",
+    personalizedTests: "맞춤형 테스트",
+    trustedBy: "다음 팀에서 신뢰합니다",
+    joinAs: "다음으로 가입하고 싶습니다",
+    studentLabel: "학생",
+    studentSub: "학습",
+    creatorLabel: "크리에이터",
+    creatorSub: "교육",
+    signIn: "로그인",
+    backToLogin: "로그인으로 돌아가기",
+    secureAuth: "보안 인증",
+    signUpNow: "지금 가입하기",
+    signInInstead: "로그인하기",
+    privacy: "개인정보 처리방침",
+    terms: "이용약관",
+    support: "고객지원",
+  },
+};
+
 function LoginPage() {
   const { lang, t } = useI18n();
   const { mode: initialMode, redirect: redirectPath } = Route.useSearch();
@@ -44,6 +207,8 @@ function LoginPage() {
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const { signIn, signUp, user, resetPassword, signInWithGoogle } = useAuth();
   const navigate = useNavigate();
+
+  const s = (key: string) => loginStrings[lang]?.[key] ?? loginStrings.en[key];
 
   useEffect(() => {
     if (user && mode !== "reset") {
@@ -130,9 +295,7 @@ function LoginPage() {
               transition={{ duration: 0.6, delay: 0.1 }}
               className="text-lg text-zinc-400 font-medium leading-relaxed"
             >
-              {lang === "th"
-                ? "เข้าร่วมกับผู้เรียนกว่า 50,000 คนทั่วโลก และเริ่มสร้างเส้นทางการเรียนรู้เฉพาะตัวได้ในไม่กี่วินาที"
-                : "Join 50,000+ learners worldwide and start generating personalized educational journeys in seconds."}
+              {s("heroDesc")}
             </motion.p>
           </div>
 
@@ -145,23 +308,23 @@ function LoginPage() {
             {[
               {
                 icon: Zap,
-                label: lang === "th" ? "การสร้างด้วย AI" : "AI Generation",
-                sub: lang === "th" ? "รวดเร็วดั่งแสง" : "Fast as light",
+                label: s("aiGeneration"),
+                sub: s("fastAsLight"),
               },
               {
                 icon: ShieldCheck,
-                label: lang === "th" ? "เส้นทางที่ตรวจสอบแล้ว" : "Verified Paths",
-                sub: lang === "th" ? "คัดสรรโดยผู้เชี่ยวชาญ" : "Expert curated",
+                label: s("verifiedPaths"),
+                sub: s("expertCurated"),
               },
               {
                 icon: Globe,
-                label: lang === "th" ? "เข้าถึงได้ทั่วโลก" : "Global Access",
-                sub: lang === "th" ? "เรียนรู้ได้ทุกที่" : "Learn anywhere",
+                label: s("globalAccess"),
+                sub: s("learnAnywhere"),
               },
               {
                 icon: Sparkles,
-                label: lang === "th" ? "การประเมินอัจฉริยะ" : "Smart Assessments",
-                sub: lang === "th" ? "การทดสอบเฉพาะบุคคล" : "Personalized tests",
+                label: s("smartAssessments"),
+                sub: s("personalizedTests"),
               },
             ].map((item, idx) => (
               <div
@@ -180,7 +343,7 @@ function LoginPage() {
 
         <div className="flex items-center gap-6">
           <p className="text-xs font-bold text-zinc-500 uppercase tracking-[0.2em]">
-            {lang === "th" ? "ได้รับความไว้วางใจจากทีมงานที่" : "Trusted by teams at"}
+            {s("trustedBy")}
           </p>
           <div className="flex items-center gap-6 opacity-30 grayscale invert font-black tracking-tighter">
             <span>TECHCORP</span>
@@ -231,7 +394,7 @@ function LoginPage() {
                     className="space-y-3 mb-6"
                   >
                     <Label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest ml-1">
-                      {lang === "th" ? "ฉันต้องการเข้าร่วมในฐานะ" : "I want to join as a"}
+                      {s("joinAs")}
                     </Label>
                     <div className="grid grid-cols-2 gap-3">
                       <button
@@ -252,10 +415,10 @@ function LoginPage() {
                         />
                         <div>
                           <p className="text-xs font-bold leading-none">
-                            {lang === "th" ? "นักเรียน / ผู้เรียน" : "Student"}
+                            {s("studentLabel")}
                           </p>
                           <p className="text-[9px] font-medium mt-1 opacity-60">
-                            {lang === "th" ? "การเรียนรู้" : "Learning"}
+                            {s("studentSub")}
                           </p>
                         </div>
                       </button>
@@ -277,10 +440,10 @@ function LoginPage() {
                         />
                         <div>
                           <p className="text-xs font-bold leading-none">
-                            {lang === "th" ? "ผู้สอน / ผู้สร้าง" : "Creator"}
+                            {s("creatorLabel")}
                           </p>
                           <p className="text-[9px] font-medium mt-1 opacity-60">
-                            {lang === "th" ? "การสอน" : "Teaching"}
+                            {s("creatorSub")}
                           </p>
                         </div>
                       </button>
@@ -346,7 +509,7 @@ function LoginPage() {
                 <Loader2 className="h-5 w-5 animate-spin" />
               ) : (
                 <span className="flex items-center gap-2">
-                  {mode === "login" && (lang === "th" ? "เข้าสู่ระบบ" : "Sign In")}
+                  {mode === "login" && s("signIn")}
                   {mode === "signup" && t("startJourney")}
                   {mode === "forgot" && t("resetButton")}
                   <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
@@ -361,7 +524,7 @@ function LoginPage() {
                 className="w-full text-center text-[10px] font-black text-zinc-500 hover:text-white uppercase tracking-widest flex items-center justify-center gap-2"
               >
                 <ChevronLeft className="h-3 w-3" />{" "}
-                {lang === "th" ? "กลับสู่หน้าเข้าสู่ระบบ" : "Back to Login"}
+                {s("backToLogin")}
               </button>
             )}
           </form>
@@ -372,7 +535,7 @@ function LoginPage() {
             </div>
             <div className="relative flex justify-center text-[10px] font-black uppercase tracking-[0.3em]">
               <span className="bg-zinc-950 px-4 text-zinc-600">
-                {lang === "th" ? "ระบบล็อกอินที่ปลอดภัย" : "Secure Authentication"}
+                {s("secureAuth")}
               </span>
             </div>
           </div>
@@ -418,13 +581,7 @@ function LoginPage() {
                 onClick={() => setMode(mode === "login" ? "signup" : "login")}
                 className="text-indigo-400 hover:text-indigo-300 font-bold underline underline-offset-4 decoration-indigo-400/30"
               >
-                {mode === "login"
-                  ? lang === "th"
-                    ? "สมัครใช้งานที่นี่"
-                    : "Sign up now"
-                  : lang === "th"
-                    ? "เข้าสู่ระบบที่นี่"
-                    : "Sign in instead"}
+                {mode === "login" ? s("signUpNow") : s("signInInstead")}
               </button>
             </p>
           )}
@@ -437,13 +594,13 @@ function LoginPage() {
           </p>
           <div className="flex items-center gap-6 text-[10px] font-black text-zinc-500 uppercase tracking-widest">
             <Link to="/privacy" className="hover:text-zinc-300 transition-colors">
-              {lang === "th" ? "นโยบายความเป็นส่วนตัว" : "Privacy"}
+              {s("privacy")}
             </Link>
             <Link to="/terms" className="hover:text-zinc-300 transition-colors">
-              {lang === "th" ? "ข้อกำหนดการใช้งาน" : "Terms"}
+              {s("terms")}
             </Link>
             <Link to="/about" className="hover:text-zinc-300 transition-colors">
-              {lang === "th" ? "ฝ่ายช่วยเหลือ" : "Support"}
+              {s("support")}
             </Link>
           </div>
         </footer>

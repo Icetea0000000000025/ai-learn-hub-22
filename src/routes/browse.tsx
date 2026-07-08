@@ -36,6 +36,7 @@ import { cn } from "@/lib/utils";
 
 import { z } from "zod";
 import { useIsMobile } from "@/hooks/use-mobile";
+import type { Language } from "@/lib/i18n";
 
 const browseSearchSchema = z.object({
   search: z.string().catch("").optional(),
@@ -74,6 +75,244 @@ const SORT_LABELS: Record<SortOption, string> = {
   "price-desc": "Price ↓",
 };
 
+// ── Browse page string table (all 6 languages) ──────────────────────────────
+const browseStrings: Record<Language, Record<string, string>> = {
+  en: {
+    promoted: "Promoted",
+    bestSeller: "Best Seller",
+    flashSale: "Flash Sale",
+    enrolled: "Enrolled",
+    free: "Free",
+    learnMore: "Learn More →",
+    exclusivePartnerDeal: "Exclusive Partner Deal",
+    beginner: "Beginner",
+    intermediate: "Intermediate",
+    advanced: "Advanced",
+    levelAny: "Any",
+    levelAll: "All Levels",
+    // Hero
+    heroLine1: "Find Your Next",
+    heroHighlight: "Skill",
+    heroCourseDesc: "professional courses across design, business, and tech.",
+    // Quick stats
+    statCourses: "Courses",
+    statLearners: "Learners",
+    statCategories: "Categories",
+    // Toolbar
+    filters: "Filters",
+    results: "results",
+    // Sidebar section titles
+    categoryTitle: "Category",
+    allCategories: "All Categories",
+    levelTitle: "Level",
+    pricingTitle: "Pricing",
+    pricingAny: "Any",
+    statusTitle: "Status",
+    allCourses: "All Courses",
+    // AI CTA
+    aiCtaTitle: "Build a custom path",
+    aiCtaDesc: "Let Gemini generate a course tailored to your exact learning goals.",
+    aiCtaBtn: "Launch AI Lab",
+    // Empty state
+    emptyAdjust: "Try adjusting your search terms or removing some filters.",
+  },
+  th: {
+    promoted: "คอร์สแนะนำ",
+    bestSeller: "คอร์สขายดี",
+    flashSale: "ลดราคาพิเศษ",
+    enrolled: "ลงทะเบียนแล้ว",
+    free: "ฟรี",
+    learnMore: "เรียนรู้เพิ่มเติม →",
+    exclusivePartnerDeal: "ดีลพิเศษสำหรับพาร์ทเนอร์",
+    beginner: "เริ่มต้น",
+    intermediate: "ปานกลาง",
+    advanced: "ขั้นสูง",
+    levelAny: "ทั้งหมด",
+    levelAll: "ทุกระดับ",
+    // Hero
+    heroLine1: "ค้นหา",
+    heroHighlight: "ทักษะถัดไปของคุณ",
+    heroCourseDesc: "หลักสูตรระดับมืออาชีพในด้านการออกแบบ ธุรกิจ และเทคโนโลยี",
+    // Quick stats
+    statCourses: "คอร์ส",
+    statLearners: "ผู้เรียน",
+    statCategories: "หมวดหมู่",
+    // Toolbar
+    filters: "ตัวกรอง",
+    results: "รายการ",
+    // Sidebar section titles
+    categoryTitle: "หมวดหมู่",
+    allCategories: "ทุกหมวดหมู่",
+    levelTitle: "ระดับ",
+    pricingTitle: "ราคา",
+    pricingAny: "ทั้งหมด",
+    statusTitle: "สถานะ",
+    allCourses: "คอร์สทั้งหมด",
+    // AI CTA
+    aiCtaTitle: "สร้างเส้นทางของคุณเอง",
+    aiCtaDesc: "ให้ Gemini สร้างคอร์สที่ปรับแต่งให้ตรงกับเป้าหมายการเรียนรู้ของคุณอย่างแม่นยำ",
+    aiCtaBtn: "เริ่มต้นสร้างด้วย AI",
+    // Empty state
+    emptyAdjust: "ลองปรับคำค้นหาหรือลบตัวกรองบางตัวออก",
+  },
+  es: {
+    promoted: "Destacado",
+    bestSeller: "Más Vendido",
+    flashSale: "Oferta Flash",
+    enrolled: "Inscrito",
+    free: "Gratis",
+    learnMore: "Saber Más →",
+    exclusivePartnerDeal: "Oferta Exclusiva de Socio",
+    beginner: "Principiante",
+    intermediate: "Intermedio",
+    advanced: "Avanzado",
+    levelAny: "Cualquiera",
+    levelAll: "Todos los Niveles",
+    // Hero
+    heroLine1: "Encuentra Tu Próxima",
+    heroHighlight: "Habilidad",
+    heroCourseDesc: "cursos profesionales en diseño, negocios y tecnología.",
+    // Quick stats
+    statCourses: "Cursos",
+    statLearners: "Estudiantes",
+    statCategories: "Categorías",
+    // Toolbar
+    filters: "Filtros",
+    results: "resultados",
+    // Sidebar section titles
+    categoryTitle: "Categoría",
+    allCategories: "Todas las Categorías",
+    levelTitle: "Nivel",
+    pricingTitle: "Precio",
+    pricingAny: "Cualquiera",
+    statusTitle: "Estado",
+    allCourses: "Todos los Cursos",
+    // AI CTA
+    aiCtaTitle: "Crea un camino personalizado",
+    aiCtaDesc: "Deja que Gemini genere un curso adaptado a tus objetivos de aprendizaje.",
+    aiCtaBtn: "Abrir AI Lab",
+    // Empty state
+    emptyAdjust: "Intenta ajustar los términos de búsqueda o eliminar algunos filtros.",
+  },
+  ja: {
+    promoted: "おすすめ",
+    bestSeller: "ベストセラー",
+    flashSale: "フラッシュセール",
+    enrolled: "受講中",
+    free: "無料",
+    learnMore: "詳しく見る →",
+    exclusivePartnerDeal: "限定パートナー特典",
+    beginner: "初級",
+    intermediate: "中級",
+    advanced: "上級",
+    levelAny: "すべて",
+    levelAll: "全レベル",
+    // Hero
+    heroLine1: "次のスキルを",
+    heroHighlight: "見つけよう",
+    heroCourseDesc: "デザイン・ビジネス・テクノロジーの専門コース",
+    // Quick stats
+    statCourses: "コース",
+    statLearners: "受講者",
+    statCategories: "カテゴリー",
+    // Toolbar
+    filters: "フィルター",
+    results: "件",
+    // Sidebar section titles
+    categoryTitle: "カテゴリー",
+    allCategories: "すべてのカテゴリー",
+    levelTitle: "レベル",
+    pricingTitle: "価格",
+    pricingAny: "すべて",
+    statusTitle: "ステータス",
+    allCourses: "すべてのコース",
+    // AI CTA
+    aiCtaTitle: "カスタムパスを作成",
+    aiCtaDesc: "Geminiがあなたの学習目標に合わせたコースを生成します。",
+    aiCtaBtn: "AI Labを起動",
+    // Empty state
+    emptyAdjust: "検索条件を変更するか、フィルターを外してみてください。",
+  },
+  zh: {
+    promoted: "推荐课程",
+    bestSeller: "畅销课程",
+    flashSale: "限时特卖",
+    enrolled: "已报名",
+    free: "免费",
+    learnMore: "了解更多 →",
+    exclusivePartnerDeal: "独家合作优惠",
+    beginner: "初级",
+    intermediate: "中级",
+    advanced: "高级",
+    levelAny: "全部",
+    levelAll: "所有级别",
+    // Hero
+    heroLine1: "发现你的下一个",
+    heroHighlight: "技能",
+    heroCourseDesc: "涵盖设计、商业和技术的专业课程。",
+    // Quick stats
+    statCourses: "课程",
+    statLearners: "学员",
+    statCategories: "分类",
+    // Toolbar
+    filters: "筛选",
+    results: "个结果",
+    // Sidebar section titles
+    categoryTitle: "分类",
+    allCategories: "所有分类",
+    levelTitle: "级别",
+    pricingTitle: "价格",
+    pricingAny: "全部",
+    statusTitle: "状态",
+    allCourses: "全部课程",
+    // AI CTA
+    aiCtaTitle: "构建专属学习路径",
+    aiCtaDesc: "让 Gemini 根据您的学习目标生成定制课程。",
+    aiCtaBtn: "启动 AI 实验室",
+    // Empty state
+    emptyAdjust: "请尝试调整搜索词或移除部分筛选条件。",
+  },
+  ko: {
+    promoted: "추천 강좌",
+    bestSeller: "베스트셀러",
+    flashSale: "특가 세일",
+    enrolled: "수강 중",
+    free: "무료",
+    learnMore: "자세히 보기 →",
+    exclusivePartnerDeal: "독점 파트너 혜택",
+    beginner: "초급",
+    intermediate: "중급",
+    advanced: "고급",
+    levelAny: "전체",
+    levelAll: "모든 레벨",
+    // Hero
+    heroLine1: "다음 스킬을",
+    heroHighlight: "찾아보세요",
+    heroCourseDesc: "디자인, 비즈니스, 기술 분야의 전문 강좌.",
+    // Quick stats
+    statCourses: "강좌",
+    statLearners: "수강생",
+    statCategories: "카테고리",
+    // Toolbar
+    filters: "필터",
+    results: "개 결과",
+    // Sidebar section titles
+    categoryTitle: "카테고리",
+    allCategories: "모든 카테고리",
+    levelTitle: "레벨",
+    pricingTitle: "가격",
+    pricingAny: "전체",
+    statusTitle: "상태",
+    allCourses: "전체 강좌",
+    // AI CTA
+    aiCtaTitle: "맞춤 학습 경로 만들기",
+    aiCtaDesc: "Gemini가 당신의 학습 목표에 맞는 강좌를 생성해 드립니다.",
+    aiCtaBtn: "AI Lab 시작",
+    // Empty state
+    emptyAdjust: "검색어를 수정하거나 일부 필터를 제거해 보세요.",
+  },
+};
+
 function ActiveFilterChip({ label, onRemove }: { label: string; onRemove: () => void }) {
   return (
     <motion.span
@@ -103,6 +342,9 @@ function CourseCard({
 }) {
   const { lang, t } = useI18n();
   const [hovered, setHovered] = useState(false);
+
+  // Helper: look up a key from browseStrings for the current language
+  const s = (key: string) => browseStrings[lang as Language]?.[key] ?? browseStrings.en[key];
 
   return (
     <motion.div
@@ -165,25 +407,25 @@ function CourseCard({
             {course.adType === "featured" && (
               <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-indigo-600 text-white text-[10px] font-black tracking-widest uppercase shadow-lg shadow-indigo-600/30">
                 <Zap className="h-3 w-3 fill-white" />
-                {lang === "th" ? "คอร์สแนะนำ" : "Promoted"}
+                {s("promoted")}
               </span>
             )}
             {isBestSeller && (
               <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-400 text-white text-[10px] font-black tracking-widest uppercase shadow-lg shadow-amber-400/30">
                 <Trophy className="h-3 w-3 fill-white" />
-                {lang === "th" ? "คอร์สขายดี" : "Best Seller"}
+                {s("bestSeller")}
               </span>
             )}
             {isSaleActive(course) && (
               <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-rose-500 text-white text-[10px] font-black tracking-widest uppercase shadow-lg shadow-rose-500/30">
                 <Zap className="h-3 w-3 fill-white" />
-                {lang === "th" ? "ลดราคาพิเศษ" : "Flash Sale"}
+                {s("flashSale")}
               </span>
             )}
             {isEnrolled && (
               <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-500 text-white text-[10px] font-black tracking-widest uppercase shadow-lg shadow-emerald-500/30">
                 <CheckCircle2 className="h-3 w-3" />
-                {lang === "th" ? "ลงทะเบียนแล้ว" : "Enrolled"}
+                {s("enrolled")}
               </span>
             )}
           </div>
@@ -197,17 +439,11 @@ function CourseCard({
               )}
             >
               {course.level === "Beginner"
-                ? lang === "th"
-                  ? "เริ่มต้น"
-                  : "Beginner"
+                ? s("beginner")
                 : course.level === "Intermediate"
-                  ? lang === "th"
-                    ? "ปานกลาง"
-                    : "Intermediate"
+                  ? s("intermediate")
                   : course.level === "Advanced"
-                    ? lang === "th"
-                      ? "ขั้นสูง"
-                      : "Advanced"
+                    ? s("advanced")
                     : course.level || "Beginner"}
             </span>
           </div>
@@ -259,7 +495,7 @@ function CourseCard({
           <div>
             {course.price === 0 ? (
               <span className="text-emerald-600 font-black text-base tracking-tight uppercase tracking-widest text-[10px]">
-                {lang === "th" ? "ฟรี" : "Free"}
+                {s("free")}
               </span>
             ) : (
               <div className="flex flex-col">
@@ -282,14 +518,14 @@ function CourseCard({
                 </div>
                 {course.isCampaignActive && !isSaleActive(course) && (
                   <span className="text-[8px] font-black text-indigo-500 uppercase tracking-widest leading-none mt-0.5 animate-pulse">
-                    Exclusive Partner Deal
+                    {s("exclusivePartnerDeal")}
                   </span>
                 )}
               </div>
             )}
           </div>
           <span className="text-[10px] font-black uppercase tracking-widest text-indigo-600 group-hover:underline underline-offset-4 transition-all">
-            {lang === "th" ? "เรียนรู้เพิ่มเติม →" : "Learn More →"}
+            {s("learnMore")}
           </span>
         </div>
       </Link>
@@ -302,6 +538,9 @@ function Browse() {
   const { lang, t } = useI18n();
   const navigate = useNavigate();
   const searchParams = Route.useSearch();
+
+  // Helper: look up a key from browseStrings for the current language
+  const s = (key: string) => browseStrings[lang as Language]?.[key] ?? browseStrings.en[key];
 
   const search = searchParams.search || "";
   const selectedCategory = searchParams.category || null;
@@ -475,25 +714,13 @@ function Browse() {
             <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8">
               <div>
                 <h1 className="text-4xl sm:text-5xl font-black text-slate-900 tracking-tight leading-none mb-3">
-                  {lang === "th" ? (
-                    <>
-                      ค้นหา
-                      <br />
-                      <span className="text-indigo-600">ทักษะถัดไปของคุณ</span>
-                    </>
-                  ) : (
-                    <>
-                      Find Your Next
-                      <br />
-                      <span className="text-indigo-600">Skill</span>
-                    </>
-                  )}
+                  {s("heroLine1")}
+                  <br />
+                  <span className="text-indigo-600">{s("heroHighlight")}</span>
                 </h1>
                 <p className="text-slate-500 text-[15px] max-w-md font-medium leading-relaxed">
                   {courses.filter((c) => c.status?.toLowerCase() === "published").length}{" "}
-                  {lang === "th"
-                    ? "หลักสูตรระดับมืออาชีพในด้านการออกแบบ ธุรกิจ และเทคโนโลยี"
-                    : "professional courses across design, business, and tech."}
+                  {s("heroCourseDesc")}
                 </p>
               </div>
 
@@ -522,17 +749,17 @@ function Browse() {
               {[
                 {
                   icon: BookOpen,
-                  label: lang === "th" ? "คอร์ส" : "Courses",
+                  label: s("statCourses"),
                   value: courses.filter((c) => c.status?.toLowerCase() === "published").length,
                 },
                 {
                   icon: Users,
-                  label: lang === "th" ? "ผู้เรียน" : "Learners",
+                  label: s("statLearners"),
                   value: courses.reduce((a, c) => a + (c.students || 0), 0).toLocaleString(),
                 },
                 {
                   icon: TrendingUp,
-                  label: lang === "th" ? "หมวดหมู่" : "Categories",
+                  label: s("statCategories"),
                   value: categories.length,
                 },
               ].map((stat) => (
@@ -561,7 +788,7 @@ function Browse() {
                 )}
               >
                 <SlidersHorizontal className="h-3.5 w-3.5" />
-                {lang === "th" ? "ตัวกรอง" : "Filters"}
+                {s("filters")}
                 {hasActiveFilters && (
                   <span className="h-4 w-4 rounded-full bg-indigo-600 text-white text-[9px] font-black flex items-center justify-center flex-shrink-0">
                     !
@@ -581,17 +808,11 @@ function Browse() {
                   <ActiveFilterChip
                     label={
                       selectedLevel === "Beginner"
-                        ? lang === "th"
-                          ? "เริ่มต้น"
-                          : "Beginner"
+                        ? s("beginner")
                         : selectedLevel === "Intermediate"
-                          ? lang === "th"
-                            ? "ปานกลาง"
-                            : "Intermediate"
+                          ? s("intermediate")
                           : selectedLevel === "Advanced"
-                            ? lang === "th"
-                              ? "ขั้นสูง"
-                              : "Advanced"
+                            ? s("advanced")
                             : selectedLevel
                     }
                     onRemove={() => updateFilters({ level: "all" })}
@@ -626,7 +847,7 @@ function Browse() {
             {/* Right: result count + sort */}
             <div className="flex items-center gap-3 flex-shrink-0">
               <span className="hidden sm:block text-[12px] font-semibold text-slate-400">
-                {filteredCourses.length} {lang === "th" ? "รายการ" : "results"}
+                {filteredCourses.length} {s("results")}
               </span>
 
               {/* Sort dropdown */}
@@ -712,14 +933,14 @@ function Browse() {
                   <div className="w-[280px] space-y-6 sticky top-32 bg-slate-50/40 border border-slate-200/50 p-5 rounded-[2.5rem] backdrop-blur-sm shadow-sm">
                     {/* Category */}
                     <FilterSection
-                      title={lang === "th" ? "หมวดหมู่" : "Category"}
+                      title={s("categoryTitle")}
                       icon={<LayoutGrid className="h-3.5 w-3.5" />}
                     >
                       <CategoryFilterBtn
                         active={selectedCategory === null}
                         onClick={() => updateFilters({ category: "" })}
                       >
-                        {lang === "th" ? "ทุกหมวดหมู่" : "All Categories"}
+                        {s("allCategories")}
                       </CategoryFilterBtn>
                       {categories.map((cat) => (
                         <CategoryFilterBtn
@@ -734,7 +955,7 @@ function Browse() {
 
                     {/* Level */}
                     <FilterSection
-                      title={lang === "th" ? "ระดับ" : "Level"}
+                      title={s("levelTitle")}
                       icon={<BarChart3 className="h-3.5 w-3.5" />}
                     >
                       <div className="grid grid-cols-2 gap-1.5">
@@ -746,21 +967,13 @@ function Browse() {
                               onClick={() => updateFilters({ level: lv })}
                             >
                               {lv === "all"
-                                ? lang === "th"
-                                  ? "ทั้งหมด"
-                                  : "Any"
+                                ? s("levelAny")
                                 : lv === "Beginner"
-                                  ? lang === "th"
-                                    ? "เริ่มต้น"
-                                    : "Beginner"
+                                  ? s("beginner")
                                   : lv === "Intermediate"
-                                    ? lang === "th"
-                                      ? "ปานกลาง"
-                                      : "Intermediate"
+                                    ? s("intermediate")
                                     : lv === "Advanced"
-                                      ? lang === "th"
-                                        ? "ขั้นสูง"
-                                        : "Advanced"
+                                      ? s("advanced")
                                       : lv}
                             </SegmentedFilterBtn>
                           ),
@@ -770,12 +983,12 @@ function Browse() {
 
                     {/* Pricing */}
                     <FilterSection
-                      title={lang === "th" ? "ราคา" : "Pricing"}
+                      title={s("pricingTitle")}
                       icon={<DollarSign className="h-3.5 w-3.5" />}
                     >
                       <div className="grid grid-cols-3 gap-1.5">
                         {[
-                          { id: "all", label: lang === "th" ? "ทั้งหมด" : "Any" },
+                          { id: "all", label: s("pricingAny") },
                           { id: "free", label: t("free") },
                           { id: "paid", label: t("paid") },
                         ].map((item) => (
@@ -793,12 +1006,12 @@ function Browse() {
                     {/* Enrollment — auth only */}
                     {user && (
                       <FilterSection
-                        title={lang === "th" ? "สถานะ" : "Status"}
+                        title={s("statusTitle")}
                         icon={<CheckCircle2 className="h-3.5 w-3.5" />}
                       >
                         <div className="space-y-1">
                           {[
-                            { id: "all", label: lang === "th" ? "คอร์สทั้งหมด" : "All Courses" },
+                            { id: "all", label: s("allCourses") },
                             { id: "enrolled", label: t("enrolled") },
                             { id: "not-enrolled", label: t("notEnrolled") },
                           ].map((item) => (
@@ -819,18 +1032,16 @@ function Browse() {
                       <div className="absolute top-0 right-0 w-24 h-24 bg-indigo-500/20 rounded-full blur-2xl group-hover:bg-indigo-500/30 transition-colors" />
                       <Sparkles className="h-5 w-5 text-indigo-400 mb-3 fill-indigo-500/10 animate-pulse" />
                       <p className="font-black text-sm mb-1 tracking-tight">
-                        {lang === "th" ? "สร้างเส้นทางของคุณเอง" : "Build a custom path"}
+                        {s("aiCtaTitle")}
                       </p>
                       <p className="text-slate-400 text-[11px] leading-relaxed mb-4 font-medium">
-                        {lang === "th"
-                          ? "ให้ Gemini สร้างคอร์สที่ปรับแต่งให้ตรงกับเป้าหมายการเรียนรู้ของคุณอย่างแม่นยำ"
-                          : "Let Gemini generate a course tailored to your exact learning goals."}
+                        {s("aiCtaDesc")}
                       </p>
                       <Link
                         to="/generate"
                         className="block w-full py-2.5 text-center text-[10px] font-black uppercase tracking-[0.15em] rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white transition-all shadow-md shadow-indigo-600/25 duration-200 hover:scale-[1.02]"
                       >
-                        {lang === "th" ? "เริ่มต้นสร้างด้วย AI" : "Launch AI Lab"}
+                        {s("aiCtaBtn")}
                       </Link>
                     </div>
                   </div>
@@ -890,9 +1101,7 @@ function Browse() {
                   </div>
                   <h3 className="text-xl font-black text-slate-900 mb-2">{t("noCoursesFound")}</h3>
                   <p className="text-slate-400 text-sm font-medium max-w-xs leading-relaxed mb-8">
-                    {lang === "th"
-                      ? "ลองปรับคำค้นหาหรือลบตัวกรองบางตัวออก"
-                      : "Try adjusting your search terms or removing some filters."}
+                    {s("emptyAdjust")}
                   </p>
                   <button
                     onClick={clearAll}

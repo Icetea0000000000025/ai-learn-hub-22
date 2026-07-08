@@ -284,10 +284,10 @@ export function SiteHeader() {
             </DropdownMenuTrigger>
             <DropdownMenuContent
               align="end"
-              className="w-40 rounded-2xl p-2 shadow-2xl bg-white border-border"
+              className="w-48 rounded-2xl p-2 shadow-2xl bg-white border-border"
             >
               <DropdownMenuItem
-                onClick={() => setLang("en")}
+                onSelect={() => setLang("en")}
                 className={cn(
                   "rounded-xl px-3 py-2 text-xs font-black uppercase tracking-widest cursor-pointer transition-colors",
                   lang === "en"
@@ -298,7 +298,7 @@ export function SiteHeader() {
                 English
               </DropdownMenuItem>
               <DropdownMenuItem
-                onClick={() => setLang("th")}
+                onSelect={() => setLang("th")}
                 className={cn(
                   "rounded-xl px-3 py-2 text-xs font-black uppercase tracking-widest cursor-pointer transition-colors mt-1",
                   lang === "th"
@@ -307,6 +307,50 @@ export function SiteHeader() {
                 )}
               >
                 ภาษาไทย
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onSelect={() => setLang("es")}
+                className={cn(
+                  "rounded-xl px-3 py-2 text-xs font-black uppercase tracking-widest cursor-pointer transition-colors mt-1",
+                  lang === "es"
+                    ? "bg-primary/10 text-primary"
+                    : "text-muted-foreground hover:bg-slate-50",
+                )}
+              >
+                Español
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onSelect={() => setLang("ja")}
+                className={cn(
+                  "rounded-xl px-3 py-2 text-xs font-black uppercase tracking-widest cursor-pointer transition-colors mt-1",
+                  lang === "ja"
+                    ? "bg-primary/10 text-primary"
+                    : "text-muted-foreground hover:bg-slate-50",
+                )}
+              >
+                日本語
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onSelect={() => setLang("zh")}
+                className={cn(
+                  "rounded-xl px-3 py-2 text-xs font-black uppercase tracking-widest cursor-pointer transition-colors mt-1",
+                  lang === "zh"
+                    ? "bg-primary/10 text-primary"
+                    : "text-muted-foreground hover:bg-slate-50",
+                )}
+              >
+                中文
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onSelect={() => setLang("ko")}
+                className={cn(
+                  "rounded-xl px-3 py-2 text-xs font-black uppercase tracking-widest cursor-pointer transition-colors mt-1",
+                  lang === "ko"
+                    ? "bg-primary/10 text-primary"
+                    : "text-muted-foreground hover:bg-slate-50",
+                )}
+              >
+                한국어
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -361,7 +405,7 @@ export function SiteHeader() {
                 </DropdownMenuGroup>
                 <DropdownMenuSeparator className="my-2 opacity-50" />
                 <DropdownMenuItem
-                  onClick={() => signOut()}
+                  onSelect={() => signOut()}
                   className="rounded-xl px-3 py-2.5 cursor-pointer text-rose-600 focus:text-rose-700 focus:bg-rose-50 font-black uppercase tracking-[0.1em] text-[10px] transition-colors"
                 >
                   <LogOut className="mr-3 h-4 w-4" />

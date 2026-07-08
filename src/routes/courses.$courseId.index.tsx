@@ -103,7 +103,654 @@ import { supabase } from "@/lib/supabase";
 import { fetchReviewsByCourse, createReview } from "@/lib/reviews";
 import { submitReport } from "@/lib/moderation";
 import { Flag } from "lucide-react";
-import { useI18n } from "@/lib/i18n";
+import { useI18n, type Language } from "@/lib/i18n";
+
+const coursePageStrings: Record<string, Record<string, string>> = {
+  "Review submitted! Thank you for your feedback.": {
+    "en": "Review submitted! Thank you for your feedback.",
+    "th": "ส่งความคิดเห็นเรียบร้อยแล้ว! ขอบคุณสำหรับความคิดเห็นของคุณ",
+    "es": "¡Reseña enviada! Gracias por tus comentarios.",
+    "ja": "レビューが送信されました！フィードバックありがとうございます。",
+    "zh": "评价已提交！感谢您的反馈。",
+    "ko": "리뷰가 제출되었습니다! 피드백해 주셔서 감사합니다."
+  },
+  "Failed to submit review": {
+    "en": "Failed to submit review",
+    "th": "ไม่สามารถส่งความคิดเห็นได้",
+    "es": "Error al enviar la reseña",
+    "ja": "レビューの送信に失敗しました",
+    "zh": "提交评价失败",
+    "ko": "리뷰 제출에 실패했습니다"
+  },
+  "Student Feedback": {
+    "en": "Student Feedback",
+    "th": "ความคิดเห็นจากผู้เรียน",
+    "es": "Comentarios de los estudiantes",
+    "ja": "受講生のフィードバック",
+    "zh": "学生反馈",
+    "ko": "수강생 피드백"
+  },
+  "Join thousands of students sharing their journey. Real feedback from real learners.": {
+    "en": "Join thousands of students sharing their journey. Real feedback from real learners.",
+    "th": "ร่วมแบ่งปันประสบการณ์กับนักเรียนหลายพันคน ความคิดเห็นจริงจากผู้เรียนจริง",
+    "es": "Únete a miles de estudiantes que comparten su viaje. Comentarios reales de estudiantes reales.",
+    "ja": "学習体験を共有する何千人もの受講生に参加しましょう。実際の学習者からの本物の声。",
+    "zh": "与数千名分享学习旅程的学生一起。来自真实学习者的真实反馈。",
+    "ko": "여정을 공유하는 수천 명의 학생들과 함께하세요. 실제 수강생들의 진짜 피드백."
+  },
+  "Average Rating": {
+    "en": "Average Rating",
+    "th": "คะแนนเฉลี่ย",
+    "es": "Calificación promedio",
+    "ja": "平均評価",
+    "zh": "平均评分",
+    "ko": "평균 평점"
+  },
+  "Total Reviews": {
+    "en": "Total Reviews",
+    "th": "ความคิดเห็นทั้งหมด",
+    "es": "Total de reseñas",
+    "ja": "総レビュー数",
+    "zh": "评价总数",
+    "ko": "총 리뷰 수"
+  },
+  "Rate your experience": {
+    "en": "Rate your experience",
+    "th": "ให้คะแนนความพึงพอใจของคุณ",
+    "es": "Califica tu experiencia",
+    "ja": "評価する",
+    "zh": "评价您的体验",
+    "ko": "만족도 평가하기"
+  },
+  "Your feedback helps instructors improve and helps other students make the right choice.": {
+    "en": "Your feedback helps instructors improve and helps other students make the right choice.",
+    "th": "ความคิดเห็นของคุณช่วยให้ผู้สอนปรับปรุงหลักสูตรและช่วยให้เพื่อนนักเรียนคนอื่นตัดสินใจได้ง่ายขึ้น",
+    "es": "Tus comentarios ayudan a los instructores a mejorar y a otros estudiantes a tomar la decisión correcta.",
+    "ja": "あなたのフィードバックは講師の改善に役立ち、他の受講生が正しい選択をするのを助けます。",
+    "zh": "您的反馈有助于讲师改进并帮助其他学生做出正确选择。",
+    "ko": "귀하의 피드백은 강사의 개선을 돕고 다른 학생들이 올바른 선택을 하도록 돕습니다."
+  },
+  "Overall Rating": {
+    "en": "Overall Rating",
+    "th": "คะแนนภาพรวม",
+    "es": "Calificación general",
+    "ja": "総合評価",
+    "zh": "总体评分",
+    "ko": "전체 평점"
+  },
+  "Write your review": {
+    "en": "Write your review",
+    "th": "เขียนความคิดเห็นของคุณ",
+    "es": "Escribe tu reseña",
+    "ja": "レビューを書く",
+    "zh": "撰写评价",
+    "ko": "리뷰 작성하기"
+  },
+  "What did you think of the course quality, instructor, and content?": {
+    "en": "What did you think of the course quality, instructor, and content?",
+    "th": "คุณคิดอย่างไรกับคุณภาพของคอร์สเรียน ผู้สอน และเนื้อหา?",
+    "es": "¿Qué te pareció la calidad del curso, el instructor y el contenido?",
+    "ja": "コースの品質、講師、内容についてどう思いましたか？",
+    "zh": "您对课程质量、讲师和内容有什么看法？",
+    "ko": "강의 품질, 강사 및 내용에 대해 어떻게 생각하셨나요?"
+  },
+  "Review Published!": {
+    "en": "Review Published!",
+    "th": "เผยแพร่ความคิดเห็นแล้ว!",
+    "es": "¡Reseña publicada!",
+    "ja": "レビューが公開されました！",
+    "zh": "评价已发布！",
+    "ko": "리뷰가 게시되었습니다!"
+  },
+  "Your feedback is now live. Thank you for helping the community grow.": {
+    "en": "Your feedback is now live. Thank you for helping the community grow.",
+    "th": "ความคิดเห็นของคุณถูกเผยแพร่แล้ว ขอบคุณสำหรับการมีส่วนร่วมให้ชุมชนของเราเติบโต",
+    "es": "Tus comentarios ya están disponibles. Gracias por ayudar a crecer a la comunidad.",
+    "ja": "フィードバックが反映されました。コミュニティの成長にご協力いただきありがとうございます。",
+    "zh": "您的反馈已上线。感谢您帮助社区成长。",
+    "ko": "피드백이 반영되었습니다. 커뮤니티 성장을 도와주셔서 감사합니다."
+  },
+  "Enrolled Students Only": {
+    "en": "Enrolled Students Only",
+    "th": "สำหรับนักเรียนที่ลงทะเบียนเท่านั้น",
+    "es": "Solo para estudiantes inscritos",
+    "ja": "受講生限定",
+    "zh": "仅限已购课学生",
+    "ko": "등록된 수강생 전용"
+  },
+  "Experience the curriculum to unlock the ability to share your feedback.": {
+    "en": "Experience the curriculum to unlock the ability to share your feedback.",
+    "th": "สัมผัสประสบการณ์หลักสูตรเพื่อปลดล็อกความสามารถในการแชร์ความคิดเห็นของคุณ",
+    "es": "Experimenta el plan de estudios para desbloquear la capacidad de compartir tus comentarios.",
+    "ja": "フィードバックを共有するには、まずカリキュラムを体験してください。",
+    "zh": "体验课程以解锁分享反馈的能力。",
+    "ko": "피드백을 공유할 수 있도록 먼저 커리큘럼을 경험해보세요."
+  },
+  "Enroll & Review": {
+    "en": "Enroll & Review",
+    "th": "ลงทะเบียนและเขียนรีวิว",
+    "es": "Inscribirse y opinar",
+    "ja": "登録してレビューを書く",
+    "zh": "购课并评价",
+    "ko": "수강 신청 및 리뷰 작성"
+  },
+  "Syncing Feedback...": {
+    "en": "Syncing Feedback...",
+    "th": "กำลังซิงค์ความคิดเห็น...",
+    "es": "Sincronizando comentarios...",
+    "ja": "フィードバックを同期中...",
+    "zh": "正在同步反馈...",
+    "ko": "피드백 동기화 중..."
+  },
+  "No feedback yet": {
+    "en": "No feedback yet",
+    "th": "ยังไม่มีความคิดเห็นในขณะนี้",
+    "es": "Aún no hay comentarios",
+    "ja": "レビューはまだありません",
+    "zh": "暂无反馈",
+    "ko": "아직 피드백이 없습니다"
+  },
+  "Be the pioneer and start the conversation.": {
+    "en": "Be the pioneer and start the conversation.",
+    "th": "เริ่มต้นเป็นคนแรกในการแชร์ความคิดเห็นกันเถอะ",
+    "es": "Sé el pionero y comienza la conversación.",
+    "ja": "最初のレビューを書いてみましょう。",
+    "zh": "成为先驱并开始交流。",
+    "ko": "첫 번째로 의견을 남겨보세요."
+  },
+  "Anonymous Student": {
+    "en": "Anonymous Student",
+    "th": "ผู้เรียนไม่ประสงค์ออกนาม",
+    "es": "Estudiante anónimo",
+    "ja": "匿名の受講生",
+    "zh": "匿名学生",
+    "ko": "익명의 수강생"
+  },
+  "Recently": {
+    "en": "Recently",
+    "th": "เมื่อเร็วๆ นี้",
+    "es": "Recientemente",
+    "ja": "最近",
+    "zh": "最近",
+    "ko": "최근"
+  },
+  "Verified": {
+    "en": "Verified",
+    "th": "ยืนยันแล้ว",
+    "es": "Verificado",
+    "ja": "認証済み",
+    "zh": "已验证",
+    "ko": "인증됨"
+  },
+  "Thank you. Our moderation team will review this course.": {
+    "en": "Thank you. Our moderation team will review this course.",
+    "th": "ขอบคุณสำหรับข้อมูล ทีมผู้ดูแลของเราจะทำการตรวจสอบหลักสูตรนี้",
+    "es": "Gracias. Nuestro equipo de moderación revisará este curso.",
+    "ja": "ありがとうございます。管理チームがこのコースを審査します。",
+    "zh": "谢谢。我们的审核团队将审查这门课程。",
+    "ko": "감사합니다. 모니터링 팀이 이 강의를 검토할 예정입니다."
+  },
+  "Failed to submit report": {
+    "en": "Failed to submit report",
+    "th": "ไม่สามารถส่งรายงานได้",
+    "es": "Error al enviar el reporte",
+    "ja": "通報の送信に失敗しました",
+    "zh": "提交举报失败",
+    "ko": "신고 제출에 실패했습니다"
+  },
+  "Report Course": {
+    "en": "Report Course",
+    "th": "รายงานหลักสูตร",
+    "es": "Reportar curso",
+    "ja": "コースを通報する",
+    "zh": "举报课程",
+    "ko": "강의 신고하기"
+  },
+  "Help us keep LearnLab safe. Why are you reporting this course?": {
+    "en": "Help us keep LearnLab safe. Why are you reporting this course?",
+    "th": "ช่วยเราดูแลความปลอดภัยใน LearnLab เหตุใดคุณจึงต้องการรายงานหลักสูตรนี้?",
+    "es": "¿Ayúdanos a mantener seguro LearnLab. ¿Por qué estás reportando este curso?",
+    "ja": "LearnLabの安全を維持するためにご協力ください。このコースを通報する理由は何ですか？",
+    "zh": "帮助我们维护 LearnLab 的安全。您为什么要举报这门课程？",
+    "ko": "LearnLab을 안전하게 유지할 수 있도록 도와주세요. 이 강의를 신고하는 이유는 무엇인가요?"
+  },
+  "Violation Reason": {
+    "en": "Violation Reason",
+    "th": "สาเหตุการละเมิด",
+    "es": "Motivo de la violación",
+    "ja": "違反の理由",
+    "zh": "违规原因",
+    "ko": "신고 사유"
+  },
+  "Additional Context": {
+    "en": "Additional Context",
+    "th": "รายละเอียดเพิ่มเติม",
+    "es": "Contexto adicional",
+    "ja": "追加のコンテキスト",
+    "zh": "补充说明",
+    "ko": "추가 설명"
+  },
+  "Provide specific details about the violation...": {
+    "en": "Provide specific details about the violation...",
+    "th": "โปรดระบุรายละเอียดเฉพาะเกี่ยวกับการละเมิด...",
+    "es": "Proporciona detalles específicos sobre la violación...",
+    "ja": "違反に関する具体的な詳細を入力してください...",
+    "zh": "提供关于违规的具体细节...",
+    "ko": "신고 내용에 대한 구체적인 내용을 제공해 주세요..."
+  },
+  "Cancel": {
+    "en": "Cancel",
+    "th": "ยกเลิก",
+    "es": "Cancelar",
+    "ja": "キャンセル",
+    "zh": "取消",
+    "ko": "취소"
+  },
+  "Smart Preview Mode": {
+    "en": "Smart Preview Mode",
+    "th": "โหมดดูตัวอย่างอัจฉริยะ",
+    "es": "Modo de vista previa inteligente",
+    "ja": "スマートプレビューモード",
+    "zh": "智能预览模式",
+    "ko": "스마트 미리보기 모드"
+  },
+  "Back to Editor": {
+    "en": "Back to Editor",
+    "th": "กลับไปที่หน้าแก้ไข",
+    "es": "Volver al editor",
+    "ja": "エディターに戻る",
+    "zh": "返回编辑器",
+    "ko": "편집기로 돌아가기"
+  },
+  "Professional Track": {
+    "en": "Professional Track",
+    "th": "หลักสูตรระดับมืออาชีพ",
+    "es": "Ruta profesional",
+    "ja": "プロフェッショナルトラック",
+    "zh": "专业路径",
+    "ko": "전문가 트랙"
+  },
+  "Beginner": {
+    "en": "Beginner",
+    "th": "เริ่มต้น",
+    "es": "Principiante",
+    "ja": "初級",
+    "zh": "初级",
+    "ko": "초급"
+  },
+  "Intermediate": {
+    "en": "Intermediate",
+    "th": "ปานกลาง",
+    "es": "Intermedio",
+    "ja": "中級",
+    "zh": "中级",
+    "ko": "중급"
+  },
+  "Advanced": {
+    "en": "Advanced",
+    "th": "ขั้นสูง",
+    "es": "Avanzado",
+    "ja": "上級",
+    "zh": "高级",
+    "ko": "고급"
+  },
+  "Premium Content": {
+    "en": "Premium Content",
+    "th": "เนื้อหาระดับพรีเมียม",
+    "es": "Contenido premium",
+    "ja": "プレミアムコンテンツ",
+    "zh": "优质内容",
+    "ko": "프리미엄 콘텐츠"
+  },
+  "Total Learners": {
+    "en": "Total Learners",
+    "th": "ผู้เรียนทั้งหมด",
+    "es": "Total de estudiantes",
+    "ja": "総受講者数",
+    "zh": "学员总数",
+    "ko": "총 수강생"
+  },
+  "Avg. Rating": {
+    "en": "Avg. Rating",
+    "th": "คะแนนเฉลี่ย",
+    "es": "Calificación prom.",
+    "ja": "平均評価",
+    "zh": "平均评分",
+    "ko": "평균 평점"
+  },
+  "Curriculum": {
+    "en": "Curriculum",
+    "th": "โครงสร้างหลักสูตร",
+    "es": "Plan de estudios",
+    "ja": "カリキュラム",
+    "zh": "课程大纲",
+    "ko": "커리큘럼"
+  },
+  "Lessons": {
+    "en": "Lessons",
+    "th": "บทเรียน",
+    "es": "Lecciones",
+    "ja": "レッスン",
+    "zh": "课时",
+    "ko": "레슨"
+  },
+  "Promo Video is being prepared by AI.": {
+    "en": "Promo Video is being prepared by AI.",
+    "th": "วิดีโอแนะนำตัวคอร์สกำลังสร้างโดย AI",
+    "es": "El video promocional está siendo preparado por la IA.",
+    "ja": "プロモーションビデオはAIによって準備中です。",
+    "zh": "宣传视频正由AI准备中。",
+    "ko": "홍보 영상이 AI에 의해 준비 중입니다."
+  },
+  "Preview Limit Reached": {
+    "en": "Preview Limit Reached",
+    "th": "ถึงขีดจำกัดการดูตัวอย่างแล้ว",
+    "es": "Límite de vista previa alcanzado",
+    "ja": "プレビュー制限に達しました",
+    "zh": "已达到预览限制",
+    "ko": "미리보기 한도에 도달했습니다"
+  },
+  "Enroll now to unlock the full lesson content.": {
+    "en": "Enroll now to unlock the full lesson content.",
+    "th": "ลงทะเบียนตอนนี้เพื่อเข้าถึงเนื้อหาบทเรียนทั้งหมด",
+    "es": "Inscríbete ahora para desbloquear el contenido completo de la lección.",
+    "ja": "今すぐ登録して、すべてのレッスン内容をアンロックしましょう。",
+    "zh": "立即购课以解锁全部课时内容。",
+    "ko": "지금 등록하여 전체 레슨 내용을 잠금 해제하세요."
+  },
+  "Unlock Full Access": {
+    "en": "Unlock Full Access",
+    "th": "ปลดล็อกการเข้าถึงทั้งหมด",
+    "es": "Desbloquear acceso completo",
+    "ja": "フルアクセスをアンロック",
+    "zh": "解锁全部权限",
+    "ko": "전체 액세스 잠금 해제"
+  },
+  "Verified Path": {
+    "en": "Verified Path",
+    "th": "เส้นทางที่ได้รับการรับรอง",
+    "es": "Ruta verificada",
+    "ja": "認証済みのパス",
+    "zh": "验证路径",
+    "ko": "인증된 경로"
+  },
+  "Official Certificate": {
+    "en": "Official Certificate",
+    "th": "ใบประกาศนียบัตรอย่างเป็นทางการ",
+    "es": "Certificado oficial",
+    "ja": "公式修了証",
+    "zh": "官方证书",
+    "ko": "공식 수료증"
+  },
+  "Course Curriculum": {
+    "en": "Course Curriculum",
+    "th": "โครงสร้างหลักสูตร",
+    "es": "Plan de estudios del curso",
+    "ja": "コースカリキュラム",
+    "zh": "课程大纲",
+    "ko": "강의 커리큘럼"
+  },
+  "Total Lessons": {
+    "en": "Total Lessons",
+    "th": "บทเรียนทั้งหมด",
+    "es": "Total de lecciones",
+    "ja": "総レッスン数",
+    "zh": "总课时",
+    "ko": "총 레슨 수"
+  },
+  "Lessons Included": {
+    "en": "Lessons Included",
+    "th": "บทเรียนที่รวมอยู่",
+    "es": "Lecciones incluidas",
+    "ja": "含まれるレッスン",
+    "zh": "包含课时",
+    "ko": "포함된 레슨"
+  },
+  "Enroll to watch this lesson": {
+    "en": "Enroll to watch this lesson",
+    "th": "กรุณาลงทะเบียนเรียนเพื่อดูบทเรียนนี้",
+    "es": "Inscríbete para ver esta lección",
+    "ja": "このレッスンを視聴するには登録してください",
+    "zh": "请先购课以观看此课时",
+    "ko": "이 레슨을 보려면 수강 신청을 해주세요"
+  },
+  "Free Preview": {
+    "en": "Free Preview",
+    "th": "ทดลองเรียนฟรี",
+    "es": "Vista previa gratis",
+    "ja": "無料プレビュー",
+    "zh": "免费试听",
+    "ko": "무료 미리보기"
+  },
+  "Video Content": {
+    "en": "Video Content",
+    "th": "บทเรียนวิดีโอ",
+    "es": "Contenido de video",
+    "ja": "ビデオコンテンツ",
+    "zh": "视频内容",
+    "ko": "비디오 콘텐츠"
+  },
+  "Quiz Content": {
+    "en": "Quiz Content",
+    "th": "บทเรียนควิซ",
+    "es": "Contenido de cuestionario",
+    "ja": "クイズコンテンツ",
+    "zh": "测验内容",
+    "ko": "퀴즈 콘텐츠"
+  },
+  "Text Content": {
+    "en": "Text Content",
+    "th": "บทความอ่าน",
+    "es": "Contenido de texto",
+    "ja": "テキストコンテンツ",
+    "zh": "文本内容",
+    "ko": "텍스트 콘텐츠"
+  },
+  "Slide Content": {
+    "en": "Slide Content",
+    "th": "สไลด์ประกอบ",
+    "es": "Contenido de diapositivas",
+    "ja": "スライドコンテンツ",
+    "zh": "幻灯片内容",
+    "ko": "슬라이드 콘텐츠"
+  },
+  "Access Granted": {
+    "en": "Access Granted",
+    "th": "ได้รับสิทธิ์เข้าเรียนแล้ว",
+    "es": "Acceso concedido",
+    "ja": "アクセス許可済み",
+    "zh": "已获得权限",
+    "ko": "액세스 권한 부여됨"
+  },
+  "Lifetime access is active.": {
+    "en": "Lifetime access is active.",
+    "th": "คุณมีสิทธิ์เข้าเรียนได้ตลอดชีพ",
+    "es": "El acceso de por vida está activo.",
+    "ja": "無期限アクセスが有効です。",
+    "zh": "终身访问权限已激活。",
+    "ko": "평생 액세스가 활성화되어 있습니다."
+  },
+  "One-time Payment": {
+    "en": "One-time Payment",
+    "th": "ชำระเงินครั้งเดียว",
+    "es": "Pago único",
+    "ja": "一括払い",
+    "zh": "一次性付款",
+    "ko": "일시불"
+  },
+  "Publish Review": {
+    "en": "Publish Review",
+    "th": "เผยแพร่ความคิดเห็น",
+    "es": "Publicar Reseña",
+    "ja": "レビューを公開",
+    "zh": "发布评价",
+    "ko": "리뷰 게시"
+  },
+  "Submit Report": {
+    "en": "Submit Report",
+    "th": "ส่งรายงาน",
+    "es": "Enviar Reporte",
+    "ja": "通報を送信",
+    "zh": "提交举报",
+    "ko": "신고 제출"
+  },
+  "Inappropriate content": {
+    "en": "Inappropriate content",
+    "th": "เนื้อหาไม่เหมาะสม",
+    "es": "Contenido inapropiado",
+    "ja": "不適切なコンテンツ",
+    "zh": "不当内容",
+    "ko": "부적절한 콘텐츠"
+  },
+  "Copyright infringement": {
+    "en": "Copyright infringement",
+    "th": "ละเมิดลิขสิทธิ์",
+    "es": "Infracción de derechos de autor",
+    "ja": "著作権侵害",
+    "zh": "侵犯版权",
+    "ko": "저작권 침해"
+  },
+  "Spam or misleading": {
+    "en": "Spam or misleading",
+    "th": "สแปมหรือทำให้เข้าใจผิด",
+    "es": "Spam o engañoso",
+    "ja": "スパムまたは誤解を招く内容",
+    "zh": "垃圾内容或误导性信息",
+    "ko": "스팸 또는 오도하는 정보"
+  },
+  "Harassment or hate speech": {
+    "en": "Harassment or hate speech",
+    "th": "การคุกคามหรือวาจาสร้างความเกลียดชัง",
+    "es": "Acoso o discurso de odio",
+    "ja": "嫌がらせまたはヘイトスピーチ",
+    "zh": "骚扰或仇恨言论",
+    "ko": "괴롭힘 또는 혐오 발언"
+  },
+  "Other violation": {
+    "en": "Other violation",
+    "th": "การละเมิดอื่นๆ",
+    "es": "Otra violación",
+    "ja": "その他の違反",
+    "zh": "其他违规",
+    "ko": "기타 신고"
+  },
+  "Copyright Violation": {
+    "en": "Copyright Violation",
+    "th": "การละเมิดลิขสิทธิ์",
+    "es": "Infracción de derechos de autor",
+    "ja": "著作権侵害",
+    "zh": "侵犯版权",
+    "ko": "저작권 침해"
+  },
+  "Spam or Misleading": {
+    "en": "Spam or Misleading",
+    "th": "สแปมหรือข้อมูลที่ทำให้เข้าใจผิด",
+    "es": "Spam o engañoso",
+    "ja": "スパムまたは誤解を招く内容",
+    "zh": "垃圾内容或误导性信息",
+    "ko": "스팸 또는 오도하는 정보"
+  },
+  "Harassment": {
+    "en": "Harassment",
+    "th": "การล่วงละเมิดหรือกลั่นแกล้ง",
+    "es": "Acoso",
+    "ja": "嫌がらせ",
+    "zh": "骚扰",
+    "ko": "괴롭힘"
+  },
+  "Other": {
+    "en": "Other",
+    "th": "อื่นๆ",
+    "es": "Otro",
+    "ja": "その他",
+    "zh": "其他",
+    "ko": "기타"
+  }
+};
+
+const getCourseStrings = (key: string, lang: string) => {
+  return coursePageStrings[key]?.[lang] ?? coursePageStrings[key]?.['en'] ?? key;
+};
+
+const getFlashSaleText = (price: number, lang: Language) => {
+  switch (lang) {
+    case "th":
+      return `⚡ ลดราคาพิเศษ (ราคาปกติ: $${price})`;
+    case "es":
+      return `⚡ Venta Flash (Original: $${price})`;
+    case "ja":
+      return `⚡ フラッシュセール (元値: $${price})`;
+    case "zh":
+      return `⚡ 限时特惠 (原价: $${price})`;
+    case "ko":
+      return `⚡ 플래시 세일 (정가: $${price})`;
+    default:
+      return `⚡ Flash Sale (Original: $${price})`;
+  }
+};
+
+const getPartnerDealText = (price: number, lang: Language) => {
+  switch (lang) {
+    case "th":
+      return `🤝 แคมเปญพาร์ทเนอร์ (ปกติ: $${price})`;
+    case "es":
+      return `🤝 Trato de Socio (Original: $${price})`;
+    case "ja":
+      return `🤝 パートナーディール (元値: $${price})`;
+    case "zh":
+      return `🤝 合作伙伴特惠 (原价: $${price})`;
+    case "ko":
+      return `🤝 파트너 딜 (정가: $${price})`;
+    default:
+      return `🤝 Partner Deal (Original: $${price})`;
+  }
+};
+
+
+const getSmartPreviewText = (lang: Language) => {
+  switch (lang) {
+    case "th":
+      return (
+        <>
+          กำลังดูตัวอย่างหลักสูตรในฐานะ{" "}
+          <span className="text-emerald-400">นักเรียนที่ลงทะเบียนเรียน</span>
+        </>
+      );
+    case "es":
+      return (
+        <>
+          Visualizando el curso como un{" "}
+          <span className="text-emerald-400">estudiante inscrito</span>.
+        </>
+      );
+    case "ja":
+      return (
+        <>
+          <span className="text-emerald-400">受講生</span>としてコースをプレビュー中。
+        </>
+      );
+    case "zh":
+      return (
+        <>
+          正在以<span className="text-emerald-400">已购课学生</span>身份预览课程。
+        </>
+      );
+    case "ko":
+      return (
+        <>
+          <span className="text-emerald-400">등록된 수강생</span> 자격으로 강의를 미리 보는 중.
+        </>
+      );
+    default:
+      return (
+        <>
+          Viewing course as an{" "}
+          <span className="text-emerald-400">enrolled student</span>.
+        </>
+      );
+  }
+};
+
 
 export const Route = createFileRoute("/courses/$courseId/")({
   component: CourseDetail,
@@ -154,15 +801,13 @@ function ReviewSection({
       queryClient.invalidateQueries({ queryKey: ["reviews", courseId] });
       queryClient.invalidateQueries({ queryKey: ["courses", courseId] });
       toast.success(
-        lang === "th"
-          ? "ส่งความคิดเห็นเรียบร้อยแล้ว! ขอบคุณสำหรับความคิดเห็นของคุณ"
-          : "Review submitted! Thank you for your feedback.",
+        getCourseStrings("Review submitted! Thank you for your feedback.", lang),
       );
       setComment("");
     },
     onError: (err: any) => {
       toast.error(
-        err.message || (lang === "th" ? "ไม่สามารถส่งความคิดเห็นได้" : "Failed to submit review"),
+        err.message || (getCourseStrings("Failed to submit review", lang)),
       );
     },
   });
@@ -173,12 +818,10 @@ function ReviewSection({
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-12">
         <div className="max-w-xl space-y-4">
           <h2 className="text-4xl sm:text-5xl font-black text-slate-900 tracking-tight leading-none">
-            {lang === "th" ? "ความคิดเห็นจากผู้เรียน" : "Student Feedback"}
+            {getCourseStrings("Student Feedback", lang)}
           </h2>
           <p className="text-slate-500 font-medium text-lg leading-relaxed">
-            {lang === "th"
-              ? "ร่วมแบ่งปันประสบการณ์กับนักเรียนหลายพันคน ความคิดเห็นจริงจากผู้เรียนจริง"
-              : "Join thousands of students sharing their journey. Real feedback from real learners."}
+            {getCourseStrings("Join thousands of students sharing their journey. Real feedback from real learners.", lang)}
           </p>
         </div>
 
@@ -201,7 +844,7 @@ function ReviewSection({
               ))}
             </div>
             <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 mt-2">
-              {lang === "th" ? "คะแนนเฉลี่ย" : "Average Rating"}
+              {getCourseStrings("Average Rating", lang)}
             </p>
           </div>
           <div className="text-center space-y-1">
@@ -209,7 +852,7 @@ function ReviewSection({
               {reviews.length}
             </div>
             <p className="text-[9px] font-black uppercase tracking-widest text-slate-400">
-              {lang === "th" ? "ความคิดเห็นทั้งหมด" : "Total Reviews"}
+              {getCourseStrings("Total Reviews", lang)}
             </p>
           </div>
         </div>
@@ -226,19 +869,17 @@ function ReviewSection({
 
                   <div className="space-y-2 relative z-10">
                     <h4 className="text-2xl font-black tracking-tight">
-                      {lang === "th" ? "ให้คะแนนความพึงพอใจของคุณ" : "Rate your experience"}
+                      {getCourseStrings("Rate your experience", lang)}
                     </h4>
                     <p className="text-slate-400 font-medium text-sm leading-relaxed">
-                      {lang === "th"
-                        ? "ความคิดเห็นของคุณช่วยให้ผู้สอนปรับปรุงหลักสูตรและช่วยให้เพื่อนนักเรียนคนอื่นตัดสินใจได้ง่ายขึ้น"
-                        : "Your feedback helps instructors improve and helps other students make the right choice."}
+                      {getCourseStrings("Your feedback helps instructors improve and helps other students make the right choice.", lang)}
                     </p>
                   </div>
 
                   <div className="space-y-6 relative z-10">
                     <div className="flex justify-between items-center">
                       <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">
-                        {lang === "th" ? "คะแนนภาพรวม" : "Overall Rating"}
+                        {getCourseStrings("Overall Rating", lang)}
                       </Label>
                       <span className="text-2xl font-black text-amber-500">{rating}.0</span>
                     </div>
@@ -272,13 +913,11 @@ function ReviewSection({
 
                   <div className="space-y-4 relative z-10">
                     <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">
-                      {lang === "th" ? "เขียนความคิดเห็นของคุณ" : "Write your review"}
+                      {getCourseStrings("Write your review", lang)}
                     </Label>
                     <Textarea
                       placeholder={
-                        lang === "th"
-                          ? "คุณคิดอย่างไรกับคุณภาพของคอร์สเรียน ผู้สอน และเนื้อหา?"
-                          : "What did you think of the course quality, instructor, and content?"
+                        getCourseStrings("What did you think of the course quality, instructor, and content?", lang)
                       }
                       className="min-h-[180px] rounded-[2rem] border-white/10 bg-white/5 text-white placeholder:text-white/20 resize-none text-base p-8 focus-visible:ring-amber-500/20 focus-visible:border-amber-500/50 transition-all"
                       value={comment}
@@ -293,11 +932,7 @@ function ReviewSection({
                   >
                     {reviewMutation.isPending ? (
                       <Loader2 className="h-6 w-6 animate-spin" />
-                    ) : lang === "th" ? (
-                      "เผยแพร่ความคิดเห็น"
-                    ) : (
-                      "Publish Review"
-                    )}
+                    ) : getCourseStrings("Publish Review", lang)}
                   </Button>
                 </div>
               </Card>
@@ -309,12 +944,10 @@ function ReviewSection({
               </div>
               <div className="space-y-3">
                 <p className="text-2xl font-black text-slate-900 tracking-tight">
-                  {lang === "th" ? "เผยแพร่ความคิดเห็นแล้ว!" : "Review Published!"}
+                  {getCourseStrings("Review Published!", lang)}
                 </p>
                 <p className="text-slate-500 font-medium leading-relaxed">
-                  {lang === "th"
-                    ? "ความคิดเห็นของคุณถูกเผยแพร่แล้ว ขอบคุณสำหรับการมีส่วนร่วมให้ชุมชนของเราเติบโต"
-                    : "Your feedback is now live. Thank you for helping the community grow."}
+                  {getCourseStrings("Your feedback is now live. Thank you for helping the community grow.", lang)}
                 </p>
               </div>
             </div>
@@ -325,12 +958,10 @@ function ReviewSection({
               </div>
               <div className="space-y-3">
                 <p className="text-xl font-black text-slate-900">
-                  {lang === "th" ? "สำหรับนักเรียนที่ลงทะเบียนเท่านั้น" : "Enrolled Students Only"}
+                  {getCourseStrings("Enrolled Students Only", lang)}
                 </p>
                 <p className="text-sm text-slate-400 font-medium leading-relaxed px-4">
-                  {lang === "th"
-                    ? "สัมผัสประสบการณ์หลักสูตรเพื่อปลดล็อกความสามารถในการแชร์ความคิดเห็นของคุณ"
-                    : "Experience the curriculum to unlock the ability to share your feedback."}
+                  {getCourseStrings("Experience the curriculum to unlock the ability to share your feedback.", lang)}
                 </p>
               </div>
               <Button
@@ -341,7 +972,7 @@ function ReviewSection({
                   to={userId ? "/checkout/$courseId" : "/login"}
                   params={userId ? { courseId } : undefined}
                 >
-                  {lang === "th" ? "ลงทะเบียนและเขียนรีวิว" : "Enroll & Review"}
+                  {getCourseStrings("Enroll & Review", lang)}
                 </Link>
               </Button>
             </div>
@@ -354,7 +985,7 @@ function ReviewSection({
             <div className="flex flex-col items-center justify-center py-40 space-y-6">
               <div className="h-16 w-16 rounded-full border-4 border-slate-100 border-t-primary animate-spin" />
               <p className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-300">
-                {lang === "th" ? "กำลังซิงค์ความคิดเห็น..." : "Syncing Feedback..."}
+                {getCourseStrings("Syncing Feedback...", lang)}
               </p>
             </div>
           ) : reviews.length === 0 ? (
@@ -364,12 +995,10 @@ function ReviewSection({
               </div>
               <div className="space-y-2">
                 <p className="text-2xl font-black text-slate-900 tracking-tight">
-                  {lang === "th" ? "ยังไม่มีความคิดเห็นในขณะนี้" : "No feedback yet"}
+                  {getCourseStrings("No feedback yet", lang)}
                 </p>
                 <p className="text-slate-400 font-medium">
-                  {lang === "th"
-                    ? "เริ่มต้นเป็นคนแรกในการแชร์ความคิดเห็นกันเถอะ"
-                    : "Be the pioneer and start the conversation."}
+                  {getCourseStrings("Be the pioneer and start the conversation.", lang)}
                 </p>
               </div>
             </div>
@@ -393,7 +1022,7 @@ function ReviewSection({
                           <div className="space-y-1">
                             <p className="font-black text-slate-900 text-lg leading-none">
                               {r.user?.name ||
-                                (lang === "th" ? "ผู้เรียนไม่ประสงค์ออกนาม" : "Anonymous Student")}
+                                (getCourseStrings("Anonymous Student", lang))}
                             </p>
                             <div className="flex items-center gap-3">
                               <div className="flex gap-0.5">
@@ -414,15 +1043,13 @@ function ReviewSection({
                                   ? new Date(r.createdAt).toLocaleDateString(undefined, {
                                       dateStyle: "long",
                                     })
-                                  : lang === "th"
-                                    ? "เมื่อเร็วๆ นี้"
-                                    : "Recently"}
+                                  : getCourseStrings("Recently", lang)}
                               </span>
                             </div>
                           </div>
                         </div>
                         <Badge className="bg-emerald-500/10 text-emerald-600 border-none px-3 py-1.5 font-black text-[9px] uppercase tracking-widest rounded-lg">
-                          {lang === "th" ? "ยืนยันแล้ว" : "Verified"}
+                          {getCourseStrings("Verified", lang)}
                         </Badge>
                       </div>
 
@@ -466,16 +1093,14 @@ function ReportCourseDialog({
       }),
     onSuccess: () => {
       toast.success(
-        lang === "th"
-          ? "ขอบคุณสำหรับข้อมูล ทีมผู้ดูแลของเราจะทำการตรวจสอบหลักสูตรนี้"
-          : "Thank you. Our moderation team will review this course.",
+        getCourseStrings("Thank you. Our moderation team will review this course.", lang),
       );
       setIsOpen(false);
       setDescription("");
     },
     onError: (err: any) => {
       toast.error(
-        err.message || (lang === "th" ? "ไม่สามารถส่งรายงานได้" : "Failed to submit report"),
+        err.message || (getCourseStrings("Failed to submit report", lang)),
       );
     },
   });
@@ -489,7 +1114,7 @@ function ReportCourseDialog({
           variant="outline"
           size="icon"
           className="h-16 w-16 rounded-2xl border-slate-200 bg-white hover:bg-slate-50 text-slate-400 hover:text-rose-500 transition-all shadow-sm group"
-          title={lang === "th" ? "รายงานหลักสูตร" : "Report Course"}
+          title={getCourseStrings("Report Course", lang)}
         >
           <Flag className="h-5 w-5 group-hover:fill-rose-500/10" />
         </Button>
@@ -501,19 +1126,17 @@ function ReportCourseDialog({
               <Flag className="h-6 w-6" />
             </div>
             <DialogTitle className="text-2xl font-black tracking-tight">
-              {lang === "th" ? "รายงานหลักสูตร" : "Report Course"}
+              {getCourseStrings("Report Course", lang)}
             </DialogTitle>
             <DialogDescription className="text-base font-medium text-slate-500">
-              {lang === "th"
-                ? "ช่วยเราดูแลความปลอดภัยใน LearnLab เหตุใดคุณจึงต้องการรายงานหลักสูตรนี้?"
-                : "Help us keep LearnLab safe. Why are you reporting this course?"}
+              {getCourseStrings("Help us keep LearnLab safe. Why are you reporting this course?", lang)}
             </DialogDescription>
           </DialogHeader>
 
           <div className="py-6 space-y-6">
             <div className="space-y-2">
               <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">
-                {lang === "th" ? "สาเหตุการละเมิด" : "Violation Reason"}
+                {getCourseStrings("Violation Reason", lang)}
               </Label>
               <div className="grid grid-cols-1 gap-2">
                 {[
@@ -533,25 +1156,7 @@ function ReportCourseDialog({
                         : "bg-slate-50 border-slate-100 text-slate-600 hover:bg-slate-100",
                     )}
                   >
-                    {r === "Inappropriate content"
-                      ? lang === "th"
-                        ? "เนื้อหาที่ไม่เหมาะสม"
-                        : r
-                      : r === "Copyright Violation"
-                        ? lang === "th"
-                          ? "การละเมิดลิขสิทธิ์"
-                          : r
-                        : r === "Spam or Misleading"
-                          ? lang === "th"
-                            ? "สแปมหรือข้อมูลที่ทำให้เข้าใจผิด"
-                            : r
-                          : r === "Harassment"
-                            ? lang === "th"
-                              ? "การล่วงละเมิดหรือกลั่นแกล้ง"
-                              : r
-                            : lang === "th"
-                              ? "อื่นๆ"
-                              : r}
+                    {getCourseStrings(r, lang)}
                     {reason === r && <CheckCircle2 className="h-4 w-4" />}
                   </button>
                 ))}
@@ -560,13 +1165,11 @@ function ReportCourseDialog({
 
             <div className="space-y-2">
               <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">
-                {lang === "th" ? "รายละเอียดเพิ่มเติม" : "Additional Context"}
+                {getCourseStrings("Additional Context", lang)}
               </Label>
               <Textarea
                 placeholder={
-                  lang === "th"
-                    ? "โปรดระบุรายละเอียดเฉพาะเกี่ยวกับการละเมิด..."
-                    : "Provide specific details about the violation..."
+                  getCourseStrings("Provide specific details about the violation...", lang)
                 }
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
@@ -581,7 +1184,7 @@ function ReportCourseDialog({
               className="rounded-xl h-12 flex-1 font-bold"
               onClick={() => setIsOpen(false)}
             >
-              {lang === "th" ? "ยกเลิก" : "Cancel"}
+              {getCourseStrings("Cancel", lang)}
             </Button>
             <Button
               className="rounded-xl h-12 flex-1 font-bold bg-rose-600 hover:bg-rose-700 text-white shadow-xl shadow-rose-200/50"
@@ -590,11 +1193,7 @@ function ReportCourseDialog({
             >
               {reportMutation.isPending ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
-              ) : lang === "th" ? (
-                "ส่งรายงาน"
-              ) : (
-                "Submit Report"
-              )}
+              ) : getCourseStrings("Submit Report", lang)}
             </Button>
           </DialogFooter>
         </div>
@@ -1433,20 +2032,10 @@ function CourseDetail() {
               </div>
               <div>
                 <p className="text-[10px] font-black uppercase tracking-[0.2em] leading-none mb-1">
-                  {lang === "th" ? "โหมดดูตัวอย่างอัจฉริยะ" : "Smart Preview Mode"}
+                  {getCourseStrings("Smart Preview Mode", lang)}
                 </p>
                 <p className="text-xs font-medium text-slate-400">
-                  {lang === "th" ? (
-                    <>
-                      กำลังดูตัวอย่างหลักสูตรในฐานะ{" "}
-                      <span className="text-emerald-400">นักเรียนที่ลงทะเบียนเรียน</span>
-                    </>
-                  ) : (
-                    <>
-                      Viewing course as an{" "}
-                      <span className="text-emerald-400">enrolled student</span>.
-                    </>
-                  )}
+                  getSmartPreviewText(lang)
                 </p>
               </div>
             </div>
@@ -1457,7 +2046,7 @@ function CourseDetail() {
               onClick={() => setIsPreviewMode(false)}
             >
               <ArrowLeft className="h-3.5 w-3.5 mr-2" />{" "}
-              {lang === "th" ? "กลับไปที่หน้าแก้ไข" : "Back to Editor"}
+              {getCourseStrings("Back to Editor", lang)}
             </Button>
           </div>
         )}
@@ -1476,7 +2065,7 @@ function CourseDetail() {
                 <div className="flex items-center gap-3">
                   <Badge className="bg-primary/5 text-primary border border-primary/10 px-3 py-1 font-black uppercase tracking-widest text-[9px] rounded-lg shadow-none">
                     {course.category ||
-                      (lang === "th" ? "หลักสูตรระดับมืออาชีพ" : "Professional Track")}
+                      (getCourseStrings("Professional Track", lang))}
                   </Badge>
                   <Badge
                     className={cn(
@@ -1488,17 +2077,7 @@ function CourseDetail() {
                           : "bg-rose-500",
                     )}
                   >
-                    {course.level === "Beginner"
-                      ? lang === "th"
-                        ? "เริ่มต้น"
-                        : "Beginner"
-                      : course.level === "Intermediate"
-                        ? lang === "th"
-                          ? "ปานกลาง"
-                          : "Intermediate"
-                        : lang === "th"
-                          ? "ขั้นสูง"
-                          : "Advanced"}
+                    getCourseStrings(course.level || "Beginner", lang)
                   </Badge>
                   {isEnrolled && (
                     <Badge className="bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 px-3 py-1 font-black uppercase tracking-widest text-[9px] rounded-lg shadow-none flex items-center gap-1.5 animate-in fade-in zoom-in duration-500">
@@ -1507,7 +2086,7 @@ function CourseDetail() {
                   )}
                   <div className="h-1 w-1 rounded-full bg-slate-200" />
                   <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                    {lang === "th" ? "เนื้อหาระดับพรีเมียม" : "Premium Content"}
+                    {getCourseStrings("Premium Content", lang)}
                   </span>
                 </div>
 
@@ -1522,7 +2101,7 @@ function CourseDetail() {
                 <div className="flex flex-wrap items-center gap-8 py-2">
                   <div className="flex flex-col gap-1">
                     <span className="text-[9px] font-black uppercase tracking-widest text-slate-400">
-                      {lang === "th" ? "ผู้เรียนทั้งหมด" : "Total Learners"}
+                      {getCourseStrings("Total Learners", lang)}
                     </span>
                     <div className="flex items-center gap-2 font-bold text-slate-700">
                       <Users className="h-4 w-4 text-primary" />{" "}
@@ -1531,7 +2110,7 @@ function CourseDetail() {
                   </div>
                   <div className="flex flex-col gap-1">
                     <span className="text-[9px] font-black uppercase tracking-widest text-slate-400">
-                      {lang === "th" ? "คะแนนเฉลี่ย" : "Avg. Rating"}
+                      {getCourseStrings("Avg. Rating", lang)}
                     </span>
                     <div className="flex items-center gap-2 font-bold text-slate-700">
                       <Star className="h-4 w-4 text-amber-500 fill-current" />{" "}
@@ -1540,11 +2119,11 @@ function CourseDetail() {
                   </div>
                   <div className="flex flex-col gap-1">
                     <span className="text-[9px] font-black uppercase tracking-widest text-slate-400">
-                      {lang === "th" ? "โครงสร้างหลักสูตร" : "Curriculum"}
+                      {getCourseStrings("Curriculum", lang)}
                     </span>
                     <div className="flex items-center gap-2 font-bold text-slate-700">
                       <Clock className="h-4 w-4 text-primary" /> {lessons.length}{" "}
-                      {lang === "th" ? "บทเรียน" : "Lessons"}
+                      {getCourseStrings("Lessons", lang)}
                     </div>
                   </div>
                 </div>
@@ -1621,9 +2200,7 @@ function CourseDetail() {
                         วิดีโอกำลังอยู่ระหว่างการจัดเตรียม
                       </h3>
                       <p className="text-slate-400 text-[9px] font-medium max-w-xs leading-relaxed uppercase tracking-widest">
-                        {lang === "th"
-                          ? "วิดีโอแนะนำตัวคอร์สกำลังสร้างโดย AI"
-                          : "Promo Video is being prepared by AI."}
+                        {getCourseStrings("Promo Video is being prepared by AI.", lang)}
                       </p>
                       <div className="mt-4 flex items-center gap-2">
                         <div className="h-1 w-1 rounded-full bg-primary animate-bounce [animation-delay:-0.3s]" />
@@ -1646,12 +2223,10 @@ function CourseDetail() {
                           <Play className="h-8 w-8" />
                         </div>
                         <h3 className="text-xl font-black text-white tracking-tight mb-2">
-                          {lang === "th" ? "ถึงขีดจำกัดการดูตัวอย่างแล้ว" : "Preview Limit Reached"}
+                          {getCourseStrings("Preview Limit Reached", lang)}
                         </h3>
                         <p className="text-slate-400 text-[10px] font-medium max-w-[200px] leading-relaxed mb-6 uppercase tracking-widest">
-                          {lang === "th"
-                            ? "ลงทะเบียนตอนนี้เพื่อเข้าถึงเนื้อหาบทเรียนทั้งหมด"
-                            : "Enroll now to unlock the full lesson content."}
+                          {getCourseStrings("Enroll now to unlock the full lesson content.", lang)}
                         </p>
                         <Button
                           asChild
@@ -1661,7 +2236,7 @@ function CourseDetail() {
                             to={user ? "/checkout/$courseId" : "/login"}
                             params={user ? { courseId } : undefined}
                           >
-                            {lang === "th" ? "ปลดล็อกการเข้าถึงทั้งหมด" : "Unlock Full Access"}
+                            {getCourseStrings("Unlock Full Access", lang)}
                           </Link>
                         </Button>
                       </motion.div>
@@ -1677,10 +2252,10 @@ function CourseDetail() {
                     </div>
                     <div>
                       <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">
-                        {lang === "th" ? "เส้นทางที่ได้รับการรับรอง" : "Verified Path"}
+                        {getCourseStrings("Verified Path", lang)}
                       </p>
                       <p className="text-sm font-bold text-slate-900 leading-none mt-1">
-                        {lang === "th" ? "ใบประกาศนียบัตรอย่างเป็นทางการ" : "Official Certificate"}
+                        {getCourseStrings("Official Certificate", lang)}
                       </p>
                     </div>
                   </div>
@@ -1804,10 +2379,10 @@ function CourseDetail() {
               <section className="space-y-10">
                 <div className="flex items-center justify-between border-b border-slate-100 pb-8">
                   <h2 className="text-3xl font-bold text-slate-900 tracking-tight">
-                    {lang === "th" ? "โครงสร้างหลักสูตร" : "Course Curriculum"}
+                    {getCourseStrings("Course Curriculum", lang)}
                   </h2>
                   <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest bg-slate-50 px-4 py-1.5 rounded-full border border-slate-100">
-                    {lessons.length} {lang === "th" ? "บทเรียนทั้งหมด" : "Total Lessons"}
+                    {lessons.length} {getCourseStrings("Total Lessons", lang)}
                   </span>
                 </div>
 
@@ -1831,7 +2406,7 @@ function CourseDetail() {
                                 </h4>
                                 <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">
                                   {moduleLessons.length}{" "}
-                                  {lang === "th" ? "บทเรียนที่รวมอยู่" : "Lessons Included"}
+                                  {getCourseStrings("Lessons Included", lang)}
                                 </span>
                               </div>
                             </div>
@@ -1907,9 +2482,7 @@ function CourseDetail() {
                                         window.scrollTo({ top: 0, behavior: "smooth" });
                                       } else {
                                         toast.error(
-                                          lang === "th"
-                                            ? "กรุณาลงทะเบียนเรียนเพื่อดูบทเรียนนี้"
-                                            : "Enroll to watch this lesson",
+                                          getCourseStrings("Enroll to watch this lesson", lang),
                                         );
                                       }
                                     }
@@ -1929,29 +2502,21 @@ function CourseDetail() {
                                         {lesson.title}
                                         {lesson.isPreview && (
                                           <Badge className="bg-emerald-500/10 text-emerald-600 border-none font-black text-[9px] uppercase tracking-widest px-2 py-0.5 rounded-md">
-                                            {lang === "th" ? "ทดลองเรียนฟรี" : "Free Preview"}
+                                            {getCourseStrings("Free Preview", lang)}
                                           </Badge>
                                         )}
                                       </div>
                                       <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest mt-2 flex items-center gap-1.5">
                                         <div className="h-1 w-1 rounded-full bg-slate-200" />
                                         {lesson.contentType === "video"
-                                          ? lang === "th"
-                                            ? "บทเรียนวิดีโอ"
-                                            : "Video Content"
+                                          ? getCourseStrings("Video Content", lang)
                                           : lesson.contentType === "pdf"
                                             ? "PDF Content"
                                             : lesson.contentType === "quiz"
-                                              ? lang === "th"
-                                                ? "บทเรียนควิซ"
-                                                : "Quiz Content"
+                                              ? getCourseStrings("Quiz Content", lang)
                                               : lesson.contentType === "text"
-                                                ? lang === "th"
-                                                  ? "บทความอ่าน"
-                                                  : "Text Content"
-                                                : lang === "th"
-                                                  ? "สไลด์ประกอบ"
-                                                  : "Slide Content"}
+                                                ? getCourseStrings("Text Content", lang)
+                                                : getCourseStrings("Slide Content", lang)}
                                       </p>
                                     </div>
                                   </div>
@@ -2087,12 +2652,10 @@ function CourseDetail() {
                           </div>
                           <div>
                             <h3 className="font-bold text-slate-900 leading-none">
-                              {lang === "th" ? "ได้รับสิทธิ์เข้าเรียนแล้ว" : "Access Granted"}
+                              {getCourseStrings("Access Granted", lang)}
                             </h3>
                             <p className="text-xs text-slate-500 font-medium mt-2">
-                              {lang === "th"
-                                ? "คุณมีสิทธิ์เข้าเรียนได้ตลอดชีพ"
-                                : "Lifetime access is active."}
+                              {getCourseStrings("Lifetime access is active.", lang)}
                             </p>
                           </div>
                         </div>
@@ -2113,7 +2676,7 @@ function CourseDetail() {
                       <div className="space-y-10">
                         <div className="space-y-3">
                           <p className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em]">
-                            {lang === "th" ? "ชำระเงินครั้งเดียว" : "One-time Payment"}
+                            {getCourseStrings("One-time Payment", lang)}
                           </p>
                           <div className="flex flex-col">
                             <div className="flex items-baseline gap-2">
@@ -2127,12 +2690,8 @@ function CourseDetail() {
                             {(isSaleActive(course) || course.isCampaignActive) && (
                               <p className="text-[10px] font-bold text-rose-500 uppercase tracking-widest mt-2">
                                 {isSaleActive(course)
-                                  ? lang === "th"
-                                    ? `⚡ ลดราคาพิเศษ (ราคาปกติ: $${course.price})`
-                                    : `⚡ Flash Sale (Original: $${course.price})`
-                                  : lang === "th"
-                                    ? `🤝 แคมเปญพาร์ทเนอร์ (ปกติ: $${course.price})`
-                                    : `🤝 Partner Deal (Original: $${course.price})`}
+                                  ? getFlashSaleText(course.price, lang)
+                                  : getPartnerDealText(course.price, lang)}
                               </p>
                             )}
                           </div>

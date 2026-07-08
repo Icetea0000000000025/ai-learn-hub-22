@@ -76,6 +76,7 @@ import { useState, useMemo, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/lib/auth";
 import { useI18n } from "@/lib/i18n";
+import type { Language } from "@/lib/i18n";
 import { createOrgPackageCheckoutSession, createEnterpriseCheckoutSession } from "@/lib/stripe";
 import { fetchCourses, type Course } from "@/lib/courses";
 import {
@@ -107,6 +108,318 @@ export const Route = createFileRoute("/organization")({
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 type Tab = "overview" | "team" | "licenses" | "reports" | "settings";
+
+// ─── Localisation strings ─────────────────────────────────────────────────────
+type OrgStringMap = Record<string, string>;
+
+const orgStrings: Record<Language, OrgStringMap> = {
+  en: {
+    active: "Active",
+    expired: "Expired",
+    orgCreated: "Organization created",
+    memberAdded: "added to organization successfully.",
+    memberAddedFallback: "User",
+    seatAssigned: "Seat assigned",
+    accessRevoked: "Access revoked",
+    orgUpdated: "Organization updated",
+    createWorkspaceDesc: "Give your organization a name to get started.",
+    teamStarterDesc: "Perfect for small teams up to 10 members",
+    enterpriseDesc: "Unlimited scale and advanced management",
+    perMonth: "/month",
+    noCoursesMatch: "No courses match your search",
+    availableCourses: "Available Courses",
+    perSeat: "seat",
+    creatorBenefitTitle: "Creator Benefit Applied",
+    creatorBenefitDesc:
+      "As the creator of this course, you can provision up to 1,000 free seats for your own organization.",
+    issueFreeBtn: "Issue Free Licenses",
+    navigation: "Navigation",
+    accountOwner: "Account Owner",
+    viewAllLicenses: "View all licenses →",
+    userHeader: "User",
+    statusHeader: "Status",
+    learningProfile: "Learning Profile",
+    notEnrolledYet: "Not enrolled yet",
+    moreCount: "+{n} more",
+    memberHeader: "Member",
+    rolePermissions: "Role / Permissions",
+    courseAccess: "Course Access",
+    actionHeader: "Action",
+    joined: "Joined",
+    noActiveCourses: "No active courses",
+    noSeatsAssigned: "No seats assigned yet",
+    enrolledBadge: "Enrolled",
+    noCapacity: "No Capacity Available",
+    searchTeam: "Search team directory...",
+    inDirectory: "in directory",
+    orgProgress: "Org Progress",
+    avgCompletionRate: "avg completion rate",
+    usageHistory: "Usage History",
+    seatsProcessed: "seats processed",
+    analyticsDisabledDesc:
+      "Your organization's access to data exports and analytics has been paused due to an inactive subscription.",
+    fullName: "Full Name",
+    emailAddress: "Email Address",
+    enrollmentStatus: "Enrollment Status",
+    overallProgress: "Overall Progress",
+    userRegistered: "User Registered",
+  },
+  th: {
+    active: "ใช้งานอยู่",
+    expired: "หมดอายุ",
+    orgCreated: "สร้างองค์กรสำเร็จแล้ว",
+    memberAdded: "ถูกเพิ่มในองค์กรสำเร็จแล้ว",
+    memberAddedFallback: "ผู้ใช้",
+    seatAssigned: "จัดสรรที่นั่งสำเร็จแล้ว",
+    accessRevoked: "ยกเลิกการเข้าถึงแล้ว",
+    orgUpdated: "อัปเดตองค์กรสำเร็จแล้ว",
+    createWorkspaceDesc: "ตั้งชื่อองค์กรของคุณเพื่อเริ่มต้นการใช้งาน",
+    teamStarterDesc: "เหมาะสำหรับทีมขนาดเล็กที่มีสมาชิกไม่เกิน 10 คน",
+    enterpriseDesc: "สเกลได้ไม่จำกัดและการจัดการระดับสูง",
+    perMonth: "/เดือน",
+    noCoursesMatch: "ไม่พบหลักสูตรที่ตรงกับการค้นหา",
+    availableCourses: "หลักสูตรที่มีจำหน่าย",
+    perSeat: "ที่นั่ง",
+    creatorBenefitTitle: "สิทธิ์ผู้สร้างถูกนำมาใช้",
+    creatorBenefitDesc:
+      "ในฐานะผู้สร้างหลักสูตรนี้ คุณสามารถจัดสรรที่นั่งฟรีได้สูงสุด 1,000 ที่นั่งสำหรับองค์กรของคุณเอง",
+    issueFreeBtn: "ออกใบอนุญาตฟรี",
+    navigation: "การนำทาง",
+    accountOwner: "เจ้าของบัญชี",
+    viewAllLicenses: "ดูใบอนุญาตทั้งหมด →",
+    userHeader: "ผู้ใช้",
+    statusHeader: "สถานะ",
+    learningProfile: "โปรไฟล์การเรียนรู้",
+    notEnrolledYet: "ยังไม่ได้ลงทะเบียน",
+    moreCount: "+{n} เพิ่มเติม",
+    memberHeader: "สมาชิก",
+    rolePermissions: "บทบาท / สิทธิ์",
+    courseAccess: "การเข้าถึงคอร์ส",
+    actionHeader: "ดำเนินการ",
+    joined: "เข้าร่วมเมื่อ",
+    noActiveCourses: "ไม่มีคอร์สที่ใช้งานอยู่",
+    noSeatsAssigned: "ยังไม่มีการมอบหมายที่นั่ง",
+    enrolledBadge: "ลงทะเบียนแล้ว",
+    noCapacity: "ไม่มีที่นั่งว่าง",
+    searchTeam: "ค้นหาในรายชื่อทีม...",
+    inDirectory: "ในรายชื่อ",
+    orgProgress: "ความก้าวหน้าองค์กร",
+    avgCompletionRate: "อัตราการเรียนจบเฉลี่ย",
+    usageHistory: "ประวัติการใช้งาน",
+    seatsProcessed: "ที่นั่งที่ดำเนินการแล้ว",
+    analyticsDisabledDesc:
+      "การเข้าถึงการส่งออกข้อมูลและการวิเคราะห์ขององค์กรคุณถูกระงับเนื่องจากการสมัครสมาชิกไม่ใช้งาน",
+    fullName: "ชื่อ-นามสกุล",
+    emailAddress: "ที่อยู่อีเมล",
+    enrollmentStatus: "สถานะการลงทะเบียน",
+    overallProgress: "ความก้าวหน้าโดยรวม",
+    userRegistered: "ผู้ใช้ที่ลงทะเบียน",
+  },
+  es: {
+    active: "Activo",
+    expired: "Expirado",
+    orgCreated: "Organización creada",
+    memberAdded: "añadido a la organización correctamente.",
+    memberAddedFallback: "Usuario",
+    seatAssigned: "Asiento asignado",
+    accessRevoked: "Acceso revocado",
+    orgUpdated: "Organización actualizada",
+    createWorkspaceDesc: "Dale un nombre a tu organización para comenzar.",
+    teamStarterDesc: "Perfecto para equipos pequeños de hasta 10 miembros",
+    enterpriseDesc: "Escala ilimitada y gestión avanzada",
+    perMonth: "/mes",
+    noCoursesMatch: "No hay cursos que coincidan con tu búsqueda",
+    availableCourses: "Cursos Disponibles",
+    perSeat: "asiento",
+    creatorBenefitTitle: "Beneficio de Creador Aplicado",
+    creatorBenefitDesc:
+      "Como creador de este curso, puedes aprovisionar hasta 1,000 asientos gratuitos para tu propia organización.",
+    issueFreeBtn: "Emitir Licencias Gratuitas",
+    navigation: "Navegación",
+    accountOwner: "Propietario de Cuenta",
+    viewAllLicenses: "Ver todas las licencias →",
+    userHeader: "Usuario",
+    statusHeader: "Estado",
+    learningProfile: "Perfil de Aprendizaje",
+    notEnrolledYet: "Aún no inscrito",
+    moreCount: "+{n} más",
+    memberHeader: "Miembro",
+    rolePermissions: "Rol / Permisos",
+    courseAccess: "Acceso al Curso",
+    actionHeader: "Acción",
+    joined: "Se unió",
+    noActiveCourses: "Sin cursos activos",
+    noSeatsAssigned: "Aún no se han asignado asientos",
+    enrolledBadge: "Inscrito",
+    noCapacity: "Sin Capacidad Disponible",
+    searchTeam: "Buscar en el directorio del equipo...",
+    inDirectory: "en el directorio",
+    orgProgress: "Progreso de la Org.",
+    avgCompletionRate: "tasa de finalización promedio",
+    usageHistory: "Historial de Uso",
+    seatsProcessed: "asientos procesados",
+    analyticsDisabledDesc:
+      "El acceso de tu organización a las exportaciones de datos y analíticas ha sido pausado debido a una suscripción inactiva.",
+    fullName: "Nombre Completo",
+    emailAddress: "Dirección de Correo",
+    enrollmentStatus: "Estado de Inscripción",
+    overallProgress: "Progreso General",
+    userRegistered: "Usuario Registrado",
+  },
+  ja: {
+    active: "有効",
+    expired: "期限切れ",
+    orgCreated: "組織を作成しました",
+    memberAdded: "が組織に追加されました。",
+    memberAddedFallback: "ユーザー",
+    seatAssigned: "シートを割り当てました",
+    accessRevoked: "アクセスを取り消しました",
+    orgUpdated: "組織を更新しました",
+    createWorkspaceDesc: "組織名を入力して開始してください。",
+    teamStarterDesc: "最大10名の小規模チームに最適",
+    enterpriseDesc: "無制限のスケールと高度な管理",
+    perMonth: "/月",
+    noCoursesMatch: "検索に一致するコースがありません",
+    availableCourses: "利用可能なコース",
+    perSeat: "席",
+    creatorBenefitTitle: "クリエイター特典が適用されました",
+    creatorBenefitDesc:
+      "このコースのクリエイターとして、自分の組織に最大1,000席の無料シートをプロビジョニングできます。",
+    issueFreeBtn: "無料ライセンスを発行",
+    navigation: "ナビゲーション",
+    accountOwner: "アカウントオーナー",
+    viewAllLicenses: "すべてのライセンスを表示 →",
+    userHeader: "ユーザー",
+    statusHeader: "ステータス",
+    learningProfile: "学習プロファイル",
+    notEnrolledYet: "未登録",
+    moreCount: "+{n} 件",
+    memberHeader: "メンバー",
+    rolePermissions: "ロール / 権限",
+    courseAccess: "コースアクセス",
+    actionHeader: "操作",
+    joined: "参加日",
+    noActiveCourses: "有効なコースなし",
+    noSeatsAssigned: "まだシートが割り当てられていません",
+    enrolledBadge: "登録済み",
+    noCapacity: "空き容量なし",
+    searchTeam: "チームディレクトリを検索...",
+    inDirectory: "ディレクトリ内",
+    orgProgress: "組織の進捗",
+    avgCompletionRate: "平均完了率",
+    usageHistory: "使用履歴",
+    seatsProcessed: "処理済みシート",
+    analyticsDisabledDesc:
+      "サブスクリプションが非アクティブなため、データエクスポートと分析へのアクセスが一時停止されています。",
+    fullName: "氏名",
+    emailAddress: "メールアドレス",
+    enrollmentStatus: "登録ステータス",
+    overallProgress: "全体の進捗",
+    userRegistered: "登録ユーザー",
+  },
+  zh: {
+    active: "活跃",
+    expired: "已过期",
+    orgCreated: "组织创建成功",
+    memberAdded: "已成功加入组织。",
+    memberAddedFallback: "用户",
+    seatAssigned: "席位已分配",
+    accessRevoked: "访问已撤销",
+    orgUpdated: "组织已更新",
+    createWorkspaceDesc: "为您的组织命名以开始使用。",
+    teamStarterDesc: "适合最多10名成员的小团队",
+    enterpriseDesc: "无限扩展和高级管理",
+    perMonth: "/月",
+    noCoursesMatch: "没有与您搜索匹配的课程",
+    availableCourses: "可用课程",
+    perSeat: "席",
+    creatorBenefitTitle: "已应用创作者权益",
+    creatorBenefitDesc:
+      "作为本课程的创作者，您可以为自己的组织提供最多1,000个免费席位。",
+    issueFreeBtn: "发放免费许可证",
+    navigation: "导航",
+    accountOwner: "账户所有者",
+    viewAllLicenses: "查看所有许可证 →",
+    userHeader: "用户",
+    statusHeader: "状态",
+    learningProfile: "学习档案",
+    notEnrolledYet: "尚未注册",
+    moreCount: "+{n} 更多",
+    memberHeader: "成员",
+    rolePermissions: "角色 / 权限",
+    courseAccess: "课程访问",
+    actionHeader: "操作",
+    joined: "加入于",
+    noActiveCourses: "暂无活跃课程",
+    noSeatsAssigned: "尚未分配席位",
+    enrolledBadge: "已注册",
+    noCapacity: "无可用容量",
+    searchTeam: "搜索团队目录...",
+    inDirectory: "在目录中",
+    orgProgress: "组织进度",
+    avgCompletionRate: "平均完成率",
+    usageHistory: "使用历史",
+    seatsProcessed: "已处理席位",
+    analyticsDisabledDesc:
+      "由于订阅未激活，您的组织对数据导出和分析的访问已暂停。",
+    fullName: "全名",
+    emailAddress: "电子邮件地址",
+    enrollmentStatus: "注册状态",
+    overallProgress: "总体进度",
+    userRegistered: "已注册用户",
+  },
+  ko: {
+    active: "활성",
+    expired: "만료됨",
+    orgCreated: "조직이 생성되었습니다",
+    memberAdded: "이(가) 조직에 성공적으로 추가되었습니다.",
+    memberAddedFallback: "사용자",
+    seatAssigned: "좌석이 할당되었습니다",
+    accessRevoked: "액세스가 취소되었습니다",
+    orgUpdated: "조직이 업데이트되었습니다",
+    createWorkspaceDesc: "시작하려면 조직 이름을 입력하세요.",
+    teamStarterDesc: "최대 10명의 소규모 팀에 적합",
+    enterpriseDesc: "무제한 확장 및 고급 관리",
+    perMonth: "/월",
+    noCoursesMatch: "검색과 일치하는 강좌가 없습니다",
+    availableCourses: "이용 가능한 강좌",
+    perSeat: "석",
+    creatorBenefitTitle: "크리에이터 혜택이 적용되었습니다",
+    creatorBenefitDesc:
+      "이 강좌의 크리에이터로서 자신의 조직에 최대 1,000개의 무료 좌석을 제공할 수 있습니다.",
+    issueFreeBtn: "무료 라이선스 발급",
+    navigation: "탐색",
+    accountOwner: "계정 소유자",
+    viewAllLicenses: "모든 라이선스 보기 →",
+    userHeader: "사용자",
+    statusHeader: "상태",
+    learningProfile: "학습 프로필",
+    notEnrolledYet: "아직 등록되지 않음",
+    moreCount: "+{n} 더",
+    memberHeader: "멤버",
+    rolePermissions: "역할 / 권한",
+    courseAccess: "강좌 접근",
+    actionHeader: "작업",
+    joined: "가입일",
+    noActiveCourses: "활성 강좌 없음",
+    noSeatsAssigned: "아직 할당된 좌석이 없습니다",
+    enrolledBadge: "등록됨",
+    noCapacity: "사용 가능한 용량 없음",
+    searchTeam: "팀 디렉토리 검색...",
+    inDirectory: "디렉토리에서",
+    orgProgress: "조직 진행률",
+    avgCompletionRate: "평균 완료율",
+    usageHistory: "사용 기록",
+    seatsProcessed: "처리된 좌석",
+    analyticsDisabledDesc:
+      "비활성 구독으로 인해 데이터 내보내기 및 분석에 대한 조직의 액세스가 일시 중지되었습니다.",
+    fullName: "성명",
+    emailAddress: "이메일 주소",
+    enrollmentStatus: "등록 상태",
+    overallProgress: "전체 진행률",
+    userRegistered: "등록된 사용자",
+  },
+};
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 function initials(name?: string) {
@@ -274,6 +587,7 @@ function SidebarItem({
 // ─── Status badge ─────────────────────────────────────────────────────────────
 function StatusDot({ active }: { active: boolean }) {
   const { lang } = useI18n();
+  const s = (key: string) => orgStrings[lang as Language]?.[key] ?? orgStrings.en[key];
   return (
     <Badge
       variant={active ? "secondary" : "destructive"}
@@ -285,7 +599,7 @@ function StatusDot({ active }: { active: boolean }) {
       )}
     >
       <span className={cn("h-1.5 w-1.5 rounded-full", active ? "bg-emerald-500" : "bg-red-500")} />
-      {active ? (lang === "th" ? "ใช้งานอยู่" : "Active") : lang === "th" ? "หมดอายุ" : "Expired"}
+      {active ? s("active") : s("expired")}
     </Badge>
   );
 }
@@ -296,6 +610,9 @@ function OrganizationDashboard() {
   const { lang, t } = useI18n();
   const queryClient = useQueryClient();
   const search = Route.useSearch() as any;
+
+  // Helper: look up a key from the org-specific strings
+  const s = (key: string) => orgStrings[lang as Language]?.[key] ?? orgStrings.en[key];
 
   const [tab, setTab] = useState<Tab>("overview");
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -522,7 +839,7 @@ function OrganizationDashboard() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["my-organizations"] });
-      toast.success(lang === "th" ? "สร้างองค์กรสำเร็จแล้ว" : "Organization created");
+      toast.success(s("orgCreated"));
     },
     onError: (e: any) => toast.error(e.message),
   });
@@ -542,9 +859,7 @@ function OrganizationDashboard() {
     onSuccess: (res: any) => {
       queryClient.invalidateQueries({ queryKey: ["org-members-suite"] });
       toast.success(
-        lang === "th"
-          ? `${res.name || "ผู้ใช้"} ถูกเพิ่มในองค์กรสำเร็จแล้ว`
-          : `${res.name || "User"} added to organization successfully.`,
+        `${res.name || s("memberAddedFallback")} ${s("memberAdded")}`,
       );
       setMemberEmail("");
     },
@@ -562,7 +877,7 @@ function OrganizationDashboard() {
       queryClient.invalidateQueries({
         queryKey: ["org-packages-management", "org-members-suite"],
       });
-      toast.success(lang === "th" ? "จัดสรรที่นั่งสำเร็จแล้ว" : "Seat assigned");
+      toast.success(s("seatAssigned"));
     },
     onError: (e: any) => toast.error(e.message),
   });
@@ -577,7 +892,7 @@ function OrganizationDashboard() {
       queryClient.invalidateQueries({
         queryKey: ["org-packages-management", "org-members-suite"],
       });
-      toast.success(lang === "th" ? "ยกเลิกการเข้าถึงแล้ว" : "Access revoked");
+      toast.success(s("accessRevoked"));
     },
     onError: (e: any) => toast.error(e.message),
   });
@@ -590,7 +905,7 @@ function OrganizationDashboard() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["my-organizations"] });
-      toast.success(lang === "th" ? "อัปเดตองค์กรสำเร็จแล้ว" : "Organization updated");
+      toast.success(s("orgUpdated"));
     },
     onError: (e: any) => toast.error(e.message),
   });
@@ -651,9 +966,9 @@ function OrganizationDashboard() {
     }
     const rows = [
       [
-        lang === "th" ? "สมาชิก" : "Member",
-        lang === "th" ? "อีเมล" : "Email",
-        lang === "th" ? "คอร์สที่ลงทะเบียน" : "Enrolled courses",
+        s("memberHeader"),
+        s("emailAddress"),
+        t("coursesEnrolled"),
       ],
       ...members.map((m: any) => [
         m.profiles?.name ?? "—",
@@ -667,7 +982,7 @@ function OrganizationDashboard() {
     );
     a.download = `${org?.name ?? "org"}_report.csv`;
     a.click();
-    toast.success(lang === "th" ? "ส่งออกรายงานสำเร็จแล้ว" : "Report exported");
+    toast.success(t("exportData"));
   };
 
   // Loading
@@ -697,9 +1012,7 @@ function OrganizationDashboard() {
               <CardHeader>
                 <CardTitle className="text-lg">{t("createWorkspace")}</CardTitle>
                 <CardDescription>
-                  {lang === "th"
-                    ? "ตั้งชื่อองค์กรของคุณเพื่อเริ่มต้นการใช้งาน"
-                    : "Give your organization a name to get started."}
+                  {s("createWorkspaceDesc")}
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -740,19 +1053,13 @@ function OrganizationDashboard() {
                 {
                   name: t("teamStarter"),
                   price: 49,
-                  desc:
-                    lang === "th"
-                      ? "เหมาะสำหรับทีมขนาดเล็กที่มีสมาชิกไม่เกิน 10 คน"
-                      : "Perfect for small teams up to 10 members",
+                  desc: s("teamStarterDesc"),
                   icon: Users,
                 },
                 {
                   name: t("enterprise"),
                   price: 99,
-                  desc:
-                    lang === "th"
-                      ? "สเกลได้ไม่จำกัดและการจัดการระดับสูง"
-                      : "Unlimited scale and advanced management",
+                  desc: s("enterpriseDesc"),
                   featured: true,
                   icon: Sparkles,
                 },
@@ -792,7 +1099,7 @@ function OrganizationDashboard() {
                     <div className="flex items-baseline gap-1">
                       <span className="text-xl font-bold">${plan.price}</span>
                       <span className="text-xs text-muted-foreground">
-                        {lang === "th" ? "/เดือน" : "/month"}
+                        {s("perMonth")}
                       </span>
                     </div>
                     <Button
@@ -1021,7 +1328,7 @@ function OrganizationDashboard() {
           <nav className="space-y-1">
             {sidebarOpen && (
               <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-[0.15em] px-3 mb-3 truncate">
-                {lang === "th" ? "การนำทาง" : "Navigation"}
+                {s("navigation")}
               </p>
             )}
             <SidebarItem
@@ -1050,7 +1357,7 @@ function OrganizationDashboard() {
               <>
                 <div className="min-w-0 flex-1">
                   <p className="text-xs font-bold text-foreground truncate group-hover:text-primary transition-colors">
-                    {profile?.name ?? (lang === "th" ? "เจ้าของบัญชี" : "Account Owner")}
+                    {profile?.name ?? s("accountOwner")}
                   </p>
                   <p className="text-[10px] text-muted-foreground truncate opacity-70">
                     {user?.email}
@@ -1152,14 +1459,10 @@ function OrganizationDashboard() {
                           >
                             <CommandEmpty className="py-6 text-center text-sm text-muted-foreground flex flex-col items-center gap-2">
                               <Search className="h-8 w-8 opacity-20" />
-                              <span>
-                                {lang === "th"
-                                  ? "ไม่พบหลักสูตรที่ตรงกับการค้นหา"
-                                  : "No courses match your search"}
-                              </span>
+                              <span>{s("noCoursesMatch")}</span>
                             </CommandEmpty>
                             <CommandGroup
-                              heading={lang === "th" ? "หลักสูตรที่มีจำหน่าย" : "Available Courses"}
+                              heading={s("availableCourses")}
                               className="p-1"
                             >
                               {allCourses.map((c) => (
@@ -1186,7 +1489,7 @@ function OrganizationDashboard() {
                                     <p className="text-xs text-primary font-semibold mt-0.5">
                                       ${c.price}{" "}
                                       <span className="text-muted-foreground font-normal">
-                                        / {lang === "th" ? "ที่นั่ง" : "seat"}
+                                        / {s("perSeat")}
                                       </span>
                                     </p>
                                   </div>
@@ -1210,11 +1513,9 @@ function OrganizationDashboard() {
                           <Sparkles className="h-6 w-6 text-primary" />
                         </div>
                         <div>
-                          <p className="text-sm font-bold text-primary">Creator Benefit Applied</p>
+                          <p className="text-sm font-bold text-primary">{s("creatorBenefitTitle")}</p>
                           <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
-                            {lang === "th"
-                              ? "ในฐานะผู้สร้างหลักสูตรนี้ คุณสามารถจัดสรรที่นั่งฟรีได้สูงสุด 1,000 ที่นั่งสำหรับองค์กรของคุณเอง"
-                              : "As the creator of this course, you can provision up to 1,000 free seats for your own organization."}
+                            {s("creatorBenefitDesc")}
                           </p>
                         </div>
                       </CardContent>
@@ -1273,11 +1574,7 @@ function OrganizationDashboard() {
                     className="w-full h-12 text-base font-bold shadow-xl shadow-primary/20"
                   >
                     {selectedCourse?.creatorId === user?.id ? (
-                      lang === "th" ? (
-                        "ออกใบอนุญาตฟรี"
-                      ) : (
-                        "Issue Free Licenses"
-                      )
+                      s("issueFreeBtn")
                     ) : (
                       <>
                         {t("proceedPayment")}
@@ -1420,7 +1717,7 @@ function OrganizationDashboard() {
                         onClick={() => setTab("licenses")}
                         className="text-[11px] font-bold text-primary"
                       >
-                        {lang === "th" ? "ดูใบอนุญาตทั้งหมด →" : "View all licenses →"}
+                        {s("viewAllLicenses")}
                       </Button>
                     </CardFooter>
                   )}
@@ -1447,13 +1744,13 @@ function OrganizationDashboard() {
                   <TableHeader className="bg-slate-50/30">
                     <TableRow className="hover:bg-transparent">
                       <TableHead className="text-[10px] font-bold uppercase tracking-widest pl-6 py-4">
-                        {lang === "th" ? "ผู้ใช้" : "User"}
+                        {s("userHeader")}
                       </TableHead>
                       <TableHead className="text-[10px] font-bold uppercase tracking-widest py-4">
-                        {lang === "th" ? "สถานะ" : "Status"}
+                        {s("statusHeader")}
                       </TableHead>
                       <TableHead className="text-[10px] font-bold uppercase tracking-widest py-4">
-                        {lang === "th" ? "โปรไฟล์การเรียนรู้" : "Learning Profile"}
+                        {s("learningProfile")}
                       </TableHead>
                       <TableHead className="w-[100px] text-right pr-6 py-4" />
                     </TableRow>
@@ -1489,7 +1786,7 @@ function OrganizationDashboard() {
                           <div className="flex flex-wrap gap-1.5">
                             {m.enrollments.length === 0 ? (
                               <span className="text-[10px] text-muted-foreground/40 italic font-medium">
-                                Not enrolled yet
+                                {s("notEnrolledYet")}
                               </span>
                             ) : (
                               m.enrollments.slice(0, 2).map((e: any, i: number) => (
@@ -1504,7 +1801,7 @@ function OrganizationDashboard() {
                             )}
                             {m.enrollments.length > 2 && (
                               <span className="text-[9px] font-bold text-muted-foreground self-center">
-                                +{m.enrollments.length - 2} more
+                                +{m.enrollments.length - 2} {s("moreCount").replace("{n}", "")}
                               </span>
                             )}
                           </div>
@@ -1569,17 +1866,17 @@ function OrganizationDashboard() {
                   <TableHeader className="bg-slate-50/30">
                     <TableRow className="hover:bg-transparent">
                       <TableHead className="text-[10px] font-bold uppercase tracking-widest pl-8 py-4">
-                        {lang === "th" ? "สมาชิก" : "Member"}
+                        {s("memberHeader")}
                       </TableHead>
                       <TableHead className="text-[10px] font-bold uppercase tracking-widest py-4">
-                        {lang === "th" ? "บทบาท / สิทธิ์" : "Role / Permissions"}
+                        {s("rolePermissions")}
                       </TableHead>
                       <TableHead className="text-[10px] font-bold uppercase tracking-widest py-4">
-                        {lang === "th" ? "การเข้าถึงคอร์ส" : "Course Access"}
+                        {s("courseAccess")}
                       </TableHead>
                       <TableHead className="text-right pr-8 py-4 w-[140px]">
                         <span className="text-[10px] font-bold uppercase tracking-widest">
-                          {lang === "th" ? "ดำเนินการ" : "Action"}
+                          {s("actionHeader")}
                         </span>
                       </TableHead>
                     </TableRow>
@@ -1621,7 +1918,7 @@ function OrganizationDashboard() {
                               <Ava name={m.profiles?.name} url={m.profiles?.avatar_url} size={36} />
                               <div className="min-w-0">
                                 <p className="text-sm font-bold text-foreground">
-                                  {m.profiles?.name ?? "User Registered"}
+                                  {m.profiles?.name ?? s("userRegistered")}
                                 </p>
                                 <p className="text-xs text-muted-foreground">{m.profiles?.email}</p>
                               </div>
@@ -1636,7 +1933,7 @@ function OrganizationDashboard() {
                                 {m.role}
                               </Badge>
                               <span className="text-[10px] text-muted-foreground/60 font-medium ml-1">
-                                {lang === "th" ? "เข้าร่วมเมื่อ" : "Joined"}{" "}
+                                {s("joined")}{" "}
                                 {new Date(m.joined_at).toLocaleDateString()}
                               </span>
                             </div>
@@ -1645,7 +1942,7 @@ function OrganizationDashboard() {
                             <div className="flex flex-wrap gap-1.5 max-w-sm">
                               {m.enrollments?.length === 0 ? (
                                 <span className="text-xs text-muted-foreground/40 italic font-medium">
-                                  {lang === "th" ? "ไม่มีคอร์สที่ใช้งานอยู่" : "No active courses"}
+                                  {s("noActiveCourses")}
                                 </span>
                               ) : (
                                 m.enrollments.map((e: any, i: number) => (
@@ -1800,12 +2097,8 @@ function OrganizationDashboard() {
                                   {!isActive
                                     ? t("accessSuspended")
                                     : pct >= 100
-                                      ? lang === "th"
-                                        ? "ไม่มีที่นั่งว่าง"
-                                        : "No Capacity Available"
-                                      : lang === "th"
-                                        ? "ค้นหาในรายชื่อทีม..."
-                                        : "Search team directory..."}
+                                      ? s("noCapacity")
+                                      : s("searchTeam")}
                                 </option>
                                 {unassigned.map((m: any) => (
                                   <option key={m.id} value={m.id}>
@@ -1838,9 +2131,7 @@ function OrganizationDashboard() {
                               {pkg.assignments.length === 0 ? (
                                 <div className="py-8 text-center bg-slate-50/50 rounded-2xl border border-dashed border-border/60">
                                   <p className="text-[11px] text-muted-foreground/50 font-medium">
-                                    {lang === "th"
-                                      ? "ยังไม่มีการมอบหมายที่นั่ง"
-                                      : "No seats assigned yet"}
+                                    {s("noSeatsAssigned")}
                                   </p>
                                 </div>
                               ) : (
@@ -1870,7 +2161,7 @@ function OrganizationDashboard() {
                                         <div className="h-5 px-1.5 rounded bg-emerald-500/10 flex items-center gap-1.5 shrink-0">
                                           <div className="h-1 w-1 rounded-full bg-emerald-500" />
                                           <span className="text-[9px] font-bold text-emerald-600 uppercase">
-                                            {lang === "th" ? "ลงทะเบียนแล้ว" : "Enrolled"}
+                                            {s("enrolledBadge")}
                                           </span>
                                         </div>
                                         <button
@@ -1909,22 +2200,22 @@ function OrganizationDashboard() {
                   icon={Users}
                   label={t("activeLearners")}
                   value={members.length}
-                  hint={lang === "th" ? "ในรายชื่อ" : "in directory"}
+                  hint={s("inDirectory")}
                   color="blue"
                 />
                 <MetricCard
                   icon={CheckCircle2}
-                  label={lang === "th" ? "ความก้าวหน้าองค์กร" : "Org Progress"}
+                  label={s("orgProgress")}
                   value={`${avgCompletion}%`}
-                  hint={lang === "th" ? "อัตราการเรียนจบเฉลี่ย" : "avg completion rate"}
+                  hint={s("avgCompletionRate")}
                   color="green"
                   hintUp
                 />
                 <MetricCard
                   icon={History}
-                  label={lang === "th" ? "ประวัติการใช้งาน" : "Usage History"}
+                  label={s("usageHistory")}
                   value={totalSeats}
-                  hint={lang === "th" ? "ที่นั่งที่ดำเนินการแล้ว" : "seats processed"}
+                  hint={s("seatsProcessed")}
                   color="purple"
                 />
               </div>
@@ -1957,9 +2248,7 @@ function OrganizationDashboard() {
                       {t("analyticsDisabled")}
                     </h3>
                     <p className="text-xs text-muted-foreground mt-2 max-w-xs mx-auto">
-                      {lang === "th"
-                        ? "การเข้าถึงการส่งออกข้อมูลและการวิเคราะห์ขององค์กรคุณถูกระงับเนื่องจากการสมัครสมาชิกไม่ใช้งาน"
-                        : "Your organization's access to data exports and analytics has been paused due to an inactive subscription."}
+                      {s("analyticsDisabledDesc")}
                     </p>
                     <Button
                       variant="link"
@@ -1975,16 +2264,16 @@ function OrganizationDashboard() {
                       <TableHeader className="bg-slate-50/30">
                         <TableRow className="hover:bg-transparent">
                           <TableHead className="text-[10px] font-bold uppercase tracking-widest pl-8 py-5">
-                            {lang === "th" ? "ชื่อ-นามสกุล" : "Full Name"}
+                            {s("fullName")}
                           </TableHead>
                           <TableHead className="text-[10px] font-bold uppercase tracking-widest py-5">
-                            {lang === "th" ? "ที่อยู่อีเมล" : "Email Address"}
+                            {s("emailAddress")}
                           </TableHead>
                           <TableHead className="text-[10px] font-bold uppercase tracking-widest py-5">
-                            {lang === "th" ? "สถานะการลงทะเบียน" : "Enrollment Status"}
+                            {s("enrollmentStatus")}
                           </TableHead>
                           <TableHead className="text-[10px] font-bold uppercase tracking-widest py-5">
-                            {lang === "th" ? "ความก้าวหน้าโดยรวม" : "Overall Progress"}
+                            {s("overallProgress")}
                           </TableHead>
                         </TableRow>
                       </TableHeader>

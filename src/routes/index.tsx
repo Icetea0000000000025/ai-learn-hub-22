@@ -31,7 +31,7 @@ import {
 } from "@/lib/courses";
 import { fetchUserEnrollments } from "@/lib/enrollments";
 import { useAuth } from "@/lib/auth";
-import { useI18n } from "@/lib/i18n";
+import { useI18n, type Language } from "@/lib/i18n";
 import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carousel";
 import { cn } from "@/lib/utils";
 import { ScrollReveal } from "@/components/ui/scroll-reveal";
@@ -52,7 +52,215 @@ export const Route = createFileRoute("/")({
   }),
 });
 
-// --- HELPER: Trust Card ---
+// ─── Localisation strings ────────────────────────────────────────────────────
+const homeStrings: Record<Language, Record<string, string>> = {
+  en: {
+    heroTitlePart1: "Learn beyond the",
+    heroTitlePart2: "expected.",
+    featuredHeading1: "Featured",
+    featuredHeading2: "Curriculums",
+    partnerDealsTitle: "Exclusive Partner Deals",
+    partnerDealsSub: "Special campaign pricing in collaboration with LearnLab's top experts",
+    campaign: "Campaign",
+    communityFavorites: "Community Favorites",
+    bestSellersHeading1: "Best",
+    bestSellersHeading2: "Sellers",
+    bestSellersSub: "Join thousands of learners in our most prestigious and high-impact curriculum.",
+    exploreAll: "Explore All",
+    excellenceReviews: "Excellence Reviews",
+    investment: "Investment",
+    flashSalePrefix: "⚡ Flash Sale (Original: ${price})",
+    partnerDealPrefix: "🤝 Partner Deal (Original: ${price})",
+    community: "Community",
+    studentsJoined: "Students Joined",
+    institutionalGrade: "Institutional Grade",
+    valueBundlesHeading1: "Value",
+    valueBundlesHeading2: "Bundles",
+    valueBundlesSub: "Accelerate your career trajectory with curated multi-course paths at an exclusive investment rate.",
+    masteryPath: "Mastery Path",
+    partialOwnApplied: "Partial Own Applied",
+    bundleInvestment: "Bundle Investment",
+    wasPrice: "Was",
+    includedCurriculums: "Included Curriculums",
+    assetOwned: "Asset Owned",
+    pathFullyUnlocked: "Path Fully Unlocked",
+    unlockPathAccess: "Unlock Path Access",
+    startYourNextChapter: "Start your next chapter.",
+    startChapterSub: "Join a community of builders. Publish your own expertise or master something new today.",
+  },
+  th: {
+    heroTitlePart1: "เรียนรู้เหนือความ",
+    heroTitlePart2: "คาดหมาย",
+    featuredHeading1: "หลักสูตร",
+    featuredHeading2: "แนะนำ",
+    partnerDealsTitle: "ดีลพิเศษจากพาร์ทเนอร์",
+    partnerDealsSub: "แคมเปญราคาพิเศษร่วมกับเหล่ายอดฝีมือของ LearnLab",
+    campaign: "แคมเปญ",
+    communityFavorites: "ยอดนิยมในชุมชน",
+    bestSellersHeading1: "คอร์ส",
+    bestSellersHeading2: "ขายดี",
+    bestSellersSub: "เข้าร่วมกับผู้เรียนนับพันในหลักสูตรที่มีชื่อเสียงและมีประสิทธิภาพสูงสุดของเรา",
+    exploreAll: "สำรวจทั้งหมด",
+    excellenceReviews: "รีวิวยอดเยี่ยม",
+    investment: "การลงทุน",
+    flashSalePrefix: "⚡ ลดราคาพิเศษ! (ปกติ: ${price})",
+    partnerDealPrefix: "🤝 แคมเปญพาร์ทเนอร์ (ปกติ: ${price})",
+    community: "ชุมชน",
+    studentsJoined: "ผู้เรียนเข้าร่วมแล้ว",
+    institutionalGrade: "มาตรฐานระดับสถาบัน",
+    valueBundlesHeading1: "แพ็กเกจ",
+    valueBundlesHeading2: "สุดคุ้ม",
+    valueBundlesSub: "เร่งเส้นทางอาชีพของคุณด้วยเส้นทางหลายหลักสูตรที่คัดสรรมาเป็นพิเศษในราคาพิเศษ",
+    masteryPath: "เส้นทางสู่ความเชี่ยวชาญ",
+    partialOwnApplied: "ใช้ส่วนลดจากคอร์สที่เป็นเจ้าของแล้ว",
+    bundleInvestment: "การลงทุนสำหรับแพ็กเกจ",
+    wasPrice: "ปกติ",
+    includedCurriculums: "หลักสูตรที่รวมอยู่",
+    assetOwned: "เป็นเจ้าของแล้ว",
+    pathFullyUnlocked: "ปลดล็อกเส้นทางนี้ทั้งหมดแล้ว",
+    unlockPathAccess: "ปลดล็อกการเข้าถึงเส้นทางนี้",
+    startYourNextChapter: "เริ่มต้นบทใหม่ของคุณ",
+    startChapterSub: "เข้าร่วมชุมชนของผู้สร้าง เผยแพร่ความเชี่ยวชาญของคุณเอง หรือเริ่มต้นเรียนรู้สิ่งใหม่วันนี้",
+  },
+  es: {
+    heroTitlePart1: "Aprende más allá de lo",
+    heroTitlePart2: "esperado.",
+    featuredHeading1: "Planes de Estudio",
+    featuredHeading2: "Destacados",
+    partnerDealsTitle: "Ofertas Exclusivas de Socios",
+    partnerDealsSub: "Precios de campaña especiales en colaboración con los mejores expertos de LearnLab",
+    campaign: "Campaña",
+    communityFavorites: "Favoritos de la Comunidad",
+    bestSellersHeading1: "Más",
+    bestSellersHeading2: "Vendidos",
+    bestSellersSub: "Únete a miles de estudiantes en nuestro plan de estudios más prestigioso y de gran impacto.",
+    exploreAll: "Explorar Todo",
+    excellenceReviews: "Reseñas Excelentes",
+    investment: "Inversión",
+    flashSalePrefix: "⚡ ¡Venta Flash! (Original: ${price})",
+    partnerDealPrefix: "🤝 Trato de Socio (Original: ${price})",
+    community: "Comunidad",
+    studentsJoined: "Estudiantes Unidos",
+    institutionalGrade: "Grado Institucional",
+    valueBundlesHeading1: "Paquetes",
+    valueBundlesHeading2: "de Valor",
+    valueBundlesSub: "Acelera tu trayectoria profesional con rutas multicurso seleccionadas a una tarifa de inversión exclusiva.",
+    masteryPath: "Ruta de Dominio",
+    partialOwnApplied: "Descuento por Cursos Propios Aplicado",
+    bundleInvestment: "Inversión del Paquete",
+    wasPrice: "Antes",
+    includedCurriculums: "Planes de Estudio Incluidos",
+    assetOwned: "Adquirido",
+    pathFullyUnlocked: "Ruta Totalmente Desbloqueada",
+    unlockPathAccess: "Desbloquear Acceso a la Ruta",
+    startYourNextChapter: "Comienza tu siguiente capítulo.",
+    startChapterSub: "Únete a una comunidad de constructores. Publica tu propia experiencia o domina algo nuevo hoy.",
+  },
+  ja: {
+    heroTitlePart1: "期待を超えた",
+    heroTitlePart2: "学習を。",
+    featuredHeading1: "おすすめの",
+    featuredHeading2: "カリキュラム",
+    partnerDealsTitle: "限定パートナーディール",
+    partnerDealsSub: "LearnLabのトップエキスパートと提携した特別キャンペーン価格",
+    campaign: "キャンペーン",
+    communityFavorites: "コミュニティのお気に入り",
+    bestSellersHeading1: "ベスト",
+    bestSellersHeading2: "セラー",
+    bestSellersSub: "最も権威があり影響力の高いカリキュラムで、何千人もの学習者と一緒に学びましょう。",
+    exploreAll: "すべて探索",
+    excellenceReviews: "優秀なレビュー",
+    investment: "受講料",
+    flashSalePrefix: "⚡ フラッシュセール (元値: ${price})",
+    partnerDealPrefix: "🤝 パートナーディール (元値: ${price})",
+    community: "コミュニティ",
+    studentsJoined: "参加学習者数",
+    institutionalGrade: "法人向けグレード",
+    valueBundlesHeading1: "お得な",
+    valueBundlesHeading2: "バンドル",
+    valueBundlesSub: "厳選された複数コースのパスをお得な受講料で利用し、キャリアアップを加速させましょう。",
+    masteryPath: "マスタリーパス",
+    partialOwnApplied: "一部所有割引適用済み",
+    bundleInvestment: "バンドル受講料",
+    wasPrice: "通常",
+    includedCurriculums: "含まれるカリキュラム",
+    assetOwned: "所有済み",
+    pathFullyUnlocked: "パスが完全にロック解除されました",
+    unlockPathAccess: "パスのロックを解除",
+    startYourNextChapter: "次のチャプターを始めよう。",
+    startChapterSub: "ビルダーのコミュニティに参加しましょう。自分の専門知識を公開するか、今日から新しいことを学びましょう。",
+  },
+  zh: {
+    heroTitlePart1: "学习超越",
+    heroTitlePart2: "期望。",
+    featuredHeading1: "精选",
+    featuredHeading2: "课程",
+    partnerDealsTitle: "独家合作伙伴特惠",
+    partnerDealsSub: "与 LearnLab 顶级专家合作推出的特别活动价格",
+    campaign: "活动",
+    communityFavorites: "社区最爱",
+    bestSellersHeading1: "畅销",
+    bestSellersHeading2: "课程",
+    bestSellersSub: "与成千上万的学习者一起加入我们最声誉卓著且高效的课程。",
+    exploreAll: "探索全部",
+    excellenceReviews: "优秀评价",
+    investment: "投资",
+    flashSalePrefix: "⚡ 限时特惠 (原价: ${price})",
+    partnerDealPrefix: "🤝 合作伙伴特惠 (原价: ${price})",
+    community: "社区",
+    studentsJoined: "名学生已加入",
+    institutionalGrade: "机构级标准",
+    valueBundlesHeading1: "超值",
+    valueBundlesHeading2: "合集",
+    valueBundlesSub: "通过精心设计的专属多课程路径加速您的职业发展轨迹，享受专享投资价。",
+    masteryPath: "精通路径",
+    partialOwnApplied: "已扣除已购课程费用",
+    bundleInvestment: "合集投资",
+    wasPrice: "原价",
+    includedCurriculums: "包含课程",
+    assetOwned: "已拥有",
+    pathFullyUnlocked: "已解锁全部路径",
+    unlockPathAccess: "解锁路径权限",
+    startYourNextChapter: "开启您的下一篇章。",
+    startChapterSub: "加入创造者社区。发布您自己的专业知识或在今天掌握一门新技能。",
+  },
+  ko: {
+    heroTitlePart1: "기대를 뛰어넘는",
+    heroTitlePart2: "학습.",
+    featuredHeading1: "추천",
+    featuredHeading2: "커리큘럼",
+    partnerDealsTitle: "독점 파트너 딜",
+    partnerDealsSub: "LearnLab 최고의 전문가들과 협력한 특별 캠페인 가격",
+    campaign: "캠페인",
+    communityFavorites: "커뮤니티 인기 강좌",
+    bestSellersHeading1: "베스트",
+    bestSellersHeading2: "셀러",
+    bestSellersSub: "가장 명성 있고 효과적인 커리큘럼에서 수천 명의 학습자들과 함께해 보세요.",
+    exploreAll: "전체 탐색",
+    excellenceReviews: "우수 리뷰",
+    investment: "수강료",
+    flashSalePrefix: "⚡ 플래시 세일 (정가: ${price})",
+    partnerDealPrefix: "🤝 파트너 딜 (정가: ${price})",
+    community: "커뮤니티",
+    studentsJoined: "명의 학습자 참여",
+    institutionalGrade: "기관 등급",
+    valueBundlesHeading1: "가치",
+    valueBundlesHeading2: "번들",
+    valueBundlesSub: "엄선된 멀티 코스 경로를 독점 할인가로 이용해 커리어 경로를 가속화하세요.",
+    masteryPath: "마스터리 경로",
+    partialOwnApplied: "일부 보유 할인 적용됨",
+    bundleInvestment: "번들 수강료",
+    wasPrice: "정가",
+    includedCurriculums: "포함된 커리큘럼",
+    assetOwned: "보유 중",
+    pathFullyUnlocked: "경로가 완전히 잠금 해제됨",
+    unlockPathAccess: "경로 잠금 해제",
+    startYourNextChapter: "다음 챕터를 시작하세요.",
+    startChapterSub: "제작자 커뮤니티에 참여해 보세요. 나만의 지식을 공유하거나 오늘 새로운 기술을 익히세요.",
+  },
+};
+
+// Helper to render trust cards dynamically
 function TrustCard({ icon: Icon, label, sub }: any) {
   return (
     <div className="flex flex-col items-center text-center space-y-3 group">
@@ -74,6 +282,8 @@ function Home() {
   const { lang, t } = useI18n();
   const navigate = useNavigate();
 
+  const s = (key: string) => homeStrings[lang]?.[key] ?? homeStrings.en[key];
+
   const { data: courses = [] as Course[], isLoading: loadingCourses } = useQuery({
     queryKey: ["featured-courses"],
     queryFn: () => fetchCourses(),
@@ -94,8 +304,6 @@ function Home() {
     if (!user || !bundle.courses || bundle.courses.length === 0) return bundle.price;
 
     const ownedCourseIds = new Set(myEnrollments.map((e) => e.course_id));
-
-    // Formula: Deduction = (Total Bundle Price / Course Count) * Owned Courses Count
     const totalCourses = bundle.courses.length;
     const avgPrice = bundle.price / totalCourses;
 
@@ -194,14 +402,8 @@ function Home() {
                 transition={{ duration: 0.7, delay: 0.1 }}
                 className="text-6xl lg:text-8xl font-bold tracking-tighter text-foreground leading-[0.95]"
               >
-                {lang === "th" ? (
-                  "เรียนรู้เหนือความคาดหมาย"
-                ) : (
-                  <>
-                    Learn beyond the <br />
-                    <span className="text-primary italic">expected.</span>
-                  </>
-                )}
+                {s("heroTitlePart1")}{" "}
+                <span className="text-primary italic">{s("heroTitlePart2")}</span>
               </motion.h1>
 
               <motion.p
@@ -283,9 +485,9 @@ function Home() {
                       {t("editorsChoice")}
                     </Badge>
                     <h2 className="text-4xl lg:text-6xl font-black tracking-tighter text-slate-900 leading-none">
-                      {lang === "th" ? "หลักสูตร" : "Featured"}{" "}
+                      {s("featuredHeading1")}{" "}
                       <span className="italic text-primary">
-                        {lang === "th" ? "แนะนำ" : "Curriculums"}
+                        {s("featuredHeading2")}
                       </span>
                     </h2>
                     <p className="text-muted-foreground text-lg font-medium mt-4 max-w-xl">
@@ -384,12 +586,10 @@ function Home() {
                     </div>
                     <div>
                       <h2 className="text-3xl font-black tracking-tight uppercase">
-                        {lang === "th" ? "ดีลพิเศษจากพาร์ทเนอร์" : "Exclusive Partner Deals"}
+                        {s("partnerDealsTitle")}
                       </h2>
                       <p className="text-sm text-slate-500 font-medium">
-                        {lang === "th"
-                          ? "แคมเปญราคาพิเศษร่วมกับเหล่ายอดฝีมือของ LearnLab"
-                          : "Special campaign pricing in collaboration with LearnLab's top experts"}
+                        {s("partnerDealsSub")}
                       </p>
                     </div>
                   </div>
@@ -403,7 +603,6 @@ function Home() {
                   className="w-full"
                 >
                   <CarouselContent className="-ml-6">
-                    {/* Group items into pairs for 2-row effect */}
                     {Array.from({ length: Math.ceil(campaignCourses.length / 2) }).map((_, i) => {
                       const first = campaignCourses[i * 2];
                       const second = campaignCourses[i * 2 + 1];
@@ -423,7 +622,7 @@ function Home() {
                                     )}
                                     <div className="absolute top-4 left-4">
                                       <Badge className="bg-indigo-600 text-white border-none px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest">
-                                        {lang === "th" ? "แคมเปญ" : "Campaign"}
+                                        {s("campaign")}
                                       </Badge>
                                     </div>
                                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex flex-col justify-end p-6">
@@ -451,7 +650,7 @@ function Home() {
                                     )}
                                     <div className="absolute top-4 left-4">
                                       <Badge className="bg-indigo-600 text-white border-none px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest">
-                                        {lang === "th" ? "แคมเปญ" : "Campaign"}
+                                        {s("campaign")}
                                       </Badge>
                                     </div>
                                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex flex-col justify-end p-6">
@@ -490,19 +689,16 @@ function Home() {
                     whileInView={{ opacity: 1, x: 0 }}
                     className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-[10px] font-black uppercase tracking-[0.2em]"
                   >
-                    <TrendingUp className="h-3 w-3" />{" "}
-                    {lang === "th" ? "ยอดนิยมในชุมชน" : "Community Favorites"}
+                    <TrendingUp className="h-3 w-3" /> {s("communityFavorites")}
                   </motion.div>
                   <h2 className="text-5xl lg:text-6xl font-black tracking-tighter text-foreground leading-none">
-                    {lang === "th" ? "คอร์ส" : "Best"}{" "}
+                    {s("bestSellersHeading1")}{" "}
                     <span className="text-primary italic">
-                      {lang === "th" ? "ขายดี" : "Sellers"}
+                      {s("bestSellersHeading2")}
                     </span>
                   </h2>
                   <p className="text-muted-foreground text-xl font-medium max-w-xl leading-relaxed">
-                    {lang === "th"
-                      ? "เข้าร่วมกับผู้เรียนนับพันในหลักสูตรที่มีชื่อเสียงและมีประสิทธิภาพสูงสุดของเรา"
-                      : "Join thousands of learners in our most prestigious and high-impact curriculum."}
+                    {s("bestSellersSub")}
                   </p>
                 </div>
                 <div className="flex items-center gap-6">
@@ -512,7 +708,7 @@ function Home() {
                     className="group h-12 p-0 font-black text-sm uppercase tracking-widest text-foreground hover:text-primary transition-colors"
                   >
                     <Link to="/browse" className="flex items-center gap-2">
-                      {lang === "th" ? "สำรวจทั้งหมด" : "Explore All"}{" "}
+                      {s("exploreAll")}{" "}
                       <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
                     </Link>
                   </Button>
@@ -555,7 +751,6 @@ function Home() {
                             className="group block relative"
                           >
                             <Card className="group relative overflow-hidden border-none bg-zinc-950/5 shadow-2xl rounded-[3rem] transition-all duration-700 hover:-translate-y-4">
-                              {/* Glassmorphism Background */}
                               <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-white/5 opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
 
                               <div className="aspect-[16/11] relative overflow-hidden">
@@ -581,7 +776,6 @@ function Home() {
                                   </div>
                                 )}
 
-                                {/* Floating BEST SELLER Badge */}
                                 <div className="absolute top-6 right-6 z-40">
                                   <motion.div
                                     initial={{ scale: 0.9, opacity: 0 }}
@@ -600,7 +794,6 @@ function Home() {
                                   </motion.div>
                                 </div>
 
-                                {/* Category Badge */}
                                 <div className="absolute top-6 left-6 z-30">
                                   <Badge className="bg-zinc-950/80 backdrop-blur-xl text-white border-white/10 shadow-2xl font-black text-[9px] uppercase tracking-[0.2em] px-4 py-2 rounded-2xl">
                                     {c.category || "General"}
@@ -633,8 +826,7 @@ function Home() {
                                     </span>
                                   </div>
                                   <span className="text-zinc-400 font-black text-[10px] uppercase tracking-widest border-l border-zinc-200 pl-3">
-                                    {c.reviews || 0}{" "}
-                                    {lang === "th" ? "รีวิวยอดเยี่ยม" : "Excellence Reviews"}
+                                    {c.reviews || 0} {s("excellenceReviews")}
                                   </span>
                                 </div>
 
@@ -645,7 +837,7 @@ function Home() {
                                 <div className="mt-12 flex items-center justify-between border-t border-zinc-100 pt-10">
                                   <div className="space-y-1">
                                     <p className="text-[10px] font-black text-primary uppercase tracking-[0.2em]">
-                                      {lang === "th" ? "การลงทุน" : "Investment"}
+                                      {s("investment")}
                                     </p>
                                     <div className="flex flex-col">
                                       <div className="flex items-baseline gap-1">
@@ -657,12 +849,8 @@ function Home() {
                                       {(isSaleActive(c) || c.isCampaignActive) && (
                                         <p className="text-[10px] font-bold text-rose-500 uppercase tracking-widest mt-1">
                                           {isSaleActive(c)
-                                            ? lang === "th"
-                                              ? `⚡ ลดราคาพิเศษ! (ปกติ: $${c.price})`
-                                              : `⚡ Flash Sale (Original: $${c.price})`
-                                            : lang === "th"
-                                              ? `🤝 แคมเปญพาร์ทเนอร์ (ปกติ: $${c.price})`
-                                              : `🤝 Partner Deal (Original: $${c.price})`}
+                                            ? s("flashSalePrefix").replace("${price}", String(c.price))
+                                            : s("partnerDealPrefix").replace("${price}", String(c.price))}
                                         </p>
                                       )}
                                     </div>
@@ -670,13 +858,12 @@ function Home() {
 
                                   <div className="text-right space-y-1">
                                     <p className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.2em]">
-                                      {lang === "th" ? "ชุมชน" : "Community"}
+                                      {s("community")}
                                     </p>
                                     <div className="flex items-center justify-end gap-2">
                                       <Users className="h-4 w-4 text-primary" />
                                       <span className="text-sm font-black text-zinc-950">
-                                        {c.students?.toLocaleString() || 0}{" "}
-                                        {lang === "th" ? "ผู้เรียนเข้าร่วมแล้ว" : "Students Joined"}
+                                        {c.students?.toLocaleString() || 0} {s("studentsJoined")}
                                       </span>
                                     </div>
                                   </div>
@@ -704,18 +891,16 @@ function Home() {
               <div className="mx-auto max-w-7xl px-6 relative z-10">
                 <div className="text-center mb-24 space-y-4">
                   <Badge className="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-5 py-2 rounded-full font-black text-[10px] uppercase tracking-[0.3em]">
-                    {lang === "th" ? "มาตรฐานระดับสถาบัน" : "Institutional Grade"}
+                    {s("institutionalGrade")}
                   </Badge>
                   <h2 className="text-6xl lg:text-8xl font-black tracking-tighter leading-none italic uppercase">
-                    {lang === "th" ? "แพ็กเกจ" : "Value"}{" "}
+                    {s("valueBundlesHeading1")}{" "}
                     <span className="text-emerald-400">
-                      {lang === "th" ? "สุดคุ้ม" : "Bundles"}
+                      {s("valueBundlesHeading2")}
                     </span>
                   </h2>
                   <p className="text-slate-400 text-xl font-medium max-w-2xl mx-auto">
-                    {lang === "th"
-                      ? "เร่งเส้นทางอาชีพของคุณด้วยเส้นทางหลายหลักสูตรที่คัดสรรมาเป็นพิเศษในราคาพิเศษ"
-                      : "Accelerate your career trajectory with curated multi-course paths at an exclusive investment rate."}
+                    {s("valueBundlesSub")}
                   </p>
                 </div>
 
@@ -745,13 +930,11 @@ function Home() {
                                   variant="outline"
                                   className="border-emerald-500/30 text-emerald-400 font-black text-[9px] uppercase tracking-widest px-3 py-1 rounded-lg"
                                 >
-                                  {lang === "th" ? "เส้นทางสู่ความเชี่ยวชาญ" : "Mastery Path"}
+                                  {s("masteryPath")}
                                 </Badge>
                                 {isDiscounted && (
                                   <Badge className="bg-amber-500 text-white border-none px-2 py-0.5 rounded text-[8px] font-black uppercase tracking-widest">
-                                    {lang === "th"
-                                      ? "ใช้ส่วนลดจากคอร์สที่เป็นเจ้าของแล้ว"
-                                      : "Partial Own Applied"}
+                                    {s("partialOwnApplied")}
                                   </Badge>
                                 )}
                               </div>
@@ -764,7 +947,7 @@ function Home() {
                             </div>
                             <div className="text-right">
                               <p className="text-[11px] font-black text-emerald-500 uppercase tracking-[0.2em] mb-2">
-                                {lang === "th" ? "การลงทุนสำหรับแพ็กเกจ" : "Bundle Investment"}
+                                {s("bundleInvestment")}
                               </p>
                               <div className="flex flex-col items-end">
                                 <div className="flex items-baseline justify-end gap-1">
@@ -777,7 +960,7 @@ function Home() {
                                 </div>
                                 {isDiscounted && (
                                   <span className="text-sm font-bold text-slate-500 line-through mt-1">
-                                    {lang === "th" ? "ปกติ" : "Was"} ${b.price}
+                                    {s("wasPrice")} ${b.price}
                                   </span>
                                 )}
                               </div>
@@ -788,7 +971,7 @@ function Home() {
                             <div className="flex items-center gap-4">
                               <div className="h-px flex-1 bg-white/10" />
                               <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] whitespace-nowrap">
-                                {lang === "th" ? "หลักสูตรที่รวมอยู่" : "Included Curriculums"}
+                                {s("includedCurriculums")}
                               </p>
                               <div className="h-px flex-1 bg-white/10" />
                             </div>
@@ -830,7 +1013,7 @@ function Home() {
                                         </p>
                                         {isOwned && (
                                           <p className="text-[8px] font-black text-emerald-500/60 uppercase tracking-widest leading-none mt-0.5">
-                                            {lang === "th" ? "เป็นเจ้าของแล้ว" : "Asset Owned"}
+                                            {s("assetOwned")}
                                           </p>
                                         )}
                                       </div>
@@ -858,16 +1041,10 @@ function Home() {
                           >
                             <span className="flex items-center gap-3">
                               {allOwned ? (
-                                lang === "th" ? (
-                                  "ปลดล็อกเส้นทางนี้ทั้งหมดแล้ว"
-                                ) : (
-                                  "Path Fully Unlocked"
-                                )
+                                s("pathFullyUnlocked")
                               ) : (
                                 <>
-                                  {lang === "th"
-                                    ? "ปลดล็อกการเข้าถึงเส้นทางนี้"
-                                    : "Unlock Path Access"}{" "}
+                                  {s("unlockPathAccess")}{" "}
                                   <ArrowRight className="h-4 w-4 group-hover/btn:translate-x-1 transition-transform" />
                                 </>
                               )}
@@ -901,29 +1078,14 @@ function Home() {
                 </motion.div>
 
                 <h2 className="bg-gradient-to-br from-white via-white to-white/30 bg-clip-text text-[clamp(44px,6.5vw,72px)] font-extrabold italic uppercase leading-[0.92] tracking-[-0.04em] text-transparent">
-                  {lang === "th" ? (
-                    <>
-                      เริ่มต้น
-                      <br />
-                      บทใหม่ของคุณ
-                    </>
-                  ) : (
-                    <>
-                      Start your
-                      <br />
-                      next chapter.
-                    </>
-                  )}
+                  {s("startYourNextChapter")}
                 </h2>
 
                 <p className="mx-auto max-w-xl text-lg font-medium leading-relaxed text-zinc-400">
-                  {lang === "th"
-                    ? "เข้าร่วมชุมชนของผู้สร้าง เผยแพร่ความเชี่ยวชาญของคุณเอง หรือเริ่มต้นเรียนรู้สิ่งใหม่วันนี้"
-                    : "Join a community of builders. Publish your own expertise or master something new today."}
+                  {s("startChapterSub")}
                 </p>
 
                 <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
-                  {/* shimmer button */}
                   <Button
                     asChild
                     data-magnetic
