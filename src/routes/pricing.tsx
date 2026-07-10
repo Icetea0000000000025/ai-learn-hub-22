@@ -283,7 +283,7 @@ function Pricing() {
     <SiteLayout>
       <div className="min-h-screen bg-[#f8fafc] pb-32">
         {/* Header Section */}
-        <div className="bg-white border-b border-slate-200 pt-32 pb-16">
+        <section id="pricing-header" aria-label="Pricing Introduction" className="bg-white border-b border-slate-200 pt-32 pb-16">
           <div className="mx-auto max-w-7xl px-6 text-center">
             <motion.div
               initial={{ opacity: 0, y: 10 }}
@@ -305,11 +305,11 @@ function Pricing() {
                 : "Choose the right path for your personal growth or global workforce training."}
             </p>
           </div>
-        </div>
+        </section>
 
         <div className="mx-auto max-w-7xl px-6 -mt-12 space-y-24">
           {/* Individual Section */}
-          <section className="space-y-10">
+          <section id="individual-plans" aria-label="Individual Mastery Plans" className="space-y-10">
             <div className="flex items-center gap-4">
               <div className="h-px flex-1 bg-slate-200" />
               <h2 className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-400">
@@ -389,7 +389,7 @@ function Pricing() {
           </section>
 
           {/* Ads Section */}
-          <section className="space-y-12">
+          <section id="course-promotion" aria-label="Promote Your Courses" className="space-y-12">
             <div className="flex items-center gap-4">
               <div className="h-px flex-1 bg-slate-200" />
               <h2 className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-400">
@@ -485,7 +485,7 @@ function Pricing() {
           </section>
 
           {/* Enterprise Section */}
-          <section className="space-y-12">
+          <section id="enterprise-plans" aria-label="Institutional and Enterprise Plans" className="space-y-12">
             <div className="flex items-center gap-4">
               <div className="h-px flex-1 bg-slate-200" />
               <h2 className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-400">

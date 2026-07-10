@@ -236,7 +236,7 @@ function CheckoutPage() {
                 <CardContent className="p-8 space-y-6">
                   <div className="grid grid-cols-1 gap-4">
                     {/* PromptPay Option */}
-                    <div className="relative group cursor-pointer" onClick={() => {}}>
+                    <div className="relative group cursor-pointer" onClick={() => { }}>
                       <div className="flex items-center justify-between p-6 rounded-3xl border-2 border-primary bg-primary/5 transition-all">
                         <div className="flex items-center gap-4">
                           <div className="h-12 w-12 rounded-2xl bg-white shadow-sm flex items-center justify-center overflow-hidden p-2">

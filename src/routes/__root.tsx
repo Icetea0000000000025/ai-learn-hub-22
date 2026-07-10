@@ -10,6 +10,7 @@ import {
 import { Toaster } from "@/components/ui/sonner";
 import { AuthProvider } from "@/lib/auth";
 import { I18nProvider } from "@/lib/i18n";
+import { WebAvatar } from "@/components/web-avatar";
 
 import appCss from "../styles.css?url";
 
@@ -154,6 +155,7 @@ function RootComponent() {
         <AuthProvider>
           <Outlet />
           <Toaster />
+          <WebAvatar />
         </AuthProvider>
       </I18nProvider>
     </QueryClientProvider>

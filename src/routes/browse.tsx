@@ -461,7 +461,7 @@ function Browse() {
     <SiteLayout>
       <div className="bg-[#F7F6F3] min-h-screen">
         {/* ── Hero Header ── */}
-        <div className="bg-white border-b border-slate-200/80">
+        <section id="catalog-hero" aria-label="Catalog Hero Header" className="bg-white border-b border-slate-200/80">
           <div className="mx-auto max-w-7xl px-6 pt-12 pb-8">
             {/* Top label */}
             <div className="flex items-center gap-2 mb-6">
@@ -501,6 +501,9 @@ function Browse() {
               <div className="relative max-w-md w-full lg:w-auto">
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                 <Input
+                  id="search-courses"
+                  name="search"
+                  aria-label={t("searchPlaceholder")}
                   placeholder={t("searchPlaceholder")}
                   className="pl-11 h-12 bg-slate-50 border-slate-200 rounded-xl text-[14px] font-medium focus-visible:ring-2 focus-visible:ring-indigo-500/30 focus-visible:border-indigo-400 w-full lg:w-80 shadow-sm"
                   value={search}
@@ -544,10 +547,10 @@ function Browse() {
               ))}
             </div>
           </div>
-        </div>
+        </section>
 
         {/* ── Toolbar ── */}
-        <div className="bg-white border-b border-slate-200/80 sticky top-14 z-30 shadow-sm">
+        <section id="catalog-toolbar" aria-label="Catalog Toolbar" className="bg-white border-b border-slate-200/80 sticky top-14 z-30 shadow-sm">
           <div className="mx-auto max-w-7xl px-6 h-14 flex items-center justify-between gap-4">
             {/* Filter toggle (mobile) + active chips */}
             <div className="flex items-center gap-3 flex-1 min-w-0 overflow-x-auto scrollbar-none">
@@ -694,7 +697,7 @@ function Browse() {
               </div>
             </div>
           </div>
-        </div>
+        </section>
 
         <div className="mx-auto max-w-7xl px-6 py-8">
           <div className="flex gap-8">
@@ -702,6 +705,8 @@ function Browse() {
             <AnimatePresence>
               {filtersOpen && (
                 <motion.aside
+                  id="course-filters"
+                  aria-label="Course Filters"
                   initial={{ opacity: 0, x: -20, width: 0 }}
                   animate={{ opacity: 1, x: 0, width: 280 }}
                   exit={{ opacity: 0, x: -20, width: 0 }}
@@ -947,6 +952,7 @@ function CategoryFilterBtn({
   return (
     <button
       onClick={onClick}
+      aria-pressed={active}
       className={cn(
         "w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs transition-all duration-200 group text-left",
         active
@@ -976,6 +982,7 @@ function SegmentedFilterBtn({
   return (
     <button
       onClick={onClick}
+      aria-pressed={active}
       className={cn(
         "w-full px-2 py-2 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all duration-200 border text-center",
         active

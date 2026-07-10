@@ -50,6 +50,8 @@ function FAQItem({ question, answer }: { question: string; answer: string }) {
     <div className="border-b border-slate-200 py-6">
       <button
         onClick={() => setIsOpen(!isOpen)}
+        aria-expanded={isOpen}
+        aria-controls={`faq-answer-${question.replace(/\s+/g, "-").toLowerCase()}`}
         className="flex w-full items-center justify-between text-left group"
       >
         <span
@@ -80,7 +82,7 @@ function FAQItem({ question, answer }: { question: string; answer: string }) {
             transition={{ duration: 0.3, ease: "easeInOut" }}
             className="overflow-hidden"
           >
-            <p className="pt-4 text-slate-500 leading-relaxed max-w-3xl">{answer}</p>
+            <p id={`faq-answer-${question.replace(/\s+/g, "-").toLowerCase()}`} className="pt-4 text-slate-500 leading-relaxed max-w-3xl">{answer}</p>
           </motion.div>
         )}
       </AnimatePresence>
@@ -264,7 +266,7 @@ function About() {
 
         <div className="relative z-10 mx-auto max-w-5xl px-6 py-20 lg:py-32">
           {/* Hero Section */}
-          <div className="text-center space-y-6 max-w-3xl mx-auto mb-24">
+          <section id="about-hero" aria-label="About Us Hero" className="text-center space-y-6 max-w-3xl mx-auto mb-24">
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
@@ -295,10 +297,10 @@ function About() {
                 ? `${siteName} ช่วยเพิ่มพลังให้ผู้สร้างด้วย AI เพื่อออกแบบ เผยแพร่ และขยายขนาดคอร์สที่ผู้เรียนตั้งใจเรียนจนจบจริง`
                 : `${siteName} empowers creators with AI to design, publish, and scale courses that learners actually finish.`}
             </motion.p>
-          </div>
+          </section>
 
           {/* Core Values / Support Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-32">
+          <section id="support-options" aria-label="Support Resources" className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-32">
             {supportItems.map((item, i) => (
               <motion.div
                 key={i}
@@ -327,7 +329,7 @@ function About() {
                 </Card>
               </motion.div>
             ))}
-          </div>
+          </section>
 
           {/* Contact Modal */}
           <Dialog open={contactOpen} onOpenChange={setContactOpen}>
@@ -365,6 +367,9 @@ function About() {
                         {lang === "th" ? "ชื่อ-นามสกุล" : "Full Name"}
                       </Label>
                       <Input
+                        id="contact-name"
+                        name="fullName"
+                        aria-label={lang === "th" ? "ชื่อ-นามสกุล" : "Full Name"}
                         required
                         placeholder="John Doe"
                         value={contactName}
@@ -377,6 +382,9 @@ function About() {
                         {lang === "th" ? "ที่อยู่อีเมล" : "Email Address"}
                       </Label>
                       <Input
+                        id="contact-email"
+                        name="email"
+                        aria-label={lang === "th" ? "ที่อยู่อีเมล" : "Email Address"}
                         required
                         type="email"
                         placeholder="john@example.com"
@@ -392,6 +400,9 @@ function About() {
                       {lang === "th" ? "ข้อความของคุณ" : "Your Message"}
                     </Label>
                     <Textarea
+                      id="contact-message"
+                      name="message"
+                      aria-label={lang === "th" ? "ข้อความของคุณ" : "Your Message"}
                       required
                       placeholder={
                         lang === "th"
@@ -425,7 +436,7 @@ function About() {
           </Dialog>
 
           {/* FAQ Section */}
-          <div ref={faqRef} className="mb-32 scroll-mt-24">
+          <section id="faq-section" aria-label="Frequently Asked Questions" ref={faqRef} className="mb-32 scroll-mt-24">
             <div className="text-center mb-16 space-y-4">
               <h2 className="text-4xl font-black tracking-tight text-slate-900 italic">
                 {lang === "th" ? "คำถามที่" : "Frequently Asked"}{" "}
@@ -442,10 +453,10 @@ function About() {
                 <FAQItem key={i} question={f.question} answer={f.answer} />
               ))}
             </div>
-          </div>
+          </section>
 
           {/* Why Section */}
-          <div className="bg-slate-900 rounded-[3rem] p-10 lg:p-20 text-white overflow-hidden relative">
+          <section id="vision-mission-section" aria-label="Our Vision and Impact" className="bg-slate-900 rounded-[3rem] p-10 lg:p-20 text-white overflow-hidden relative">
             <div className="absolute top-0 right-0 w-[40%] h-[40%] bg-primary/20 blur-[120px] rounded-full" />
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 relative z-10">
@@ -509,7 +520,7 @@ function About() {
                 </p>
               </div>
             </div>
-          </div>
+          </section>
         </div>
       </div>
     </SiteLayout>

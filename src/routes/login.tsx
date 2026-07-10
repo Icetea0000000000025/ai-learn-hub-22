@@ -290,12 +290,13 @@ function LoginPage() {
               </AnimatePresence>
 
               <div className="space-y-2">
-                <Label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest ml-1">
+                <Label htmlFor="email" className="text-[10px] font-black text-zinc-500 uppercase tracking-widest ml-1">
                   {t("emailLabel")}
                 </Label>
                 <div className="relative group">
                   <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-600 group-focus-within:text-indigo-400 transition-colors" />
                   <Input
+                    id="email"
                     type="email"
                     placeholder="name@example.com"
                     value={email}
@@ -309,7 +310,7 @@ function LoginPage() {
               {mode !== "forgot" && (
                 <div className="space-y-2">
                   <div className="flex items-center justify-between ml-1">
-                    <Label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">
+                    <Label htmlFor="password" className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">
                       {t("passwordLabel")}
                     </Label>
                     {mode === "login" && (
@@ -325,6 +326,7 @@ function LoginPage() {
                   <div className="relative group">
                     <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-600 group-focus-within:text-indigo-400 transition-colors" />
                     <Input
+                      id="password"
                       type="password"
                       placeholder="••••••••"
                       value={password}

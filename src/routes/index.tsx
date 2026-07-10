@@ -172,7 +172,7 @@ function Home() {
     <SiteLayout>
       <div className="bg-background font-sans selection:bg-primary/10 selection:text-primary-foreground">
         {/* --- HERO SECTION --- */}
-        <section className="relative overflow-hidden pt-20 lg:pt-32 pb-24">
+        <section id="hero-section" aria-label="Hero Section" className="relative overflow-hidden pt-20 lg:pt-32 pb-24">
           <div className="absolute inset-0 bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]" />
           <div className="absolute top-0 right-0 w-[50%] h-full bg-primary/5 blur-[120px] rounded-full translate-x-1/3 -translate-y-1/3 pointer-events-none" />
 
@@ -224,7 +224,7 @@ function Home() {
                   size="lg"
                   className="h-14 px-10 text-base font-black rounded-2xl bg-primary hover:bg-primary/90 text-primary-foreground shadow-2xl shadow-primary/20"
                 >
-                  <Link to={user ? "/dashboard" : "/login"}>
+                  <Link to={user ? "/dashboard" : "/login"} aria-label={user ? "Go to Dashboard" : "Start Journey"}>
                     {user ? t("dashboard") : t("startJourney")}{" "}
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Link>
@@ -235,7 +235,7 @@ function Home() {
                   size="lg"
                   className="h-14 px-10 text-base font-bold rounded-2xl border-border bg-background hover:bg-secondary transition-all"
                 >
-                  <Link to="/browse">{t("viewCatalog")}</Link>
+                  <Link to="/browse" aria-label="View full course catalog">{t("viewCatalog")}</Link>
                 </Button>
               </motion.div>
             </div>
@@ -244,7 +244,7 @@ function Home() {
 
         {/* --- TRUST BAR --- */}
         <ScrollReveal>
-          <section className="border-y border-border bg-secondary/30 py-16">
+          <section id="trust-badges-section" aria-label="Platform Trust Badges" className="border-y border-border bg-secondary/30 py-16">
             <div className="mx-auto max-w-7xl px-6">
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-12">
                 <TrustCard
@@ -271,7 +271,7 @@ function Home() {
         {/* --- FEATURED SECTION --- */}
         {featuredCourses.length > 0 && (
           <ScrollReveal>
-            <section className="py-24 bg-white relative overflow-hidden">
+            <section id="featured-courses-section" aria-label="Featured Courses" className="py-24 bg-white relative overflow-hidden">
               <div className="absolute top-0 right-0 w-[40%] h-full bg-primary/5 blur-[120px] rounded-full translate-x-1/4 pointer-events-none" />
               <div className="mx-auto max-w-7xl px-6 relative z-10">
                 <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-16">
@@ -298,7 +298,7 @@ function Home() {
                       variant="outline"
                       className="rounded-xl font-bold border-slate-200"
                     >
-                      <Link to="/browse">
+                      <Link to="/browse" aria-label="View all courses in catalog">
                         {t("viewCatalog")} <ChevronRight className="ml-2 h-4 w-4" />
                       </Link>
                     </Button>
@@ -373,7 +373,7 @@ function Home() {
         {/* --- SPECIAL MARKETPLACE DEALS (Revenue-share Ads) --- */}
         {campaignCourses.length > 0 && (
           <ScrollReveal>
-            <section className="py-24 bg-indigo-50/50 relative overflow-hidden">
+            <section id="partner-deals-section" aria-label="Special Partner Deals" className="py-24 bg-indigo-50/50 relative overflow-hidden">
               <div className="absolute top-1/2 left-0 w-[300px] h-[300px] bg-indigo-500/5 blur-[100px] rounded-full -translate-x-1/2 -translate-y-1/2 pointer-events-none" />
 
               <div className="mx-auto max-w-7xl px-6 relative z-10">
@@ -479,7 +479,7 @@ function Home() {
 
         {/* --- LUXURY FEATURED SECTION (Best Sellers) --- */}
         <ScrollReveal>
-          <section className="py-32 overflow-hidden relative">
+          <section id="best-sellers-section" aria-label="Best Selling Courses" className="py-32 overflow-hidden relative">
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1000px] h-[600px] bg-primary/5 blur-[120px] rounded-full pointer-events-none" />
 
             <div className="mx-auto max-w-7xl px-6 relative z-10">
@@ -697,7 +697,7 @@ function Home() {
         {/* --- BUNDLES SECTION --- */}
         {bundles.length > 0 && (
           <ScrollReveal>
-            <section className="py-40 bg-[#0a0a0b] text-white relative overflow-hidden">
+            <section id="value-bundles-section" aria-label="Value Bundles" className="py-40 bg-[#0a0a0b] text-white relative overflow-hidden">
               <div className="absolute top-0 left-0 w-full h-full bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 pointer-events-none" />
               <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-emerald-500/10 blur-[160px] rounded-full pointer-events-none" />
 
@@ -885,7 +885,7 @@ function Home() {
 
         {/* --- PREMIUM CTA - LUXURY REFINEMENT --- */}
         <ScrollReveal>
-          <section className="relative z-10 mx-auto max-w-7xl px-6 py-24">
+          <section id="premium-cta-section" aria-label="Premium Call to Action" className="relative z-10 mx-auto max-w-7xl px-6 py-24">
             <div className="group relative overflow-hidden rounded-[3rem] border border-white/5 bg-zinc-950 p-12 text-center shadow-[0_40px_100px_rgba(0,0,0,0.5)] lg:p-20">
               <div className="pointer-events-none absolute -right-24 -top-28 h-[500px] w-[500px] animate-[breathe_8s_ease-in-out_infinite] rounded-full bg-[radial-gradient(circle,rgba(99,102,241,0.2),transparent_70%)]" />
               <div className="pointer-events-none absolute -bottom-24 -left-20 h-[400px] w-[400px] animate-[breathe_6s_ease-in-out_infinite_reverse] rounded-full bg-[radial-gradient(circle,rgba(139,92,246,0.14),transparent_70%)]" />

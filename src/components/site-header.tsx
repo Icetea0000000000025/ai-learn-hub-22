@@ -159,7 +159,7 @@ export function SiteHeader() {
                 </div>
 
                 <div className="flex-1 overflow-y-auto p-4 space-y-8">
-                  <div className="space-y-1">
+                  <nav aria-label="Mobile Navigation" className="space-y-1">
                     <p className="px-4 text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] mb-4">
                       Navigation
                     </p>
@@ -184,10 +184,10 @@ export function SiteHeader() {
                     >
                       <Tag className="h-4 w-4 opacity-70" /> {t("pricing")}
                     </Link>
-                  </div>
+                  </nav>
 
                   {user && (
-                    <div className="space-y-1">
+                    <nav aria-label="Workspace Navigation" className="space-y-1">
                       <p className="px-4 text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] mb-4">
                         Workspace
                       </p>
@@ -207,7 +207,7 @@ export function SiteHeader() {
                           <ShieldCheck className="h-4 w-4 opacity-70" /> {t("adminArea")}
                         </Link>
                       )}
-                    </div>
+                    </nav>
                   )}
                 </div>
 
@@ -242,7 +242,7 @@ export function SiteHeader() {
         </div>
 
         {/* Desktop Nav */}
-        <nav className="hidden items-center gap-8 text-[13px] text-muted-foreground font-black uppercase tracking-widest md:flex">
+        <nav aria-label="Desktop Navigation" className="hidden items-center gap-8 text-[13px] text-muted-foreground font-black uppercase tracking-widest md:flex">
           <Link
             to="/"
             className="hover:text-primary transition-colors"
