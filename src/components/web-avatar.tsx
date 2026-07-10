@@ -41,7 +41,9 @@ export function WebAvatar() {
 
   // CRITICAL: Only render on client side. This prevents SSR hydration issues.
   useEffect(() => {
-    // 1. Define window config
+    setMounted(true);
+
+    // Define default window config (from friend's code)
     (window as any).ChatWidgetConfig = {
       mode: "realtime-widget",
       widgetId: "learn-lab",
@@ -50,7 +52,7 @@ export function WebAvatar() {
       enableBubble: "true",
       cameraOffset: "0,0,0"
     };
-  })
+  }, []);
   // Set initial position + global event listeners (client-only)
   useEffect(() => {
     if (!mounted) return;
