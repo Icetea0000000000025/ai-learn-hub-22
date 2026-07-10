@@ -154,9 +154,9 @@ function RootComponent() {
       <I18nProvider>
         <AuthProvider>
           <Outlet />
-          <Toaster />
-          <WebAvatar />
         </AuthProvider>
+        <Toaster />
+        <WebAvatar />
       </I18nProvider>
     </QueryClientProvider>
   );
