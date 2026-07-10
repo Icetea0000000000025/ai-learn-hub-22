@@ -272,44 +272,18 @@ export function SiteHeader() {
           <NotificationBell />
 
           {/* Language Switcher */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-9 w-9 rounded-xl text-muted-foreground hover:text-foreground hover:bg-secondary/50 border border-transparent hover:border-border transition-all"
-              >
-                <Globe className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent
-              align="end"
-              className="w-40 rounded-2xl p-2 shadow-2xl bg-white border-border"
-            >
-              <DropdownMenuItem
-                onClick={() => setLang("en")}
-                className={cn(
-                  "rounded-xl px-3 py-2 text-xs font-black uppercase tracking-widest cursor-pointer transition-colors",
-                  lang === "en"
-                    ? "bg-primary/10 text-primary"
-                    : "text-muted-foreground hover:bg-slate-50",
-                )}
-              >
-                English
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => setLang("th")}
-                className={cn(
-                  "rounded-xl px-3 py-2 text-xs font-black uppercase tracking-widest cursor-pointer transition-colors mt-1",
-                  lang === "th"
-                    ? "bg-primary/10 text-primary"
-                    : "text-muted-foreground hover:bg-slate-50",
-                )}
-              >
-                ภาษาไทย
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <Button
+            id="lang-switcher-btn"
+            variant="ghost"
+            size="icon"
+            aria-label={lang === "th" ? "เปลี่ยนเป็นภาษาอังกฤษ" : "เปลี่ยนเป็นภาษาไทย"}
+            data-current-lang={lang}
+            title={lang === "th" ? "Switch to English" : "เปลี่ยนเป็นภาษาไทย"}
+            onClick={() => setLang(lang === "en" ? "th" : "en")}
+            className="h-9 w-9 rounded-xl text-muted-foreground hover:text-foreground hover:bg-secondary/50 border border-transparent hover:border-border transition-all"
+          >
+            <Globe className="h-4 w-4" />
+          </Button>
 
           {user ? (
             <DropdownMenu>

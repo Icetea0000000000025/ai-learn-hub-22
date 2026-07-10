@@ -10,7 +10,7 @@ export function WebAvatar() {
       mode: "realtime-widget",
       widgetId: "learn-lab",
       avatarUrl: "Botnoi",
-      greetingInstruction: "",
+      greetingInstruction: "กรุณาทักทายผู้ใช้เป็นภาษาไทย ด้วยน้ำเสียงอบอุ่น เป็นมิตร และพูดสั้นกระชับ",
       enableBubble: "true",
       cameraOffset: "0,0,0"
     };
