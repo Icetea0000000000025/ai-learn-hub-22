@@ -27,6 +27,7 @@ export function WebAvatar() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedAvatar, setSelectedAvatar] = useState<string | null>(null);
 
+
   // Restore avatar from localStorage after mount
   useEffect(() => {
     if (mounted) {
@@ -99,24 +100,24 @@ export function WebAvatar() {
     // Global pointer events for dragging and resizing (120FPS Optimized with requestAnimationFrame)
     const handlePointerMove = (e: PointerEvent) => {
       if (!isDragging.current && !isResizing.current) return;
-      
+
       if (rafId.current) {
         cancelAnimationFrame(rafId.current);
       }
-      
+
       rafId.current = requestAnimationFrame(() => {
         if (isDragging.current && boxRef.current) {
           const newX = e.clientX - dragStart.current.x;
           const newY = e.clientY - dragStart.current.y;
-          
+
           // Direct DOM update (no React re-render)
           boxRef.current.style.left = `${newX}px`;
           boxRef.current.style.top = `${newY}px`;
-          
+
         } else if (isResizing.current && boxRef.current) {
           const newW = Math.max(resizeStart.current.w + (e.clientX - resizeStart.current.x), 200);
           const newH = Math.max(resizeStart.current.h + (e.clientY - resizeStart.current.y), 300);
-          
+
           // Direct DOM update (no React re-render)
           boxRef.current.style.width = `${newW}px`;
           boxRef.current.style.height = `${newH}px`;
@@ -133,19 +134,19 @@ export function WebAvatar() {
         isDragging.current = false;
         document.body.style.userSelect = "auto";
         // Sync final position to state
-        setBoxPos({ 
-          x: parseInt(boxRef.current.style.left || "0", 10), 
-          y: parseInt(boxRef.current.style.top || "0", 10) 
+        setBoxPos({
+          x: parseInt(boxRef.current.style.left || "0", 10),
+          y: parseInt(boxRef.current.style.top || "0", 10)
         });
       }
-      
+
       if (isResizing.current && boxRef.current) {
         isResizing.current = false;
         document.body.style.userSelect = "auto";
         // Sync final size to state
-        setBoxSize({ 
-          width: parseInt(boxRef.current.style.width || "0", 10), 
-          height: parseInt(boxRef.current.style.height || "0", 10) 
+        setBoxSize({
+          width: parseInt(boxRef.current.style.width || "0", 10),
+          height: parseInt(boxRef.current.style.height || "0", 10)
         });
       }
     };
@@ -327,9 +328,9 @@ export function WebAvatar() {
             <div className="absolute -top-1.5 -left-1.5 w-3 h-3 bg-white border border-indigo-400 rounded-full" />
             <div className="absolute -top-1.5 -right-1.5 w-3 h-3 bg-white border border-indigo-400 rounded-full" />
             <div className="absolute -bottom-1.5 -left-1.5 w-3 h-3 bg-white border border-indigo-400 rounded-full" />
-            
+
             {/* Custom Resize Handle (Bottom Right) */}
-            <div 
+            <div
               onPointerDown={(e) => {
                 e.stopPropagation();
                 isResizing.current = true;
@@ -341,7 +342,7 @@ export function WebAvatar() {
                 };
                 document.body.style.userSelect = "none";
               }}
-              className="absolute -bottom-1.5 -right-1.5 w-3 h-3 bg-white border border-indigo-400 rounded-full cursor-nwse-resize pointer-events-auto" 
+              className="absolute -bottom-1.5 -right-1.5 w-3 h-3 bg-white border border-indigo-400 rounded-full cursor-nwse-resize pointer-events-auto"
             />
           </div>
 
@@ -474,10 +475,10 @@ export function WebAvatar() {
                         }
                       }}
                     >
-                      <img 
-                        src={image} 
-                        alt={avatar} 
-                        className="w-full h-28 object-contain mx-auto mb-4" 
+                      <img
+                        src={image}
+                        alt={avatar}
+                        className="w-full h-28 object-contain mx-auto mb-4"
                       />
 
                       <span style={{
