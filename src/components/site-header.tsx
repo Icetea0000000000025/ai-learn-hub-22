@@ -111,6 +111,7 @@ export function SiteHeader() {
   const { user, profile, loading, signOut } = useAuth();
   const { lang, setLang, t } = useI18n();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [langOpen, setLangOpen] = useState(false);
 
   // Fetch dynamic branding from settings
   const { data: branding } = useQuery({
@@ -272,18 +273,44 @@ export function SiteHeader() {
           <NotificationBell />
 
           {/* Language Switcher */}
-          <Button
-            id="lang-switcher-btn"
-            variant="ghost"
-            size="icon"
-            aria-label={lang === "th" ? "เปลี่ยนเป็นภาษาอังกฤษ" : "เปลี่ยนเป็นภาษาไทย"}
-            data-current-lang={lang}
-            title={lang === "th" ? "Switch to English" : "เปลี่ยนเป็นภาษาไทย"}
-            onClick={() => setLang(lang === "en" ? "th" : "en")}
-            className="h-9 w-9 rounded-xl text-muted-foreground hover:text-foreground hover:bg-secondary/50 border border-transparent hover:border-border transition-all"
-          >
-            <Globe className="h-4 w-4" />
-          </Button>
+          <div className="relative">
+            <Button
+              id="lang-switcher-btn"
+              variant="ghost"
+              size="icon"
+              onClick={() => setLangOpen(!langOpen)}
+              aria-label="Change Language"
+              data-current-lang={lang}
+              title="Change Language"
+              className="h-9 w-9 rounded-xl text-muted-foreground hover:text-foreground hover:bg-secondary/50 border border-transparent hover:border-border transition-all"
+            >
+              <Globe className="h-4 w-4" />
+            </Button>
+            
+            {langOpen && (
+              <div 
+                aria-label="Language Options" 
+                className="absolute right-0 top-full mt-2 w-40 rounded-xl p-2 shadow-xl bg-white border border-border z-50 flex flex-col gap-1"
+              >
+                <button
+                  id="lang-th-btn"
+                  onClick={() => { setLang("th"); setLangOpen(false); }}
+                  className={cn("w-full px-3 py-2 rounded-lg cursor-pointer flex items-center justify-between text-sm text-left transition-colors", lang === "th" ? "bg-primary/10 text-primary font-bold" : "text-muted-foreground hover:bg-secondary/80 hover:text-foreground")}
+                  aria-label="ภาษาไทย"
+                >
+                  ภาษาไทย (TH)
+                </button>
+                <button
+                  id="lang-en-btn"
+                  onClick={() => { setLang("en"); setLangOpen(false); }}
+                  className={cn("w-full px-3 py-2 rounded-lg cursor-pointer flex items-center justify-between text-sm text-left transition-colors", lang === "en" ? "bg-primary/10 text-primary font-bold" : "text-muted-foreground hover:bg-secondary/80 hover:text-foreground")}
+                  aria-label="English"
+                >
+                  English (EN)
+                </button>
+              </div>
+            )}
+          </div>
 
           {user ? (
             <DropdownMenu>
