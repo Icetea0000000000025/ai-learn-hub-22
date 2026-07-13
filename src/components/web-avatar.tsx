@@ -1,39 +1,50 @@
 import { useEffect, useState, useRef, useCallback } from "react";
+import { Bot, RefreshCw, X } from "lucide-react";
+import { useNavigate } from "@tanstack/react-router";
 
 const AVATARS = [
-  { name: "Botnoi", emoji: "🤖" },
-  { name: "Blossom", emoji: "🌸" },
-  { name: "Bocchi", emoji: "🎸" },
-  { name: "Formal_outfit", emoji: "👔" },
-  { name: "Kitagawa", emoji: "✨" },
-  { name: "Prez", emoji: "👑" },
-  { name: "Private", emoji: "🕵️" },
-  { name: "sample", emoji: "📦" },
-  { name: "Scientist", emoji: "🧑‍🔬" },
-  { name: "TMGS", emoji: "🎮" },
-  { name: "TrackField", emoji: "🏃" },
-  { name: "Volley", emoji: "🏐" }
+  { name: "Botnoi", image: "/avatars/Botnoi.png" },
+  { name: "Blossom", image: "/avatars/Blossom.png" },
+  { name: "Bocchi", image: "/avatars/Bocchi.png" },
+  { name: "Formal_outfit", image: "/avatars/Formal_outfit.png" },
+  { name: "Kitagawa", image: "/avatars/Kitagawa.png" },
+  { name: "Prez", image: "/avatars/Prez.png" },
+  { name: "Private", image: "/avatars/Private.png" },
+  { name: "sample", image: "/avatars/sample.png" },
+  { name: "Scientist", image: "/avatars/Scientist.png" },
+  { name: "TMGS", image: "/avatars/TMGS.png" },
+  { name: "TrackField", image: "/avatars/TrackField.png" },
+  { name: "Volley", image: "/avatars/Volley.png" }
 ];
 
 /**
- * WebAvatar Component — Fully SSR-Safe
- * 
- * This component must NOT use any hooks that require Router context at the 
- * module/render level (like useNavigate) because TanStack Start renders 
- * this on the server where Router context may not be available.
- * 
- * Instead, we use window.location for any navigation needs.
+ * WebAvatar Component — SPA Optimized
+ * Uses TanStack Router for navigation to prevent hard reloads that disconnect WebAudio.
  */
 export function WebAvatar() {
+  const navigate = useNavigate({ strict: false });
   const [mounted, setMounted] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedAvatar, setSelectedAvatar] = useState<string | null>(null);
 
-  // Dragging state
+  // Restore avatar from localStorage after mount
+  useEffect(() => {
+    if (mounted) {
+      const savedAvatar = localStorage.getItem("webavatar_selected");
+      if (savedAvatar) {
+        setSelectedAvatar(savedAvatar);
+      }
+    }
+  }, [mounted]);
+
+  // Dragging & Resizing state
   const [boxPos, setBoxPos] = useState({ x: 0, y: 0 });
-  const [boxSize] = useState({ width: 320, height: 480 });
+  const [boxSize, setBoxSize] = useState({ width: 320, height: 480 });
   const isDragging = useRef(false);
   const dragStart = useRef({ x: 0, y: 0 });
+  const isResizing = useRef(false);
+  const resizeStart = useRef({ w: 0, h: 0, x: 0, y: 0 });
+  const rafId = useRef<number | null>(null);
 
   // Ref for the React Component Lifecycle
   const containerRef = useRef<HTMLDivElement>(null);
@@ -49,7 +60,9 @@ export function WebAvatar() {
       widgetId: "learn-lab",
       avatarUrl: "Botnoi",
       greetingInstruction: "กรุณาทักทายผู้ใช้เป็นภาษาไทย ด้วยน้ำเสียงอบอุ่น เป็นมิตร และพูดสั้นกระชับ",
-      enableBubble: "true",
+      enableBubble: "false",
+      showBubble: false,
+      showText: false,
       cameraOffset: "0,0,0"
     };
   }, []);
@@ -63,7 +76,7 @@ export function WebAvatar() {
       y: window.innerHeight - 480 - 20
     });
 
-    // Listen for navigate event (use window.location instead of useNavigate for SSR safety)
+    // Listen for navigate event (use SPA routing to prevent WebAudio disconnect)
     const handleNavigate = (e: Event) => {
       const customEvent = e as CustomEvent<{ target: string }>;
       if (customEvent.detail && customEvent.detail.target) {
@@ -71,7 +84,7 @@ export function WebAvatar() {
         try {
           const url = new URL(target, window.location.origin);
           if (url.origin === window.location.origin) {
-            window.location.href = url.pathname + url.search + url.hash;
+            navigate({ to: url.pathname + url.search + url.hash as any });
           } else {
             window.location.href = target;
           }
@@ -83,19 +96,57 @@ export function WebAvatar() {
 
     window.addEventListener("webavatar-navigate", handleNavigate);
 
-    // Global pointer events for dragging
+    // Global pointer events for dragging and resizing (120FPS Optimized with requestAnimationFrame)
     const handlePointerMove = (e: PointerEvent) => {
-      if (isDragging.current && boxRef.current) {
-        const newX = e.clientX - dragStart.current.x;
-        const newY = e.clientY - dragStart.current.y;
-        setBoxPos({ x: newX, y: newY });
+      if (!isDragging.current && !isResizing.current) return;
+      
+      if (rafId.current) {
+        cancelAnimationFrame(rafId.current);
       }
+      
+      rafId.current = requestAnimationFrame(() => {
+        if (isDragging.current && boxRef.current) {
+          const newX = e.clientX - dragStart.current.x;
+          const newY = e.clientY - dragStart.current.y;
+          
+          // Direct DOM update (no React re-render)
+          boxRef.current.style.left = `${newX}px`;
+          boxRef.current.style.top = `${newY}px`;
+          
+        } else if (isResizing.current && boxRef.current) {
+          const newW = Math.max(resizeStart.current.w + (e.clientX - resizeStart.current.x), 200);
+          const newH = Math.max(resizeStart.current.h + (e.clientY - resizeStart.current.y), 300);
+          
+          // Direct DOM update (no React re-render)
+          boxRef.current.style.width = `${newW}px`;
+          boxRef.current.style.height = `${newH}px`;
+        }
+      });
     };
 
     const handlePointerUp = () => {
-      if (isDragging.current) {
+      if (rafId.current) {
+        cancelAnimationFrame(rafId.current);
+        rafId.current = null;
+      }
+      if (isDragging.current && boxRef.current) {
         isDragging.current = false;
         document.body.style.userSelect = "auto";
+        // Sync final position to state
+        setBoxPos({ 
+          x: parseInt(boxRef.current.style.left || "0", 10), 
+          y: parseInt(boxRef.current.style.top || "0", 10) 
+        });
+      }
+      
+      if (isResizing.current && boxRef.current) {
+        isResizing.current = false;
+        document.body.style.userSelect = "auto";
+        // Sync final size to state
+        setBoxSize({ 
+          width: parseInt(boxRef.current.style.width || "0", 10), 
+          height: parseInt(boxRef.current.style.height || "0", 10) 
+        });
       }
     };
 
@@ -107,7 +158,7 @@ export function WebAvatar() {
       window.removeEventListener("pointermove", handlePointerMove);
       window.removeEventListener("pointerup", handlePointerUp);
     };
-  }, [mounted]);
+  }, [mounted, navigate]);
 
   // Strict React Way: Handle Avatar Selection Lifecycle
   useEffect(() => {
@@ -146,18 +197,18 @@ export function WebAvatar() {
           containerRef.current.innerHTML = "";
         }
 
-        // 4. อัปเดต window.ChatWidgetConfig
-        if (!(window as any).ChatWidgetConfig) {
-          (window as any).ChatWidgetConfig = {
-            widgetId: "learn-lab",
-            greetingInstruction: "",
-            enableBubble: "true",
-            cameraOffset: "0,0,0"
-          };
-        }
-        (window as any).ChatWidgetConfig.mode = "realtime-fullscreen";
-        (window as any).ChatWidgetConfig.container = containerRef.current;
-        (window as any).ChatWidgetConfig.avatarUrl = selectedAvatar;
+        // 4. อัปเดต window.ChatWidgetConfig (บังคับเซ็ตใหม่ทุกครั้งป้องกันบั๊กลืม Context แล้วพูดจีน)
+        (window as any).ChatWidgetConfig = {
+          mode: "realtime-fullscreen",
+          widgetId: "learn-lab",
+          avatarUrl: selectedAvatar,
+          greetingInstruction: "กรุณาทักทายผู้ใช้เป็นภาษาไทย ด้วยน้ำเสียงอบอุ่น เป็นมิตร และพูดสั้นกระชับ",
+          enableBubble: "false",
+          showBubble: false,
+          showText: false,
+          cameraOffset: "0,0,0",
+          container: containerRef.current
+        };
 
         // 5. สร้างและ append tag script ใหม่ พร้อม Cache Buster
         const script = document.createElement("script");
@@ -171,7 +222,7 @@ export function WebAvatar() {
     initAvatar();
   }, [mounted, selectedAvatar]);
 
-  const disableWebAvatar = useCallback(() => {
+  const cleanupScript = useCallback(() => {
     if ((window as any).WebAvatar) {
       try {
         (window as any).WebAvatar.disconnect();
@@ -179,30 +230,36 @@ export function WebAvatar() {
         console.error("Failed to disconnect WebAvatar:", e);
       }
     }
-
     setTimeout(() => {
       const widgetGlobals = ["WebAvatar", "__bcwInitialized", "BotnoiChatWidget", "BotnoiLiveProvider"];
       widgetGlobals.forEach(g => delete (window as any)[g]);
-
       document.querySelectorAll('script[src*="chat-widget.js"]').forEach(s => s.remove());
+    }, 150);
+  }, []);
+
+  const disableWebAvatar = useCallback(() => {
+    cleanupScript();
+    setTimeout(() => {
       if (containerRef.current) {
         containerRef.current.innerHTML = "";
       }
       setSelectedAvatar(null);
+      localStorage.removeItem("webavatar_selected");
     }, 150);
-  }, []);
+  }, [cleanupScript]);
 
-  // Cleanup on unmount
+  // Cleanup on unmount (Don't clear localStorage or state here, just script)
   useEffect(() => {
     if (!mounted) return;
     return () => {
-      disableWebAvatar();
+      cleanupScript();
     };
-  }, [mounted, disableWebAvatar]);
+  }, [mounted, cleanupScript]);
 
   const handleSelectAvatar = (avatar: string) => {
     setIsModalOpen(false);
     setSelectedAvatar(avatar);
+    localStorage.setItem("webavatar_selected", avatar);
   };
 
   const handleDragStart = (e: React.PointerEvent) => {
@@ -237,37 +294,9 @@ export function WebAvatar() {
       {!isActive && (
         <button
           onClick={() => setIsModalOpen(true)}
-          style={{
-            position: 'fixed',
-            bottom: '24px',
-            right: '24px',
-            zIndex: 99999,
-            background: 'linear-gradient(135deg, #4f46e5 0%, #6366f1 100%)',
-            color: 'white',
-            fontWeight: 600,
-            padding: '14px 24px',
-            borderRadius: '9999px',
-            border: 'none',
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-            boxShadow: '0 10px 25px -5px rgba(79, 70, 229, 0.4), 0 8px 10px -6px rgba(79, 70, 229, 0.2)',
-            fontSize: '14px',
-            transition: 'all 0.2s ease',
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.transform = 'translateY(-2px)';
-            e.currentTarget.style.boxShadow = '0 15px 30px -5px rgba(79, 70, 229, 0.5), 0 10px 15px -6px rgba(79, 70, 229, 0.3)';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.transform = 'translateY(0)';
-            e.currentTarget.style.boxShadow = '0 10px 25px -5px rgba(79, 70, 229, 0.4), 0 8px 10px -6px rgba(79, 70, 229, 0.2)';
-          }}
+          className="fixed bottom-6 right-6 z-[99999] flex items-center gap-2 px-6 py-3 rounded-full text-white font-semibold text-sm transition-all duration-300 shadow-xl shadow-teal-500/20 hover:-translate-y-1 bg-gradient-to-r from-teal-400 to-emerald-500 hover:shadow-teal-500/40"
         >
-          <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
+          <Bot className="w-5 h-5" />
           เปิดใช้งานผู้ช่วย Avatar
         </button>
       )}
@@ -277,6 +306,7 @@ export function WebAvatar() {
         <div
           ref={boxRef}
           onPointerDown={handleDragStart}
+          className="group"
           style={{
             position: "fixed",
             left: `${boxPos.x}px`,
@@ -284,65 +314,66 @@ export function WebAvatar() {
             width: `${boxSize.width}px`,
             height: `${boxSize.height}px`,
             zIndex: 99999,
-            resize: "both",
-            overflow: "hidden",
+            overflow: "visible",
             display: "flex",
             flexDirection: "column",
             background: "transparent",
             cursor: "move",
-            border: "1px solid transparent",
-            transition: "border-color 0.2s ease",
+            willChange: "left, top, width, height", // Force GPU Acceleration
           }}
-          onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'rgba(107, 114, 128, 0.5)'; e.currentTarget.style.borderStyle = 'dashed'; }}
-          onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'transparent'; e.currentTarget.style.borderStyle = 'solid'; }}
         >
-          {/* Subtle controls on hover */}
-          <div style={{
-            position: 'absolute',
-            top: '16px',
-            right: '16px',
-            display: 'flex',
-            gap: '8px',
-            zIndex: 50,
-            opacity: 0,
-            transition: 'opacity 0.2s ease',
-          }}
-            onMouseEnter={(e) => { e.currentTarget.style.opacity = '1'; }}
-            onMouseLeave={(e) => { e.currentTarget.style.opacity = '0'; }}
-          >
+          {/* Canva-style Wrapper and Handles */}
+          <div className="absolute inset-0 border border-indigo-400 rounded-lg pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity">
+            <div className="absolute -top-1.5 -left-1.5 w-3 h-3 bg-white border border-indigo-400 rounded-full" />
+            <div className="absolute -top-1.5 -right-1.5 w-3 h-3 bg-white border border-indigo-400 rounded-full" />
+            <div className="absolute -bottom-1.5 -left-1.5 w-3 h-3 bg-white border border-indigo-400 rounded-full" />
+            
+            {/* Custom Resize Handle (Bottom Right) */}
+            <div 
+              onPointerDown={(e) => {
+                e.stopPropagation();
+                isResizing.current = true;
+                resizeStart.current = {
+                  w: boxSize.width,
+                  h: boxSize.height,
+                  x: e.clientX,
+                  y: e.clientY
+                };
+                document.body.style.userSelect = "none";
+              }}
+              className="absolute -bottom-1.5 -right-1.5 w-3 h-3 bg-white border border-indigo-400 rounded-full cursor-nwse-resize pointer-events-auto" 
+            />
+          </div>
+
+          {/* Floating Toolbar (Horizontal) */}
+          <div className="absolute -top-12 left-1/2 -translate-x-1/2 flex flex-row items-center gap-2 bg-white px-2 py-1 rounded-md shadow-sm border border-slate-200 opacity-0 group-hover:opacity-100 transition-opacity z-50 whitespace-nowrap">
             <button
               onClick={(e) => { e.stopPropagation(); setIsModalOpen(true); }}
-              style={{
-                width: '32px', height: '32px',
-                background: 'rgba(0,0,0,0.5)', color: 'white',
-                borderRadius: '50%', border: 'none', cursor: 'pointer',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                backdropFilter: 'blur(4px)',
-              }}
-              title="เปลี่ยนตัวละคร"
+              className="flex flex-row items-center gap-1.5 px-2 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-50 rounded-md transition-colors cursor-pointer"
             >
-              <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+              <RefreshCw className="w-3.5 h-3.5" /> เปลี่ยนอวตาร
             </button>
+            <div className="w-px h-3.5 bg-slate-200" />
             <button
               onClick={(e) => { e.stopPropagation(); disableWebAvatar(); }}
-              style={{
-                width: '32px', height: '32px',
-                background: 'rgba(239,68,68,0.8)', color: 'white',
-                borderRadius: '50%', border: 'none', cursor: 'pointer',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                backdropFilter: 'blur(4px)',
-              }}
-              title="ปิดใช้งาน"
+              className="flex flex-row items-center gap-1.5 px-2 py-1 text-xs font-semibold text-red-600 hover:bg-red-50 rounded-md transition-colors cursor-pointer"
             >
-              <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+              <X className="w-4 h-4" /> ปิดใช้งาน
             </button>
           </div>
+
+          {/* Force hide Speech Bubble just in case config fails */}
+          <style>{`
+            [class*="bubble" i], [class*="speech" i] {
+               display: none !important;
+            }
+          `}</style>
 
           {/* WebAvatar injection container */}
           <div
             ref={containerRef}
             id="custom-avatar-box"
-            style={{ flex: 1, width: '100%', height: '100%', position: 'relative', overflow: 'hidden', background: 'transparent' }}
+            style={{ flex: 1, width: '100%', height: '100%', position: 'relative', overflow: 'visible', background: 'transparent' }}
           />
         </div>
       )}
@@ -407,7 +438,7 @@ export function WebAvatar() {
               }}>
                 {AVATARS.map((avatarData) => {
                   const avatar = avatarData.name;
-                  const emoji = avatarData.emoji;
+                  const image = avatarData.image;
                   const isSelected = selectedAvatar === avatar;
 
                   return (
@@ -443,16 +474,11 @@ export function WebAvatar() {
                         }
                       }}
                     >
-                      <div style={{
-                        width: '80px', height: '80px', marginBottom: '16px',
-                        borderRadius: '12px', overflow: 'hidden',
-                        background: '#f9fafb', padding: '8px',
-                        border: '1px solid #f3f4f6',
-                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        fontSize: '48px',
-                      }}>
-                        {emoji}
-                      </div>
+                      <img 
+                        src={image} 
+                        alt={avatar} 
+                        className="w-full h-28 object-contain mx-auto mb-4" 
+                      />
 
                       <span style={{
                         fontSize: '14px', fontWeight: 700,
