@@ -550,7 +550,7 @@ function Browse() {
         </section>
 
         {/* ── Toolbar ── */}
-        <section id="catalog-toolbar" aria-label="Catalog Toolbar" className="bg-white border-b border-slate-200/80 sticky top-14 z-30 shadow-sm">
+        <section id="catalog-toolbar" aria-label="Catalog Toolbar" className="bg-white border-b border-slate-200/80 sticky top-16 z-30 shadow-sm">
           <div className="mx-auto max-w-7xl px-6 h-14 flex items-center justify-between gap-4">
             {/* Filter toggle (mobile) + active chips */}
             <div className="flex items-center gap-3 flex-1 min-w-0 overflow-x-auto scrollbar-none">
@@ -699,7 +699,7 @@ function Browse() {
           </div>
         </section>
 
-        <div className="mx-auto max-w-7xl px-6 py-8">
+        <div className="mx-auto max-w-7xl px-6 pb-8">
           <div className="flex gap-8">
             {/* ── Sidebar Filters ── */}
             <AnimatePresence>
@@ -711,10 +711,10 @@ function Browse() {
                   animate={{ opacity: 1, x: 0, width: 280 }}
                   exit={{ opacity: 0, x: -20, width: 0 }}
                   transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-                  className="flex-shrink-0 overflow-hidden"
+                  className="flex-shrink-0 overflow-hidden sticky top-[120px] self-start"
                   style={{ width: 280 }}
                 >
-                  <div className="w-[280px] space-y-6 sticky top-32 bg-slate-50/40 border border-slate-200/50 p-5 rounded-[2.5rem] backdrop-blur-sm shadow-sm">
+                  <div className="w-[280px] space-y-6 bg-slate-50/40 border-x border-b border-slate-200/50 p-5 rounded-t-none rounded-b-[2.5rem] backdrop-blur-sm shadow-sm">
                     {/* Category */}
                     <FilterSection
                       title={lang === "th" ? "หมวดหมู่" : "Category"}
@@ -844,7 +844,7 @@ function Browse() {
             </AnimatePresence>
 
             {/* ── Course Grid ── */}
-            <main className="flex-1 min-w-0">
+            <main className="flex-1 min-w-0 pt-8">
               {error && (
                 <div className="flex items-center gap-3 p-5 rounded-2xl bg-rose-50 border border-rose-100 text-rose-600 text-sm font-medium mb-8">
                   <XCircle className="h-5 w-5 flex-shrink-0" />
