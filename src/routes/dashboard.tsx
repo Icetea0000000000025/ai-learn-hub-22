@@ -85,6 +85,7 @@ import {
   Edit,
   Trash2,
   Zap,
+  ArrowLeft,
 } from "lucide-react";
 import {
   fetchUserThreads,
@@ -1472,7 +1473,7 @@ function UserSupportDialog({ showRefund = true }: { showRefund?: boolean }) {
 function Dashboard() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
   const search = Route.useSearch() as any;
   const { user, profile, loading, signOut: authSignOut, updateProfile } = useAuth();
 
@@ -2076,18 +2077,48 @@ function Dashboard() {
       <div className="flex-1 flex flex-col min-w-0 relative bg-background">
         <header className="h-14 border-b border-border bg-background/80 backdrop-blur-md flex items-center justify-between px-8 sticky top-0 z-20">
           <div className="flex items-center gap-4">
-            <h2 className="text-sm font-bold tracking-tight text-foreground uppercase italic tracking-widest leading-none">
-              {activeTab === "overview"
-                ? t("overview")
-                : activeTab === "certificates"
-                  ? t("credentials")
-                  : activeTab === "learning-path"
-                    ? "AI Learning Path"
-                    : t("analytics")}
-            </h2>
+            <Button
+              variant="ghost"
+              size="icon"
+              asChild
+              className="h-8 w-8 text-muted-foreground hover:text-foreground mr-1"
+              title="กลับหน้าหลัก"
+            >
+              <Link to="/">
+                <ArrowLeft className="h-4 w-4" />
+              </Link>
+            </Button>
+            
+            <div className="flex items-center gap-2">
+              <Link to="/" className="text-[11px] font-black uppercase tracking-widest text-muted-foreground hover:text-primary transition-colors">
+                {lang === "th" ? "หน้าหลัก" : "Home"}
+              </Link>
+              <ChevronRight className="h-3 w-3 text-muted-foreground/50" />
+              <span className="text-[11px] font-black uppercase tracking-widest text-foreground">
+                {lang === "th" ? "แดชบอร์ด" : "Dashboard"}
+              </span>
+              <ChevronRight className="h-3 w-3 text-muted-foreground/50" />
+              <h2 className="text-[11px] font-black tracking-tight text-primary uppercase italic tracking-widest leading-none">
+                {activeTab === "overview"
+                  ? t("overview")
+                  : activeTab === "certificates"
+                    ? t("credentials")
+                    : activeTab === "learning-path"
+                      ? "AI Learning Path"
+                      : t("analytics")}
+              </h2>
+            </div>
           </div>
 
           <div className="flex items-center gap-4">
+            <div className="hidden md:flex items-center gap-4 mr-2 border-r border-border pr-4">
+              <Link to="/browse" className="text-[11px] font-black uppercase tracking-widest text-muted-foreground hover:text-primary transition-colors">
+                {lang === "th" ? "ดูคอร์สทั้งหมด" : "View Catalog"}
+              </Link>
+              <Link to="/pricing" className="text-[11px] font-black uppercase tracking-widest text-muted-foreground hover:text-primary transition-colors">
+                {lang === "th" ? "ราคา" : "Pricing"}
+              </Link>
+            </div>
             <div className="flex flex-wrap items-center gap-3">
               {!isAdmin && (
                 <>
@@ -2112,7 +2143,7 @@ function Dashboard() {
                   profile?.name?.[0] || "U"
                 )}
               </div>
-              <div className="flex flex-col">
+              <div className="flex flex-col items-start gap-1">
                 <div className="flex items-center gap-1.5">
                   <span className="text-[11px] font-black text-slate-900 leading-none">
                     {profile?.name || "Member"}
@@ -2123,6 +2154,9 @@ function Dashboard() {
                     </Badge>
                   )}
                 </div>
+                <span className="text-[9px] font-bold uppercase tracking-widest text-slate-400 leading-none">
+                  {profile?.role === "admin" ? "Admin" : profile?.role === "creator" ? "Creator" : "Student"}
+                </span>
               </div>
             </div>
           </div>

@@ -1,4 +1,4 @@
-import { Link } from "@tanstack/react-router";
+import { Link, useRouterState } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/auth";
 import { useI18n } from "@/lib/i18n";
@@ -19,6 +19,7 @@ import {
   Tag,
   Globe,
   Bell,
+  ArrowLeft,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -112,6 +113,8 @@ export function SiteHeader() {
   const { lang, setLang, t } = useI18n();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [langOpen, setLangOpen] = useState(false);
+  const { location } = useRouterState();
+  const isTopLevel = ["/", "/browse", "/pricing"].includes(location.pathname);
 
   // Fetch dynamic branding from settings
   const { data: branding } = useQuery({
@@ -229,6 +232,21 @@ export function SiteHeader() {
             </SheetContent>
           </Sheet>
 
+          {/* Back Button */}
+          {!isTopLevel && (
+            <Button
+              variant="outline"
+              size="icon"
+              asChild
+              className="mr-2 h-9 w-9 rounded-xl border-slate-200 hover:bg-slate-100 hidden sm:flex shadow-sm transition-all hover:scale-105 active:scale-95"
+              title="กลับหน้าหลัก"
+            >
+              <Link to="/">
+                <ArrowLeft className="h-4 w-4 text-slate-700" />
+              </Link>
+            </Button>
+          )}
+
           <Link
             to="/"
             className="flex items-center gap-3 group transition-transform hover:scale-105 active:scale-95"
@@ -251,6 +269,17 @@ export function SiteHeader() {
           >
             {t("welcome")}
           </Link>
+          
+          {user && (
+            <Link
+              to="/dashboard"
+              className="hover:text-primary transition-colors"
+              activeProps={{ className: "text-primary" }}
+            >
+              {t("dashboard")}
+            </Link>
+          )}
+
           <Link
             to="/browse"
             className="hover:text-primary transition-colors"
@@ -317,14 +346,22 @@ export function SiteHeader() {
               <DropdownMenuTrigger asChild>
                 <Button
                   variant="ghost"
-                  className="relative h-10 w-10 rounded-xl p-0 hover:bg-secondary/80 border border-border/50 shadow-sm overflow-hidden transition-all"
+                  className="h-10 px-2.5 py-2 rounded-2xl hover:bg-secondary/80 border border-transparent hover:border-border/50 shadow-none overflow-hidden transition-all flex items-center gap-2.5"
                 >
-                  <Avatar className="h-full w-full rounded-none">
+                  <Avatar className="h-6 w-6 rounded-lg">
                     <AvatarImage src={profile?.avatar_url || ""} />
-                    <AvatarFallback className="bg-primary/5 text-primary text-[10px] font-black uppercase">
+                    <AvatarFallback className="bg-primary/10 text-primary text-[9px] font-black uppercase">
                       {profile?.name?.[0] || "U"}
                     </AvatarFallback>
                   </Avatar>
+                  <div className="hidden sm:flex flex-col items-start text-left">
+                    <span className="text-[11px] font-black text-foreground leading-tight truncate max-w-[100px]">
+                      {profile?.name || "Member"}
+                    </span>
+                    <span className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground leading-none">
+                      {profile?.role === "admin" ? "Admin" : profile?.role === "creator" ? "Creator" : "Student"}
+                    </span>
+                  </div>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent
