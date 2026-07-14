@@ -1896,17 +1896,6 @@ function Dashboard() {
             >
               <LayoutDashboard className="h-4 w-4" /> {t("overview")}
             </button>
-            <button
-              onClick={() => setActiveTab("learning-path")}
-              className={cn(
-                "w-full flex items-center gap-3 px-4 py-2 rounded-xl text-sm font-bold transition-all text-left",
-                activeTab === "learning-path"
-                  ? "bg-primary/10 text-primary border border-primary/5"
-                  : "text-muted-foreground hover:text-foreground hover:bg-accent border border-transparent",
-              )}
-            >
-              <BrainCircuit className="h-4 w-4" /> AI Learning Path
-            </button>
             {!isAdmin && !isCreator && (
               <button
                 onClick={() => setActiveTab("certificates")}
@@ -1920,12 +1909,6 @@ function Dashboard() {
                 <Trophy className="h-4 w-4" /> {t("certificates")}
               </button>
             )}
-            <Link
-              to="/browse"
-              className="flex items-center gap-3 px-4 py-2 rounded-xl text-sm font-semibold text-muted-foreground hover:text-foreground hover:bg-accent transition-all"
-            >
-              <BookOpen className="h-4 w-4 opacity-70" /> {t("library")}
-            </Link>
             {isAdmin && (
               <Link
                 to={"/admin" as any}
@@ -1936,140 +1919,6 @@ function Dashboard() {
             )}
           </div>
 
-          <div className="space-y-4">
-            <p className="px-4 text-[10px] font-black text-muted-foreground uppercase tracking-widest">
-              Institutional
-            </p>
-            <div className="px-2">
-              <Card
-                className={cn(
-                  "border-none p-4 rounded-2xl relative overflow-hidden group transition-all duration-500",
-                  myOrgs && myOrgs.length > 0
-                    ? "bg-slate-900 text-white shadow-xl shadow-indigo-500/10"
-                    : "bg-secondary/30 text-slate-900",
-                )}
-              >
-                <div className="relative z-10 space-y-3">
-                  <div className="flex items-center justify-between">
-                    <div
-                      className={cn(
-                        "h-8 w-8 rounded-lg flex items-center justify-center",
-                        myOrgs && myOrgs.length > 0
-                          ? "bg-indigo-600"
-                          : "bg-slate-200 text-slate-400",
-                      )}
-                    >
-                      <Building2 className="h-4 w-4" />
-                    </div>
-                    {profile?.org_request_status === "approved" &&
-                      !(myOrgs && myOrgs.length > 0) && (
-                        <Badge className="bg-emerald-500 text-white border-none text-[7px] font-black uppercase tracking-widest px-1.5 py-0.5 rounded-[4px]">
-                          Paid
-                        </Badge>
-                      )}
-                  </div>
-                  <div>
-                    <p
-                      className={cn(
-                        "text-[9px] font-black uppercase tracking-widest",
-                        myOrgs && myOrgs.length > 0 ? "text-indigo-400" : "text-muted-foreground",
-                      )}
-                    >
-                      Corporate Hub
-                    </p>
-                    <p className="text-[11px] font-bold leading-tight mt-1">
-                      {myOrgs && myOrgs.length > 0
-                        ? myOrgs[0].organizations?.name
-                        : profile?.org_request_status === "approved"
-                          ? "Setup Required"
-                          : "Enterprise Management"}
-                    </p>
-                  </div>
-
-                  {myOrgs && myOrgs.length > 0 ? (
-                    <Button
-                      asChild
-                      className="w-full h-8 rounded-xl bg-white text-slate-900 hover:bg-slate-100 font-black text-[9px] uppercase tracking-widest border-none shadow-sm"
-                    >
-                      <Link to="/organization">
-                        Manage <ChevronRight className="h-3 w-3 ml-1" />
-                      </Link>
-                    </Button>
-                  ) : profile?.org_request_status === "approved" ? (
-                    <Button
-                      asChild
-                      className="w-full h-8 rounded-xl bg-indigo-600 text-white hover:bg-indigo-500 font-black text-[9px] uppercase tracking-widest border-none shadow-sm"
-                    >
-                      <Link to="/organization">
-                        Initialize <Plus className="h-3 w-3 ml-1" />
-                      </Link>
-                    </Button>
-                  ) : (
-                    <Button
-                      asChild
-                      variant="outline"
-                      className="w-full h-8 rounded-xl border-slate-200 bg-white/50 hover:bg-white font-black text-[9px] uppercase tracking-widest transition-all"
-                    >
-                      <Link to="/pricing">
-                        Unlock <Zap className="h-3 w-3 ml-1 fill-current text-amber-500" />
-                      </Link>
-                    </Button>
-                  )}
-
-                  {!(myOrgs && myOrgs.length > 0) && profile?.org_request_status !== "approved" && (
-                    <button
-                      onClick={() => verifyMembershipMutation.mutate()}
-                      disabled={verifyMembershipMutation.isPending}
-                      className="w-full text-[8px] font-black uppercase tracking-widest text-slate-400 hover:text-indigo-600 transition-colors mt-2 flex items-center justify-center gap-1"
-                    >
-                      {verifyMembershipMutation.isPending ? (
-                        <Loader2 className="h-2 w-2 animate-spin" />
-                      ) : (
-                        <HistoryIcon className="h-2 w-2" />
-                      )}
-                      Sync Status
-                    </button>
-                  )}
-                </div>
-                <Building2 className="absolute -right-2 -bottom-2 h-12 w-12 opacity-5 -rotate-12 group-hover:scale-110 transition-transform" />
-              </Card>
-            </div>
-          </div>
-
-          <div className="space-y-1">
-            <p className="px-4 text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-3">
-              Preferences
-            </p>
-            <button
-              onClick={() => setIsEditingProfile(true)}
-              className="w-full flex items-center gap-3 px-4 py-2 rounded-xl text-sm font-semibold text-muted-foreground hover:text-foreground hover:bg-accent transition-all text-left"
-            >
-              <Settings className="h-4 w-4 opacity-70" /> {t("settings")}
-            </button>
-            <button
-              onClick={handleSignOut}
-              className="w-full flex items-center gap-3 px-4 py-2 rounded-xl text-sm font-semibold text-muted-foreground hover:text-destructive hover:bg-destructive/5 transition-all text-left"
-            >
-              <LogOut className="h-4 w-4 opacity-70" /> {t("logout")}
-            </button>
-          </div>
-        </div>
-
-        <div className="p-4 mt-auto">
-          <div className="p-4 rounded-2xl bg-gradient-to-br from-indigo-500 to-indigo-700 shadow-xl shadow-indigo-500/20 group overflow-hidden relative border border-white/10">
-            <div className="relative z-10 space-y-3">
-              <p className="text-[10px] font-black text-white/60 uppercase tracking-widest">
-                Premium Plan
-              </p>
-              <p className="text-xs font-bold text-white leading-tight">
-                Unlock AI course generation tools.
-              </p>
-              <Button className="w-full h-8 rounded-lg bg-white text-indigo-600 hover:bg-zinc-100 font-black text-[10px] uppercase tracking-widest border-none shadow-sm">
-                Explore Pro
-              </Button>
-            </div>
-            <Sparkles className="absolute -right-2 -bottom-2 h-16 w-16 text-white/10 -rotate-12 group-hover:scale-110 transition-transform duration-500" />
-          </div>
         </div>
       </aside>
 
@@ -2111,14 +1960,6 @@ function Dashboard() {
           </div>
 
           <div className="flex items-center gap-4">
-            <div className="hidden md:flex items-center gap-4 mr-2 border-r border-border pr-4">
-              <Link to="/browse" className="text-[11px] font-black uppercase tracking-widest text-muted-foreground hover:text-primary transition-colors">
-                {lang === "th" ? "ดูคอร์สทั้งหมด" : "View Catalog"}
-              </Link>
-              <Link to="/pricing" className="text-[11px] font-black uppercase tracking-widest text-muted-foreground hover:text-primary transition-colors">
-                {lang === "th" ? "ราคา" : "Pricing"}
-              </Link>
-            </div>
             <div className="flex flex-wrap items-center gap-3">
               {!isAdmin && (
                 <>
@@ -2190,53 +2031,26 @@ function Dashboard() {
                   </div>
                   <div className="flex flex-wrap items-center gap-3">
                     {isCreator && (
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button className="h-11 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground font-black uppercase tracking-widest text-[11px] px-6 shadow-lg shadow-primary/20 gap-2 transition-all active:scale-95">
-                            <Plus className="h-4 w-4" /> New Course
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent
-                          align="end"
-                          className="w-64 p-1.5 rounded-2xl border-border shadow-2xl bg-white"
+                      <>
+                        <Button
+                          asChild
+                          variant="outline"
+                          className="h-11 px-6 rounded-xl border-indigo-200 bg-indigo-50/50 text-indigo-600 hover:bg-indigo-100 hover:text-indigo-700 font-black text-[11px] uppercase tracking-widest gap-2 shadow-sm transition-all active:scale-95"
                         >
-                          <DropdownMenuItem asChild className="rounded-xl p-3 cursor-pointer group">
-                            <Link to="/create" className="flex items-center gap-3">
-                              <div className="h-10 w-10 rounded-lg bg-secondary flex items-center justify-center text-foreground group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
-                                <MousePointer2 className="h-5 w-5" />
-                              </div>
-                              <div>
-                                <p className="text-sm font-bold">Create Manually</p>
-                                <p className="text-[11px] text-muted-foreground font-medium">
-                                  Standard course builder
-                                </p>
-                              </div>
-                            </Link>
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            asChild
-                            className="rounded-xl p-3 cursor-pointer group mt-1"
-                          >
-                            <Link
-                              to="/generate"
-                              className="flex items-center gap-3"
-                              search={{ mode: "login" }}
-                            >
-                              <div className="h-10 w-10 rounded-lg bg-indigo-500/10 flex items-center justify-center text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white transition-colors">
-                                <BrainCircuit className="h-5 w-5" />
-                              </div>
-                              <div>
-                                <p className="text-sm font-bold text-indigo-600 group-hover:text-indigo-600">
-                                  Create with AI
-                                </p>
-                                <p className="text-[11px] text-muted-foreground font-medium">
-                                  AI-powered generation
-                                </p>
-                              </div>
-                            </Link>
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+                          <Link to="/generate" search={{ mode: "login" } as any}>
+                            <Sparkles className="h-4 w-4" />
+                            {lang === "th" ? "สร้างคอร์สด้วย AI" : "Generate with AI"}
+                          </Link>
+                        </Button>
+                        <Button
+                          asChild
+                          className="h-11 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground font-black uppercase tracking-widest text-[11px] px-6 shadow-lg shadow-primary/20 gap-2 transition-all active:scale-95"
+                        >
+                          <Link to="/create" search={{ mode: "login" } as any}>
+                            <Plus className="h-4 w-4" /> {lang === "th" ? "สร้างด้วยตัวเอง" : "Manual Create"}
+                          </Link>
+                        </Button>
+                      </>
                     )}
                   </div>
                 </div>
@@ -2407,39 +2221,35 @@ function Dashboard() {
                             </Badge>
                           </div>
 
-                          {/* --- RESUME LEARNING HERO --- */}
+                          {/* --- RESUME LEARNING HERO (compact) --- */}
                           {enrollments?.length > 0 && !isLoadingEnrollments && (
                             <motion.div
                               initial={{ opacity: 0, y: 15 }}
                               animate={{ opacity: 1, y: 0 }}
                               className="group relative"
                             >
-                              <div className="absolute inset-0 bg-primary/20 blur-[80px] rounded-full -z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
-                              <Card className="border-none bg-slate-900 text-white shadow-2xl rounded-[3rem] overflow-hidden">
-                                <div className="grid grid-cols-1 lg:grid-cols-2">
-                                  <div className="p-10 lg:p-14 space-y-10">
-                                    <div className="space-y-4">
-                                      <div className="flex items-center gap-3">
-                                        <div className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-                                        <span className="text-[10px] font-black uppercase tracking-[0.3em] text-primary">
-                                          {t("recentlyActive")}
-                                        </span>
-                                      </div>
-                                      <h2 className="text-3xl font-black tracking-tight leading-tight">
-                                        {enrollments[0].course.title}
-                                      </h2>
+                              <Card className="border-none bg-slate-900 text-white shadow-xl rounded-2xl overflow-hidden">
+                                <div className="p-6 flex items-center justify-between gap-6">
+                                  <div className="space-y-3 flex-1 min-w-0">
+                                    <div className="flex items-center gap-2">
+                                      <div className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                                      <span className="text-[9px] font-black uppercase tracking-[0.3em] text-primary">
+                                        {t("recentlyActive")}
+                                      </span>
                                     </div>
-
-                                    <div className="space-y-4">
-                                      <div className="flex justify-between items-end">
-                                        <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">
+                                    <h2 className="text-lg font-black tracking-tight leading-tight line-clamp-1">
+                                      {enrollments[0].course.title}
+                                    </h2>
+                                    <div className="space-y-1.5">
+                                      <div className="flex justify-between items-center">
+                                        <span className="text-[9px] font-black uppercase tracking-widest text-slate-400">
                                           {t("courseProgress")}
                                         </span>
-                                        <span className="text-2xl font-black text-white">
+                                        <span className="text-sm font-black text-white">
                                           {enrollments[0].progress_percent}%
                                         </span>
                                       </div>
-                                      <div className="h-3 w-full bg-white/10 rounded-full overflow-hidden border border-white/5">
+                                      <div className="h-2 w-full bg-white/10 rounded-full overflow-hidden border border-white/5">
                                         <motion.div
                                           initial={{ width: 0 }}
                                           animate={{ width: `${enrollments[0].progress_percent}%` }}
@@ -2448,46 +2258,21 @@ function Dashboard() {
                                         />
                                       </div>
                                     </div>
-
-                                    <Button
-                                      asChild
-                                      size="lg"
-                                      className="h-16 px-10 rounded-2xl bg-white text-slate-900 hover:bg-slate-100 font-black text-xs uppercase tracking-[0.2em] shadow-xl transition-all hover:scale-[1.02] active:scale-95 group/btn"
+                                  </div>
+                                  <Button
+                                    asChild
+                                    className="h-10 px-5 rounded-xl bg-white text-slate-900 hover:bg-slate-100 font-black text-[10px] uppercase tracking-widest shadow-lg transition-all hover:scale-105 active:scale-95 shrink-0"
+                                  >
+                                    <Link
+                                      to="/courses/$courseId/learn"
+                                      params={{ courseId: enrollments[0].course.id }}
+                                      search={{
+                                        lessonId: enrollments[0].last_lesson_id || undefined,
+                                      }}
                                     >
-                                      <Link
-                                        to="/courses/$courseId/learn"
-                                        params={{ courseId: enrollments[0].course.id }}
-                                        search={{
-                                          lessonId: enrollments[0].last_lesson_id || undefined,
-                                        }}
-                                      >
-                                        {t("continueLearning")}
-                                        <ChevronRight className="h-4 w-4 ml-2 group-hover/btn:translate-x-1 transition-transform" />
-                                      </Link>
-                                    </Button>
-                                  </div>
-                                  <div className="hidden lg:block relative overflow-hidden bg-slate-800">
-                                    {enrollments[0].course.imageUrl ? (
-                                      <img
-                                        src={enrollments[0].course.imageUrl}
-                                        className="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:scale-105 transition-transform duration-1000"
-                                        onError={(e) => {
-                                          const target = e.target as HTMLImageElement;
-                                          if (target.src.includes("pollinations.ai")) {
-                                            const sep = target.src.includes("?") ? "&" : "?";
-                                            setTimeout(() => {
-                                              target.src = `${target.src}${sep}retry=${Date.now()}`;
-                                            }, 2000);
-                                          }
-                                        }}
-                                      />
-                                    ) : (
-                                      <div className="absolute inset-0 flex items-center justify-center opacity-10">
-                                        <BrainCircuit className="h-40 w-40" />
-                                      </div>
-                                    )}
-                                    <div className="absolute inset-0 bg-gradient-to-r from-slate-900 via-slate-900/40 to-transparent" />
-                                  </div>
+                                      {t("continueLearning")} <ChevronRight className="h-3 w-3 ml-1" />
+                                    </Link>
+                                  </Button>
                                 </div>
                               </Card>
                             </motion.div>
@@ -2767,35 +2552,9 @@ function Dashboard() {
 
                   {/* SECONDARY COLUMN */}
                   <div className="space-y-8">
-                    {isCreator && (
-                      <section className="space-y-6">
-                        <h3 className="text-xs font-black uppercase tracking-[0.2em] text-muted-foreground/70 px-2">
-                          Quick Links
-                        </h3>
-                        <div className="grid gap-3">
-                          <Button
-                            asChild
-                            variant="outline"
-                            className="h-12 rounded-xl justify-start gap-3 border-border bg-background font-bold text-xs"
-                          >
-                            <Link to="/create">
-                              <PlusCircle className="h-4 w-4" /> Create New Course
-                            </Link>
-                          </Button>
-                          <Button
-                            asChild
-                            variant="outline"
-                            className="h-12 rounded-xl justify-start gap-3 border-border bg-background font-bold text-xs"
-                          >
-                            <Link to="/generate">
-                              <BrainCircuit className="h-4 w-4" /> Generate with AI
-                            </Link>
-                          </Button>
-                        </div>
-                      </section>
-                    )}
+                    {/* isCreator Quick Links moved to header */}
 
-                    {!isCreator && !isAdmin && (
+                    {false && !isCreator && !isAdmin && (
                       <section className="space-y-6">
                         <h3 className="text-xs font-black uppercase tracking-[0.2em] text-muted-foreground/70 px-2">
                           Corporate
@@ -2840,7 +2599,7 @@ function Dashboard() {
                       </section>
                     )}
 
-                    {!isCreator && !isAdmin && (
+                    {false && !isCreator && !isAdmin && (
                       <section className="space-y-6">
                         <h3 className="text-xs font-black uppercase tracking-[0.2em] text-muted-foreground/70 px-2">
                           Discover
