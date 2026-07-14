@@ -152,10 +152,9 @@ export function SiteHeader() {
                     to="/"
                     className="flex items-center gap-3 transition-transform hover:scale-105"
                     onClick={() => setIsMobileMenuOpen(false)}
+                    aria-label="Go to homepage"
                   >
-                    <div className="h-9 w-9 rounded-xl bg-primary flex items-center justify-center text-primary-foreground shadow-lg shadow-primary/20">
-                      <Sparkles className="h-5 w-5 fill-current" />
-                    </div>
+                    <img src="/avatars/LEARNLAB.png" alt="LearnLab Logo" className="h-9 w-9 rounded-xl object-contain shadow-sm border border-border/50" />
                     <span className="text-base font-black tracking-tight text-foreground uppercase italic tracking-wider">
                       {branding?.name || "LearnLab"}
                     </span>
@@ -250,10 +249,9 @@ export function SiteHeader() {
           <Link
             to="/"
             className="flex items-center gap-3 group transition-transform hover:scale-105 active:scale-95"
+            aria-label="Go to homepage"
           >
-            <div className="h-9 w-9 rounded-xl bg-primary flex items-center justify-center text-primary-foreground shadow-lg shadow-primary/20 group-hover:shadow-primary/40 transition-all duration-300">
-              <Sparkles className="h-5 w-5 fill-current" />
-            </div>
+            <img src="/avatars/LEARNLAB.png" alt="LearnLab Logo" className="h-9 w-9 rounded-xl object-contain shadow-md shadow-primary/10 border border-border/50 group-hover:shadow-primary/20 transition-all duration-300" />
             <span className="text-base font-black tracking-tighter text-foreground hidden sm:inline-block uppercase italic tracking-[0.05em]">
               {branding?.name || "LearnLab"}
             </span>
