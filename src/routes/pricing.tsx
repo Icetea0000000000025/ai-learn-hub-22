@@ -13,16 +13,19 @@ import {
   Globe,
   ArrowRight,
   Loader2,
+  ArrowUpRight,
 } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/lib/auth";
-import { createSubscriptionCheckoutSession, createAdCheckoutSession } from "@/lib/stripe";
-import { updateCourse } from "@/lib/courses";
+import { createSubscriptionCheckoutSession, createAdCheckoutSession, createBundleCheckoutSession } from "@/lib/stripe";
+import { updateCourse, fetchBundles, type Bundle } from "@/lib/courses";
+import { fetchUserEnrollments } from "@/lib/enrollments";
 import { toast } from "sonner";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase";
+import { ScrollReveal } from "@/components/ui/scroll-reveal";
 import {
   Dialog,
   DialogContent,
@@ -42,6 +45,67 @@ function Pricing() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+
+  const { data: bundles = [], isLoading: loadingBundles } = useQuery({
+    queryKey: ["home-bundles"],
+    queryFn: fetchBundles,
+  });
+
+  const { data: myEnrollments = [] } = useQuery({
+    queryKey: ["my-enrollments", user?.id],
+    enabled: !!user?.id,
+    queryFn: () => fetchUserEnrollments(user!.id),
+  });
+
+  const getCalculatedBundlePrice = (bundle: Bundle) => {
+    if (!user || !bundle.courses || bundle.courses.length === 0) return bundle.price;
+
+    const ownedCourseIds = new Set(myEnrollments.map((e) => e.course_id));
+    const totalCourses = bundle.courses.length;
+    const avgPrice = bundle.price / totalCourses;
+    let ownedInBundleCount = 0;
+    bundle.courses.forEach((bc) => {
+      if (ownedCourseIds.has(bc.id)) {
+        ownedInBundleCount++;
+      }
+    });
+
+    const totalDeduction = avgPrice * ownedInBundleCount;
+    const finalPrice = Math.max(0, bundle.price - totalDeduction);
+    return Math.round(finalPrice * 100) / 100;
+  };
+
+  const handleBundlePurchase = async (bundle: Bundle) => {
+    if (!user) {
+      toast.info(lang === "th" ? "กรุณาเข้าสู่ระบบก่อนเพื่อซื้อแพ็กเกจ" : "Please login to purchase this bundle");
+      void navigate({ to: "/login", search: { mode: "login" } });
+      return;
+    }
+
+    const calculatedAmount = getCalculatedBundlePrice(bundle);
+
+    try {
+      setIsSubmitting(true);
+      const result = await (createBundleCheckoutSession as any)({
+        data: {
+          bundleId: bundle.id,
+          userId: user.id,
+          bundleTitle: bundle.title,
+          amount: calculatedAmount,
+        },
+      });
+
+      if (result.url) {
+        window.location.href = result.url;
+      } else {
+        throw new Error("Failed to create checkout session");
+      }
+    } catch (err: any) {
+      toast.error("Checkout failed: " + err.message);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   // State for Ad/Campaign Modals
   const [isAdModalOpen, setIsAdModalOpen] = useState(false);
@@ -619,6 +683,195 @@ function Pricing() {
           </section>
         </div>
       </div>
+
+      {/* --- BUNDLES SECTION --- */}
+      {bundles.length > 0 && (
+        <ScrollReveal>
+          <section id="value-bundles-section" aria-label="Value Bundles" className="py-40 bg-[#0a0a0b] text-white relative overflow-hidden">
+            <div className="absolute top-0 left-0 w-full h-full bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 pointer-events-none" />
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-emerald-500/10 blur-[160px] rounded-full pointer-events-none" />
+
+            <div className="mx-auto max-w-7xl px-6 relative z-10">
+              <div className="text-center mb-24 space-y-4">
+                <Badge className="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-5 py-2 rounded-full font-black text-[10px] uppercase tracking-[0.3em]">
+                  {lang === "th" ? "มาตรฐานระดับสถาบัน" : "Institutional Grade"}
+                </Badge>
+                <h2 className="text-6xl lg:text-8xl font-black tracking-tighter leading-none italic uppercase">
+                  {lang === "th" ? "แพ็กเกจ" : "Value"}{" "}
+                  <span className="text-emerald-400">
+                    {lang === "th" ? "สุดคุ้ม" : "Bundles"}
+                  </span>
+                </h2>
+                <p className="text-slate-400 text-xl font-medium max-w-2xl mx-auto">
+                  {lang === "th"
+                    ? "เร่งเส้นทางอาชีพของคุณด้วยเส้นทางหลายหลักสูตรที่คัดสรรมาเป็นพิเศษในราคาพิเศษ"
+                    : "Accelerate your career trajectory with curated multi-course paths at an exclusive investment rate."}
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                {bundles.map((b: Bundle) => {
+                  const calculatedPrice = getCalculatedBundlePrice(b);
+                  const isDiscounted = calculatedPrice < b.price;
+                  const ownedCount = b.courses.filter((bc) =>
+                    myEnrollments.some((e) => e.course_id === bc.id),
+                  ).length;
+                  const allOwned = ownedCount === b.courses.length && b.courses.length > 0;
+
+                  return (
+                    <Card
+                      key={b.id}
+                      className="bg-zinc-900/50 border border-white/10 rounded-[4rem] p-12 hover:border-emerald-500/40 transition-all duration-700 group relative overflow-hidden"
+                    >
+                      <div className="absolute top-0 right-0 p-12 opacity-5 group-hover:opacity-10 transition-opacity">
+                        <Zap className="h-40 w-40 text-emerald-400" />
+                      </div>
+
+                      <div className="flex flex-col h-full relative z-10">
+                        <div className="flex justify-between items-start mb-12">
+                          <div className="space-y-3">
+                            <div className="flex items-center gap-2">
+                              <Badge
+                                variant="outline"
+                                className="border-emerald-500/30 text-emerald-400 font-black text-[9px] uppercase tracking-widest px-3 py-1 rounded-lg"
+                              >
+                                {lang === "th" ? "เส้นทางสู่ความเชี่ยวชาญ" : "Mastery Path"}
+                              </Badge>
+                              {isDiscounted && (
+                                <Badge className="bg-amber-500 text-white border-none px-2 py-0.5 rounded text-[8px] font-black uppercase tracking-widest">
+                                  {lang === "th"
+                                    ? "ใช้ส่วนลดจากคอร์สที่เป็นเจ้าของแล้ว"
+                                    : "Partial Own Applied"}
+                                </Badge>
+                              )}
+                            </div>
+                            <h3 className="text-4xl font-black tracking-tight leading-none group-hover:text-emerald-400 transition-colors">
+                              {b.title}
+                            </h3>
+                            <p className="text-slate-400 text-base font-medium leading-relaxed max-w-md">
+                              {b.description}
+                            </p>
+                          </div>
+                          <div className="text-right">
+                            <p className="text-[11px] font-black text-emerald-500 uppercase tracking-[0.2em] mb-2">
+                              {lang === "th" ? "การลงทุนสำหรับแพ็กเกจ" : "Bundle Investment"}
+                            </p>
+                            <div className="flex flex-col items-end">
+                              <div className="flex items-baseline justify-end gap-1">
+                                <span className="text-5xl font-black text-white">
+                                  ${calculatedPrice}
+                                </span>
+                                <span className="text-sm font-bold text-slate-500 uppercase">
+                                  USD
+                                </span>
+                              </div>
+                              {isDiscounted && (
+                                <span className="text-sm font-bold text-slate-500 line-through mt-1">
+                                  {lang === "th" ? "ปกติ" : "Was"} ${b.price}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="space-y-6 mb-12 flex-1">
+                          <div className="flex items-center gap-4">
+                            <div className="h-px flex-1 bg-white/10" />
+                            <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] whitespace-nowrap">
+                              {lang === "th" ? "หลักสูตรที่รวมอยู่" : "Included Curriculums"}
+                            </p>
+                            <div className="h-px flex-1 bg-white/10" />
+                          </div>
+
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            {b.courses.map((course) => {
+                              const isOwned = myEnrollments.some(
+                                (e) => e.course_id === course.id,
+                              );
+                              return (
+                                <Link
+                                  key={course.id}
+                                  to="/courses/$courseId"
+                                  params={{ courseId: course.id }}
+                                  className={cn(
+                                    "flex items-center justify-between p-4 rounded-[1.5rem] border transition-all group/item",
+                                    isOwned
+                                      ? "bg-emerald-500/10 border-emerald-500/20"
+                                      : "bg-white/5 border-white/5 hover:bg-emerald-500/10 hover:border-emerald-500/20",
+                                  )}
+                                >
+                                  <div className="flex items-center gap-3 min-w-0">
+                                    <div
+                                      className={cn(
+                                        "h-2 w-2 rounded-full transition-transform",
+                                        isOwned
+                                          ? "bg-emerald-400 scale-125 shadow-[0_0_10px_rgba(52,211,153,0.5)]"
+                                          : "bg-emerald-500 group-hover/item:scale-125",
+                                      )}
+                                    />
+                                    <div className="min-w-0">
+                                      <p
+                                        className={cn(
+                                          "text-sm font-bold truncate",
+                                          isOwned ? "text-emerald-400" : "text-slate-200",
+                                        )}
+                                      >
+                                        {course.title}
+                                      </p>
+                                      {isOwned && (
+                                        <p className="text-[8px] font-black text-emerald-500/60 uppercase tracking-widest leading-none mt-0.5">
+                                          {lang === "th" ? "เป็นเจ้าของแล้ว" : "Asset Owned"}
+                                        </p>
+                                      )}
+                                    </div>
+                                  </div>
+                                  {isOwned ? (
+                                    <ShieldCheck className="h-3.5 w-3.5 text-emerald-400 shrink-0" />
+                                  ) : (
+                                    <ArrowUpRight className="h-4 w-4 text-slate-600 group-hover/item:text-emerald-400 transition-colors shrink-0" />
+                                  )}
+                                </Link>
+                              );
+                            })}
+                          </div>
+                        </div>
+
+                        <Button
+                          onClick={() => !allOwned && handleBundlePurchase(b)}
+                          disabled={allOwned}
+                          className={cn(
+                            "w-full h-16 rounded-[2rem] font-black text-sm uppercase tracking-widest shadow-2xl transition-all group/btn",
+                            allOwned
+                              ? "bg-slate-800 text-slate-500 cursor-not-allowed"
+                              : "bg-emerald-500 hover:bg-emerald-400 text-white shadow-emerald-500/20",
+                          )}
+                        >
+                          <span className="flex items-center gap-3">
+                            {allOwned ? (
+                              lang === "th" ? (
+                                "ปลดล็อกเส้นทางนี้ทั้งหมดแล้ว"
+                              ) : (
+                                "Path Fully Unlocked"
+                              )
+                            ) : (
+                              <>
+                                {lang === "th"
+                                  ? "ปลดล็อกการเข้าถึงเส้นทางนี้"
+                                  : "Unlock Path Access"}{" "}
+                                <ArrowRight className="h-4 w-4 group-hover/btn:translate-x-1 transition-transform" />
+                              </>
+                            )}
+                          </span>
+                        </Button>
+                      </div>
+                    </Card>
+                  );
+                })}
+              </div>
+            </div>
+          </section>
+        </ScrollReveal>
+      )}
 
       {/* Ad Purchase Modal */}
       <Dialog open={isAdModalOpen} onOpenChange={setIsAdModalOpen}>

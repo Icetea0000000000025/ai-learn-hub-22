@@ -83,7 +83,7 @@ function ActiveFilterChip({ label, onRemove }: { label: string; onRemove: () => 
       className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-900 text-white text-[11px] font-semibold tracking-wide"
     >
       {label}
-      <button onClick={onRemove} className="opacity-60 hover:opacity-100 transition-opacity">
+      <button onClick={onRemove} className="opacity-60 hover:opacity-100 transition-opacity" aria-label={`Remove filter ${label}`}>
         <X className="h-3 w-3" />
       </button>
     </motion.span>
@@ -102,7 +102,6 @@ function CourseCard({
   isEnrolled: boolean;
 }) {
   const { lang, t } = useI18n();
-  const [hovered, setHovered] = useState(false);
 
   return (
     <motion.div
@@ -114,8 +113,6 @@ function CourseCard({
         to="/courses/$courseId"
         params={{ courseId: course.id }}
         className="group block"
-        onMouseEnter={() => setHovered(true)}
-        onMouseLeave={() => setHovered(false)}
       >
         {/* Thumbnail */}
         <div className="relative overflow-hidden rounded-2xl bg-slate-100 aspect-[16/10] mb-5">
@@ -139,26 +136,6 @@ function CourseCard({
               <BookOpen className="h-10 w-10 text-slate-300" />
             </div>
           )}
-
-          {/* Overlay */}
-          <div className="absolute inset-0 bg-slate-900/0 group-hover:bg-slate-900/40 transition-all duration-500" />
-
-          {/* Play button */}
-          <AnimatePresence>
-            {hovered && (
-              <motion.div
-                initial={{ opacity: 0, scale: 0.7 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.7 }}
-                transition={{ duration: 0.2 }}
-                className="absolute inset-0 flex items-center justify-center"
-              >
-                <div className="h-14 w-14 rounded-full bg-white shadow-2xl flex items-center justify-center">
-                  <Play className="h-5 w-5 fill-slate-900 text-slate-900 ml-0.5" />
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
 
           {/* Top badges */}
           <div className="absolute top-3 left-3 flex flex-col gap-2">
@@ -298,7 +275,7 @@ function CourseCard({
 }
 
 function Browse() {
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const { lang, t } = useI18n();
   const navigate = useNavigate();
   const searchParams = Route.useSearch();
@@ -472,101 +449,48 @@ function Browse() {
               <span className="h-px flex-1 max-w-[60px] bg-indigo-200" />
             </div>
 
-            <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8">
-              <div>
-                <h1 className="text-4xl sm:text-5xl font-black text-slate-900 tracking-tight leading-none mb-3">
-                  {lang === "th" ? (
-                    <>
-                      ค้นหา
-                      <br />
-                      <span className="text-indigo-600">ทักษะถัดไปของคุณ</span>
-                    </>
-                  ) : (
-                    <>
-                      Find Your Next
-                      <br />
-                      <span className="text-indigo-600">Skill</span>
-                    </>
-                  )}
-                </h1>
-                <p className="text-slate-500 text-[15px] max-w-md font-medium leading-relaxed">
-                  {courses.filter((c) => c.status?.toLowerCase() === "published").length}{" "}
-                  {lang === "th"
-                    ? "หลักสูตรระดับมืออาชีพในด้านการออกแบบ ธุรกิจ และเทคโนโลยี"
-                    : "professional courses across design, business, and tech."}
-                </p>
-              </div>
-
-              {/* Search bar */}
-              <div className="relative max-w-md w-full lg:w-auto">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-                <Input
-                  id="search-courses"
-                  name="search"
-                  aria-label={t("searchPlaceholder")}
-                  placeholder={t("searchPlaceholder")}
-                  className="pl-11 h-12 bg-slate-50 border-slate-200 rounded-xl text-[14px] font-medium focus-visible:ring-2 focus-visible:ring-indigo-500/30 focus-visible:border-indigo-400 w-full lg:w-80 shadow-sm"
-                  value={search}
-                  onChange={(e) => updateFilters({ search: e.target.value })}
-                />
-                {search && (
-                  <button
-                    onClick={() => updateFilters({ search: "" })}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
-                  >
-                    <X className="h-4 w-4" />
-                  </button>
+            <div className="flex flex-col">
+              <h1 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight leading-none mb-2 truncate">
+                {lang === "th" ? (
+                  <>
+                    ค้นหา <span className="text-indigo-600">ทักษะถัดไปของคุณ</span>
+                  </>
+                ) : (
+                  <>
+                    Find Your Next <span className="text-indigo-600">Skill</span>
+                  </>
                 )}
-              </div>
-            </div>
-
-            {/* Quick stats */}
-            <div className="flex items-center gap-6 mt-8 pt-6 border-t border-slate-100">
-              {[
-                {
-                  icon: BookOpen,
-                  label: lang === "th" ? "คอร์ส" : "Courses",
-                  value: courses.filter((c) => c.status?.toLowerCase() === "published").length,
-                },
-                {
-                  icon: Users,
-                  label: lang === "th" ? "ผู้เรียน" : "Learners",
-                  value: courses.reduce((a, c) => a + (c.students || 0), 0).toLocaleString(),
-                },
-                {
-                  icon: TrendingUp,
-                  label: lang === "th" ? "หมวดหมู่" : "Categories",
-                  value: categories.length,
-                },
-              ].map((stat) => (
-                <div key={stat.label} className="flex items-center gap-2">
-                  <stat.icon className="h-4 w-4 text-slate-400" />
-                  <span className="text-sm font-black text-slate-900">{stat.value}</span>
-                  <span className="text-sm text-slate-400 font-medium">{stat.label}</span>
-                </div>
-              ))}
+              </h1>
+              <p className="text-slate-500 text-[14px] max-w-3xl font-medium leading-relaxed truncate">
+                {courses.filter((c) => c.status?.toLowerCase() === "published").length}{" "}
+                {lang === "th"
+                  ? "หลักสูตรระดับมืออาชีพในด้านการออกแบบ ธุรกิจ และเทคโนโลยี"
+                  : "professional courses across design, business, and tech."}
+              </p>
             </div>
           </div>
         </section>
 
         {/* ── Toolbar ── */}
-        <section id="catalog-toolbar" aria-label="Catalog Toolbar" className="bg-white border-b border-slate-200/80 sticky top-16 z-30 shadow-sm">
-          <div className="mx-auto max-w-7xl px-6 h-14 flex items-center justify-between gap-4">
+        <section id="catalog-toolbar" aria-label="Catalog Toolbar" className="bg-white border-b border-slate-200/80 sticky top-16 z-30 shadow-sm py-2">
+          <div className="mx-auto max-w-7xl px-6 min-h-[56px] flex flex-col md:flex-row md:items-center justify-between gap-4">
             {/* Filter toggle (mobile) + active chips */}
-            <div className="flex items-center gap-3 flex-1 min-w-0 overflow-x-auto scrollbar-none">
+            <div className="flex items-center gap-3 overflow-x-auto scrollbar-none">
               <button
                 onClick={() => setFiltersOpen(!filtersOpen)}
+                aria-label={lang === "th" ? "สลับตัวกรอง" : "Toggle filters"}
+                aria-expanded={filtersOpen}
                 className={cn(
-                  "flex-shrink-0 inline-flex items-center gap-2 h-8 px-3 rounded-lg text-[12px] font-semibold border transition-all",
+                  "flex-shrink-0 inline-flex items-center gap-2 h-9 px-4 rounded-lg text-[13px] font-bold border transition-all shadow-sm",
                   filtersOpen
                     ? "bg-slate-900 text-white border-slate-900"
-                    : "bg-white text-slate-600 border-slate-200 hover:border-slate-300",
+                    : "bg-white text-slate-700 border-slate-200 hover:border-slate-300 hover:bg-slate-50",
                 )}
               >
-                <SlidersHorizontal className="h-3.5 w-3.5" />
+                <SlidersHorizontal className="h-4 w-4" />
                 {lang === "th" ? "ตัวกรอง" : "Filters"}
                 {hasActiveFilters && (
-                  <span className="h-4 w-4 rounded-full bg-indigo-600 text-white text-[9px] font-black flex items-center justify-center flex-shrink-0">
+                  <span className="h-4 w-4 rounded-full bg-indigo-600 text-white text-[10px] font-black flex items-center justify-center flex-shrink-0">
                     !
                   </span>
                 )}
@@ -618,6 +542,7 @@ function Browse() {
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
                     onClick={clearAll}
+                    aria-label={t("resetFilters")}
                     className="flex-shrink-0 text-[11px] font-semibold text-rose-500 hover:underline"
                   >
                     {t("resetFilters")}
@@ -626,16 +551,32 @@ function Browse() {
               </AnimatePresence>
             </div>
 
-            {/* Right: result count + sort */}
+            {/* Right: Search, Stats, Sort */}
             <div className="flex items-center gap-3 flex-shrink-0">
-              <span className="hidden sm:block text-[12px] font-semibold text-slate-400">
-                {filteredCourses.length} {lang === "th" ? "รายการ" : "results"}
-              </span>
+              <div className="hidden lg:flex items-center gap-5 pr-4 border-r border-slate-200 text-[12px] font-semibold text-slate-500 whitespace-nowrap">
+                <span className="flex items-center gap-1.5"><BookOpen className="h-3.5 w-3.5"/> {filteredCourses.length}</span>
+              </div>
+              
+              <div className="relative w-full sm:max-w-[200px]">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400" />
+                <Input
+                  id="search-courses"
+                  name="search"
+                  aria-label={lang === "th" ? "ค้นหาคอร์สเรียน" : "Search courses"}
+                  placeholder={lang === "th" ? "ค้นหา..." : "Search..."}
+                  className="pl-9 h-9 bg-slate-50 border-slate-200 rounded-lg text-[12px] font-medium"
+                  value={search}
+                  onChange={(e) => updateFilters({ search: e.target.value })}
+                />
+              </div>
 
               {/* Sort dropdown */}
               <div className="relative" ref={sortRef}>
                 <button
                   onClick={() => setSortOpen(!sortOpen)}
+                  aria-label={lang === "th" ? "ตัวเลือกการเรียงลำดับ" : "Sort options"}
+                  aria-expanded={sortOpen}
+                  aria-haspopup="listbox"
                   className="inline-flex items-center gap-2 h-8 px-3 rounded-lg text-[12px] font-semibold bg-white border border-slate-200 hover:border-slate-300 text-slate-700 transition-all"
                 >
                   <ArrowUpDownIcon className="h-3.5 w-3.5 text-slate-400" />
@@ -737,114 +678,14 @@ function Browse() {
                       ))}
                     </FilterSection>
 
-                    {/* Level */}
-                    <FilterSection
-                      title={lang === "th" ? "ระดับ" : "Level"}
-                      icon={<BarChart3 className="h-3.5 w-3.5" />}
-                    >
-                      <div className="grid grid-cols-2 gap-1.5">
-                        {(["all", "Beginner", "Intermediate", "Advanced"] as LevelOption[]).map(
-                          (lv) => (
-                            <SegmentedFilterBtn
-                              key={lv}
-                              active={selectedLevel === lv}
-                              onClick={() => updateFilters({ level: lv })}
-                            >
-                              {lv === "all"
-                                ? lang === "th"
-                                  ? "ทั้งหมด"
-                                  : "Any"
-                                : lv === "Beginner"
-                                  ? lang === "th"
-                                    ? "เริ่มต้น"
-                                    : "Beginner"
-                                  : lv === "Intermediate"
-                                    ? lang === "th"
-                                      ? "ปานกลาง"
-                                      : "Intermediate"
-                                    : lv === "Advanced"
-                                      ? lang === "th"
-                                        ? "ขั้นสูง"
-                                        : "Advanced"
-                                      : lv}
-                            </SegmentedFilterBtn>
-                          ),
-                        )}
-                      </div>
-                    </FilterSection>
 
-                    {/* Pricing */}
-                    <FilterSection
-                      title={lang === "th" ? "ราคา" : "Pricing"}
-                      icon={<DollarSign className="h-3.5 w-3.5" />}
-                    >
-                      <div className="grid grid-cols-3 gap-1.5">
-                        {[
-                          { id: "all", label: lang === "th" ? "ทั้งหมด" : "Any" },
-                          { id: "free", label: t("free") },
-                          { id: "paid", label: t("paid") },
-                        ].map((item) => (
-                          <SegmentedFilterBtn
-                            key={item.id}
-                            active={selectedPricing === item.id}
-                            onClick={() => updateFilters({ pricing: item.id as PricingOption })}
-                          >
-                            {item.label}
-                          </SegmentedFilterBtn>
-                        ))}
-                      </div>
-                    </FilterSection>
-
-                    {/* Enrollment — auth only */}
-                    {user && (
-                      <FilterSection
-                        title={lang === "th" ? "สถานะ" : "Status"}
-                        icon={<CheckCircle2 className="h-3.5 w-3.5" />}
-                      >
-                        <div className="space-y-1">
-                          {[
-                            { id: "all", label: lang === "th" ? "คอร์สทั้งหมด" : "All Courses" },
-                            { id: "enrolled", label: t("enrolled") },
-                            { id: "not-enrolled", label: t("notEnrolled") },
-                          ].map((item) => (
-                            <CategoryFilterBtn
-                              key={item.id}
-                              active={selectedStatus === item.id}
-                              onClick={() => updateFilters({ status: item.id as StatusOption })}
-                            >
-                              {item.label}
-                            </CategoryFilterBtn>
-                          ))}
-                        </div>
-                      </FilterSection>
-                    )}
-
-                    {/* AI CTA */}
-                    <div className="relative overflow-hidden rounded-3xl bg-slate-950 text-white p-5 border border-slate-800 shadow-xl shadow-slate-950/20 group">
-                      <div className="absolute top-0 right-0 w-24 h-24 bg-indigo-500/20 rounded-full blur-2xl group-hover:bg-indigo-500/30 transition-colors" />
-                      <Sparkles className="h-5 w-5 text-indigo-400 mb-3 fill-indigo-500/10 animate-pulse" />
-                      <p className="font-black text-sm mb-1 tracking-tight">
-                        {lang === "th" ? "สร้างเส้นทางของคุณเอง" : "Build a custom path"}
-                      </p>
-                      <p className="text-slate-400 text-[11px] leading-relaxed mb-4 font-medium">
-                        {lang === "th"
-                          ? "ให้ Gemini สร้างคอร์สที่ปรับแต่งให้ตรงกับเป้าหมายการเรียนรู้ของคุณอย่างแม่นยำ"
-                          : "Let Gemini generate a course tailored to your exact learning goals."}
-                      </p>
-                      <Link
-                        to="/generate"
-                        className="block w-full py-2.5 text-center text-[10px] font-black uppercase tracking-[0.15em] rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white transition-all shadow-md shadow-indigo-600/25 duration-200 hover:scale-[1.02]"
-                      >
-                        {lang === "th" ? "เริ่มต้นสร้างด้วย AI" : "Launch AI Lab"}
-                      </Link>
-                    </div>
                   </div>
                 </motion.aside>
               )}
             </AnimatePresence>
 
             {/* ── Course Grid ── */}
-            <main className="flex-1 min-w-0 pt-8">
+            <main className="flex-1 min-w-0 pt-8" aria-label={lang === "th" ? "รายการคอร์สเรียน" : "Course List"}>
               {error && (
                 <div className="flex items-center gap-3 p-5 rounded-2xl bg-rose-50 border border-rose-100 text-rose-600 text-sm font-medium mb-8">
                   <XCircle className="h-5 w-5 flex-shrink-0" />
@@ -868,13 +709,13 @@ function Browse() {
               ) : filteredCourses.length > 0 ? (
                 <div
                   className={cn(
-                    "grid gap-x-8 gap-y-12",
+                    "grid gap-x-6 gap-y-10",
                     filtersOpen
-                      ? "grid-cols-1 sm:grid-cols-2 xl:grid-cols-2"
-                      : "grid-cols-1 sm:grid-cols-2 xl:grid-cols-3",
+                      ? "grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
+                      : "grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4",
                   )}
                 >
-                  {filteredCourses.map((c, i) => (
+                  {filteredCourses.slice(0, 12).map((c, i) => (
                     <CourseCard
                       key={c.id}
                       course={c}
