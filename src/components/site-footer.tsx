@@ -157,8 +157,13 @@ export function SiteFooter() {
       <div className="mx-auto grid max-w-7xl gap-8 px-4 py-12 md:grid-cols-4">
         <div>
           <div className="mb-4 flex items-center gap-3">
-            <div className="h-8 w-8 rounded-xl bg-primary flex items-center justify-center text-primary-foreground shadow-sm shadow-primary/20">
-              <Sparkles className="h-4 w-4" />
+            <div className="h-8 w-8 rounded-xl flex items-center justify-center shadow-sm shadow-primary/20 overflow-hidden bg-white border border-slate-100 p-0.5">
+              <img 
+                src={branding?.logo_url || "/avatars/LEARNLAB.png"} 
+                alt="Logo" 
+                className="h-full w-full object-contain rounded-md" 
+                onError={(e) => { e.currentTarget.src = "/avatars/LEARNLAB.png"; e.currentTarget.onerror = null; }}
+              />
             </div>
             <span className="text-base font-black tracking-tighter uppercase italic">
               {siteName}

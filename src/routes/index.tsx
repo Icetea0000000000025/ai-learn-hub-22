@@ -111,10 +111,10 @@ function Home() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.7, delay: 0.1 }}
-                className="text-6xl lg:text-8xl font-bold tracking-tighter text-foreground leading-[0.95]"
+                className="text-6xl lg:text-8xl font-bold tracking-normal text-foreground leading-[0.95]"
               >
                 {lang === "th" ? (
-                  "เรียนรู้เหนือความคาดหมาย"
+                  <span className="whitespace-nowrap">เรียนรู้เหนือความคาดหมาย</span>
                 ) : (
                   <>
                     Learn beyond the <br />
@@ -180,7 +180,7 @@ function Home() {
                   <Sparkles className="h-7 w-7 fill-indigo-400/20 text-indigo-400" />
                 </motion.div>
 
-                <h2 className="bg-gradient-to-br from-white via-white to-white/30 bg-clip-text text-[clamp(44px,6.5vw,72px)] font-extrabold italic uppercase leading-[0.92] tracking-[-0.04em] text-transparent">
+                <h2 className="bg-gradient-to-br from-white via-white to-white/30 bg-clip-text text-[clamp(44px,6.5vw,72px)] font-extrabold italic uppercase leading-[0.92] tracking-normal text-transparent">
                   {lang === "th" ? (
                     <>
                       เริ่มต้น

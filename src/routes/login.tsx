@@ -1,5 +1,7 @@
 import { createFileRoute, Link, useNavigate, useSearch } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -36,6 +38,19 @@ export const Route = createFileRoute("/login")({
 function LoginPage() {
   const { lang, t } = useI18n();
   const { mode: initialMode, redirect: redirectPath } = Route.useSearch();
+
+  const { data: branding } = useQuery({
+    queryKey: ["platform-branding"],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("system_settings")
+        .select("*")
+        .eq("key", "site_branding")
+        .maybeSingle();
+      return (data?.value as any) || { name: "LearnLab", logo_url: "" };
+    },
+    staleTime: 1000 * 60 * 5,
+  });
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [mode, setMode] = useState<"login" | "signup" | "forgot" | "reset">(initialMode);
@@ -103,11 +118,16 @@ function LoginPage() {
       {/* --- LOGIN FORM --- */}
       <div className="flex-1 flex flex-col relative z-10 p-8 lg:p-24 justify-center items-center">
         <Link to="/" className="flex items-center gap-2 mb-12 group">
-          <div className="h-8 w-8 rounded-lg bg-indigo-500 flex items-center justify-center text-white shadow-lg">
-            <Sparkles className="h-4 w-4 fill-current" />
+          <div className="h-10 w-10 rounded-xl flex items-center justify-center text-white shadow-lg overflow-hidden bg-white border border-slate-100 p-0.5">
+            <img 
+              src={branding?.logo_url || "/avatars/LEARNLAB.png"} 
+              alt="Logo" 
+              className="h-full w-full object-contain rounded-lg" 
+              onError={(e) => { e.currentTarget.src = "/avatars/LEARNLAB.png"; e.currentTarget.onerror = null; }}
+            />
           </div>
-          <span className="text-lg font-black tracking-tight text-slate-900 uppercase italic">
-            LearnLab
+          <span className="text-xl font-black tracking-tight text-slate-900 uppercase italic">
+            {branding?.name || "LearnLab"}
           </span>
         </Link>
 

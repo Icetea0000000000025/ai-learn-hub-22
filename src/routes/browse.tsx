@@ -108,11 +108,12 @@ function CourseCard({
       initial={{ opacity: 0, y: 24 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay: index * 0.06, ease: [0.22, 1, 0.36, 1] }}
+      className="h-full"
     >
       <Link
         to="/courses/$courseId"
         params={{ courseId: course.id }}
-        className="group block"
+        className="group flex flex-col h-full"
       >
         {/* Thumbnail */}
         <div className="relative overflow-hidden rounded-2xl bg-slate-100 aspect-[16/10] mb-5">
@@ -205,8 +206,8 @@ function CourseCard({
                 <Star
                   key={s}
                   className={cn(
-                    "h-3 w-3 fill-amber-400 text-amber-400 transition-opacity",
-                    s > Math.round(course.rating || 0) && "opacity-20",
+                    "h-3 w-3 fill-amber-500 text-amber-500 transition-opacity",
+                    s > Math.round(course.rating || 5) && "opacity-20",
                   )}
                 />
               ))}
@@ -652,7 +653,7 @@ function Browse() {
                   animate={{ opacity: 1, x: 0, width: 280 }}
                   exit={{ opacity: 0, x: -20, width: 0 }}
                   transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-                  className="flex-shrink-0 overflow-hidden sticky top-[120px] self-start"
+                  className="flex-shrink-0 sticky top-[120px] self-start"
                   style={{ width: 280 }}
                 >
                   <div className="w-[280px] space-y-6 bg-slate-50/40 border-x border-b border-slate-200/50 p-5 rounded-t-none rounded-b-[2.5rem] backdrop-blur-sm shadow-sm">

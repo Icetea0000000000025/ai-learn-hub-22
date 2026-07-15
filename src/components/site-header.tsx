@@ -154,7 +154,12 @@ export function SiteHeader() {
                     onClick={() => setIsMobileMenuOpen(false)}
                     aria-label="Go to homepage"
                   >
-                    <img src="/avatars/LEARNLAB.png" alt="LearnLab Logo" className="h-9 w-9 rounded-xl object-contain shadow-sm border border-border/50" />
+                    <img 
+                      src={branding?.logo_url || "/avatars/LEARNLAB.png"} 
+                      alt="Logo" 
+                      className="h-9 w-9 rounded-xl object-contain shadow-sm border border-border/50 bg-white" 
+                      onError={(e) => { e.currentTarget.src = "/avatars/LEARNLAB.png"; e.currentTarget.onerror = null; }}
+                    />
                     <span className="text-base font-black tracking-tight text-foreground uppercase italic tracking-wider">
                       {branding?.name || "LearnLab"}
                     </span>
@@ -251,7 +256,12 @@ export function SiteHeader() {
             className="flex items-center gap-3 group transition-transform hover:scale-105 active:scale-95"
             aria-label="Go to homepage"
           >
-            <img src="/avatars/LEARNLAB.png" alt="LearnLab Logo" className="h-9 w-9 rounded-xl object-contain shadow-md shadow-primary/10 border border-border/50 group-hover:shadow-primary/20 transition-all duration-300" />
+            <img 
+              src={branding?.logo_url || "/avatars/LEARNLAB.png"} 
+              alt="Logo" 
+              className="h-9 w-9 rounded-xl object-contain shadow-md shadow-primary/10 border border-border/50 group-hover:shadow-primary/20 transition-all duration-300 bg-white" 
+              onError={(e) => { e.currentTarget.src = "/avatars/LEARNLAB.png"; e.currentTarget.onerror = null; }}
+            />
             <span className="text-base font-black tracking-tighter text-foreground hidden sm:inline-block uppercase italic tracking-[0.05em]">
               {branding?.name || "LearnLab"}
             </span>

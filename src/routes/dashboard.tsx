@@ -149,10 +149,13 @@ function StatCard({ label, value, icon: Icon, trend, colorClass, delay = 0 }: an
             )}
           </div>
           <div className="space-y-1">
-            <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest leading-none">
+            <p
+              className="text-[10px] font-black text-muted-foreground uppercase tracking-normal "
+              leading-relaxed
+            >
               {label}
             </p>
-            <h4 className="text-2xl font-bold text-foreground tracking-tight leading-none">
+            <h4 className="text-2xl font-bold text-foreground tracking-normal leading-none">
               {value}
             </h4>
           </div>
@@ -168,21 +171,32 @@ function StudentProgressDetail({ progress }: { progress: StudentProgress }) {
     <div className="space-y-8 pt-4 text-slate-900 font-sans">
       <div className="grid grid-cols-3 gap-4">
         <div className="p-4 rounded-2xl bg-slate-50 border border-slate-100 text-center">
-          <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-1">
+          <p
+            className="text-[9px] font-black uppercase tracking-normal text-slate-400 mb-1 "
+            leading-relaxed
+          >
             Completion
           </p>
-          <p className="text-xl font-black text-primary">{progress.progress_percent}%</p>
+          <p className="text-xl font-black text-primary " leading-relaxed>
+            {progress.progress_percent}%
+          </p>
         </div>
         <div className="p-4 rounded-2xl bg-slate-50 border border-slate-100 text-center">
-          <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-1">
+          <p
+            className="text-[9px] font-black uppercase tracking-normal text-slate-400 mb-1 "
+            leading-relaxed
+          >
             Lessons
           </p>
-          <p className="text-xl font-black text-slate-900">
+          <p className="text-xl font-black text-slate-900 " leading-relaxed>
             {progress.completed_lessons}/{progress.total_lessons}
           </p>
         </div>
         <div className="p-4 rounded-2xl bg-slate-50 border border-slate-100 text-center">
-          <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-1">
+          <p
+            className="text-[9px] font-black uppercase tracking-normal text-slate-400 mb-1 "
+            leading-relaxed
+          >
             Status
           </p>
           {progress.has_certificate ? (
@@ -201,7 +215,7 @@ function StudentProgressDetail({ progress }: { progress: StudentProgress }) {
       </div>
 
       <div className="space-y-4">
-        <h4 className="text-xs font-black uppercase tracking-widest text-slate-900 px-1 flex items-center gap-2">
+        <h4 className="text-xs font-black uppercase tracking-normal text-slate-900 px-1 flex items-center gap-2">
           <Trophy className="h-3.5 w-3.5 text-primary" /> Assessment History
         </h4>
         <ScrollArea className="max-h-[160px] rounded-2xl border border-slate-100 bg-white">
@@ -213,28 +227,33 @@ function StudentProgressDetail({ progress }: { progress: StudentProgress }) {
                   className="flex items-center justify-between p-4 rounded-xl bg-slate-50/50 border border-slate-100"
                 >
                   <div>
-                    <p className="text-sm font-bold text-slate-800">{q.quiz_title}</p>
-                    <p className="text-[10px] text-slate-400 font-medium">
+                    <p className="text-sm font-bold text-slate-800 " leading-relaxed>
+                      {q.quiz_title}
+                    </p>
+                    <p className="text-[10px] text-slate-400 font-medium " leading-relaxed>
                       {new Date(q.completed_at).toLocaleDateString()}
                     </p>
                   </div>
                   <div className="text-right">
                     <p
                       className={cn(
-                        "text-lg font-black",
+                        "leading-relaxed text-lg font-black",
                         q.passed ? "text-emerald-500" : "text-red-500",
                       )}
                     >
                       {q.score}%
                     </p>
-                    <p className="text-[8px] font-black uppercase tracking-widest text-slate-400">
+                    <p
+                      className="text-[8px] font-black uppercase tracking-normal text-slate-400 "
+                      leading-relaxed
+                    >
                       {q.passed ? "Passed" : "Failed"}
                     </p>
                   </div>
                 </div>
               ))
             ) : (
-              <p className="text-center py-8 text-xs text-slate-400 italic">
+              <p className="text-center py-8 text-xs text-slate-400 italic " leading-relaxed>
                 No assessments completed yet.
               </p>
             )}
@@ -246,10 +265,10 @@ function StudentProgressDetail({ progress }: { progress: StudentProgress }) {
         <div className="flex items-center gap-3">
           <Clock className="h-4 w-4 text-indigo-500" />
           <div>
-            <p className="text-[10px] font-black uppercase tracking-widest text-indigo-400 leading-none mb-1">
+            <p className="text-[10px] font-black uppercase tracking-normal text-indigo-400 leading-relaxed mb-1">
               Last Active
             </p>
-            <p className="text-sm font-bold text-indigo-900 leading-none">
+            <p className="text-sm font-bold text-indigo-900 " leading-relaxed>
               {progress.last_active
                 ? new Date(progress.last_active).toLocaleString()
                 : "New Student"}
@@ -339,7 +358,10 @@ function CourseStudentsDialog({
           {isLoading ? (
             <div className="h-full flex flex-col items-center justify-center gap-4 text-center">
               <Loader2 className="h-10 w-10 animate-spin text-primary opacity-20" />
-              <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">
+              <p
+                className="text-[10px] font-black uppercase tracking-normal text-slate-400 "
+                leading-relaxed
+              >
                 Syncing database state...
               </p>
             </div>
@@ -348,7 +370,9 @@ function CourseStudentsDialog({
               <div className="h-20 w-20 rounded-3xl bg-slate-50 flex items-center justify-center border border-slate-100 mb-2">
                 <Search className="h-10 w-10 opacity-10" />
               </div>
-              <p className="italic text-sm font-medium">No results matching your search.</p>
+              <p className="italic text-sm font-medium " leading-relaxed>
+                No results matching your search.
+              </p>
             </div>
           ) : (
             <ScrollArea className="h-full pr-4">
@@ -386,16 +410,20 @@ function CourseStudentsDialog({
                                 <img
                                   src={progress.student.avatar_url}
                                   className="w-full h-full object-cover"
+                                  onError={(e) => { e.currentTarget.style.display = 'none'; }}
                                 />
                               ) : (
                                 progress.student?.name?.[0] || progress.student?.email?.[0]
                               )}
                             </div>
                             <div className="min-w-0">
-                              <p className="font-bold text-slate-900 truncate leading-none mb-1.5">
+                              <p className="font-bold text-slate-900 truncate leading-relaxed mb-1.5">
                                 {progress.student?.name || "Anonymous Learner"}
                               </p>
-                              <p className="text-[10px] text-slate-500 font-medium truncate leading-none">
+                              <p
+                                className="text-[10px] text-slate-500 font-medium truncate "
+                                leading-relaxed
+                              >
                                 {progress.student?.email}
                               </p>
                             </div>
@@ -525,7 +553,7 @@ function PersonalizedLearningPathTab() {
           <h3 className="text-xl font-bold text-slate-900">
             กำลังวิเคราะห์พฤติกรรมการเรียนของคุณ...
           </h3>
-          <p className="text-slate-500 max-w-sm mx-auto text-sm">
+          <p className="text-slate-500 max-w-sm mx-auto text-sm " leading-relaxed>
             AI กำลังประเมินระดับคะแนน ความคืบหน้า และวิเคราะห์ Skill Gap
             เพื่อสร้างแนวทางการศึกษาเฉพาะคุณ
           </p>
@@ -542,7 +570,7 @@ function PersonalizedLearningPathTab() {
         </div>
         <div className="space-y-2">
           <h3 className="text-xl font-bold text-slate-900">ไม่พบบริบทการเรียนรู้</h3>
-          <p className="text-slate-500 max-w-md mx-auto text-sm">
+          <p className="text-slate-500 max-w-md mx-auto text-sm " leading-relaxed>
             {data?.message ||
               "คุณจำเป็นต้องลงเรียนคอร์สในระบบอย่างน้อย 1 คอร์สเพื่อให้ AI เริ่มทำการวิเคราะห์และให้คำแนะนำ"}
           </p>
@@ -572,10 +600,10 @@ function PersonalizedLearningPathTab() {
             <Badge className="bg-primary/20 text-primary border-none font-black text-[9px] uppercase tracking-widest px-3 py-1 rounded-full backdrop-blur-md">
               AI Personalized Tutor
             </Badge>
-            <h2 className="text-white text-3xl md:text-4xl font-black tracking-tight leading-tight">
+            <h2 className="text-white text-3xl md:text-4xl font-black tracking-normal leading-tight">
               เส้นทางการเรียนรู้เฉพาะบุคคลของคุณ
             </h2>
-            <p className="text-slate-300 font-medium text-sm leading-relaxed">
+            <p className="text-slate-300 font-medium text-sm " leading-relaxed>
               วิเคราะห์แบบเรียลไทม์ตามคะแนนสอบ คะแนนความคืบหน้า และพฤติกรรมการเรียน
               เพื่อสร้างคำแนะนำบทเรียนและทบทวนความรู้ที่ดีที่สุดสำหรับคุณ
             </p>
@@ -605,7 +633,10 @@ function PersonalizedLearningPathTab() {
                   <h3 className="text-lg font-black text-slate-900 leading-tight">
                     วิเคราะห์ความคืบหน้าและ Skill Gap
                   </h3>
-                  <p className="text-xs font-semibold text-slate-400 uppercase tracking-widest">
+                  <p
+                    className="text-xs font-semibold text-slate-400 uppercase tracking-normal "
+                    leading-relaxed
+                  >
                     AI Feedback Report
                   </p>
                 </div>
@@ -637,10 +668,13 @@ function PersonalizedLearningPathTab() {
                       </Badge>
                     </div>
                     <div>
-                      <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">
+                      <p
+                        className="text-[10px] font-black uppercase tracking-normal text-slate-400 mb-1 "
+                        leading-relaxed
+                      >
                         {lesson.courseTitle}
                       </p>
-                      <h4 className="text-base font-bold text-slate-900 tracking-tight leading-tight">
+                      <h4 className="text-base font-bold text-slate-900 tracking-normal leading-tight">
                         {lesson.lessonTitle}
                       </h4>
                     </div>
@@ -685,7 +719,7 @@ function PersonalizedLearningPathTab() {
           <Card className="border-border bg-white rounded-[2.5rem] p-8 shadow-xl shadow-slate-100 border-2">
             <div className="space-y-6">
               <div className="space-y-2">
-                <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-normal">
                   ระดับความยากที่แนะนำ
                 </h4>
                 <div className="flex items-center gap-3">
@@ -702,10 +736,10 @@ function PersonalizedLearningPathTab() {
               </div>
 
               <div className="pt-6 border-t border-slate-100 space-y-3 bg-indigo-50/30 p-5 rounded-2xl border border-indigo-100/50">
-                <h4 className="text-[10px] font-black text-indigo-600 uppercase tracking-widest flex items-center gap-1.5">
+                <h4 className="text-[10px] font-black text-indigo-600 uppercase tracking-normal flex items-center gap-1.5">
                   <Sparkles className="h-3.5 w-3.5" /> Motivational Tip
                 </h4>
-                <p className="text-xs font-semibold text-slate-700 italic leading-relaxed">
+                <p className="text-xs font-semibold text-slate-700 italic " leading-relaxed>
                   "{path.motivationTip}"
                 </p>
               </div>
@@ -723,7 +757,10 @@ function PersonalizedLearningPathTab() {
                   <h3 className="text-base font-black text-slate-900 leading-tight">
                     จุดทบทวนแนะนำ
                   </h3>
-                  <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">
+                  <p
+                    className="text-[9px] font-black text-slate-400 uppercase tracking-normal "
+                    leading-relaxed
+                  >
                     Areas for Improvement
                   </p>
                 </div>
@@ -740,17 +777,17 @@ function PersonalizedLearningPathTab() {
                         {idx + 1}
                       </div>
                       <div className="space-y-1">
-                        <p className="text-xs font-bold text-slate-800 leading-snug">
+                        <p className="text-xs font-bold text-slate-800 " leading-relaxed>
                           {area.topic}
                         </p>
-                        <p className="text-[11px] font-medium text-slate-500 leading-relaxed">
+                        <p className="text-[11px] font-medium text-slate-500 " leading-relaxed>
                           {area.reason}
                         </p>
                       </div>
                     </div>
                   ))
                 ) : (
-                  <p className="text-xs text-slate-400 italic">
+                  <p className="text-xs text-slate-400 italic " leading-relaxed>
                     ไม่มีจุดทบทวนแนะนำในขณะนี้ คุณทำคะแนนและเรียนได้ดีเยี่ยม!
                   </p>
                 )}
@@ -779,10 +816,10 @@ function PersonalizedLearningPathTab() {
                   <span className="text-[10px] font-black uppercase tracking-widest text-indigo-600 bg-indigo-50 px-2.5 py-1 rounded-full">
                     Step {step.step || idx + 1}
                   </span>
-                  <h4 className="text-base font-bold text-slate-900 tracking-tight pt-2 leading-tight">
+                  <h4 className="text-base font-bold text-slate-900 tracking-normal pt-2 leading-tight">
                     {step.title}
                   </h4>
-                  <p className="text-xs font-medium text-slate-500 leading-relaxed">
+                  <p className="text-xs font-medium text-slate-500 " leading-relaxed>
                     {step.description}
                   </p>
                 </div>
@@ -808,7 +845,7 @@ function CertificatesGallery({ certificates }: { certificates: any[] }) {
         </div>
         <div className="space-y-2">
           <h3 className="text-xl font-bold text-slate-900">No Certificates Yet</h3>
-          <p className="text-slate-500 max-w-xs mx-auto text-sm">
+          <p className="text-slate-500 max-w-xs mx-auto text-sm " leading-relaxed>
             Complete your courses to earn professional certificates and showcase your skills.
           </p>
         </div>
@@ -844,7 +881,10 @@ function CertificatesGallery({ certificates }: { certificates: any[] }) {
                   </Badge>
                 </div>
                 <div>
-                  <p className="text-[10px] font-black uppercase tracking-widest text-amber-600 mb-2">
+                  <p
+                    className="text-[10px] font-black uppercase tracking-normal text-amber-600 mb-2 "
+                    leading-relaxed
+                  >
                     {cert.course?.title || "Mastery Certification"}
                   </p>
                   <h4 className="text-xl font-black leading-tight text-slate-900">
@@ -857,10 +897,10 @@ function CertificatesGallery({ certificates }: { certificates: any[] }) {
                       <Calendar className="h-4 w-4" />
                     </div>
                     <div>
-                      <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">
+                      <p className="text-[9px] font-black text-slate-400 uppercase tracking-normal leading-relaxed mb-1">
                         Issued On
                       </p>
-                      <p className="text-xs font-bold text-slate-700">
+                      <p className="text-xs font-bold text-slate-700 " leading-relaxed>
                         {new Date(cert.issuedAt).toLocaleDateString("en-US", {
                           month: "long",
                           day: "numeric",
@@ -984,7 +1024,10 @@ function SupportChatView({
       <div className="flex-1 flex items-center justify-center bg-slate-50/30">
         <div className="flex flex-col items-center gap-3">
           <Loader2 className="h-10 w-10 animate-spin text-primary/30" />
-          <p className="text-[10px] font-black uppercase tracking-widest text-slate-300">
+          <p
+            className="text-[10px] font-black uppercase tracking-normal text-slate-300 "
+            leading-relaxed
+          >
             Syncing Messages...
           </p>
         </div>
@@ -996,7 +1039,7 @@ function SupportChatView({
       {/* Chat Header */}
       <div className="px-6 py-4 border-b border-slate-100 bg-white/80 backdrop-blur-md sticky top-0 z-20 flex items-center justify-between shrink-0">
         <div className="flex flex-col">
-          <h3 className="text-sm font-black text-slate-900 line-clamp-1 uppercase tracking-tight italic">
+          <h3 className="text-sm font-black text-slate-900 line-clamp-1 uppercase tracking-normal italic">
             {subject || "Support Thread"}
           </h3>
           <div className="flex items-center gap-2 mt-0.5">
@@ -1123,7 +1166,10 @@ function SupportChatView({
           </Button>
         </form>
         {status === "closed" && (
-          <p className="text-[9px] font-bold text-center text-slate-400 mt-3 uppercase tracking-widest">
+          <p
+            className="text-[9px] font-bold text-center text-slate-400 mt-3 uppercase tracking-normal "
+            leading-relaxed
+          >
             Replies are disabled for closed tickets.
           </p>
         )}
@@ -1170,7 +1216,7 @@ function UserThreadsDialog({
         <div className="grid grid-cols-1 md:grid-cols-12 h-full">
           <div className="md:col-span-4 border-r border-border flex flex-col">
             <div className="p-6 border-b border-border bg-secondary/10 shrink-0">
-              <h3 className="font-black text-xs uppercase tracking-widest text-muted-foreground">
+              <h3 className="font-black text-xs uppercase tracking-normal text-muted-foreground">
                 Support History
               </h3>
             </div>
@@ -1224,7 +1270,10 @@ function UserThreadsDialog({
                       {thread.subject}
                     </h4>
                     {thread.lastMessage && (
-                      <p className="text-[10px] text-slate-400 line-clamp-1 italic">
+                      <p
+                        className="text-[10px] text-slate-400 line-clamp-1 italic "
+                        leading-relaxed
+                      >
                         "{thread.lastMessage.message}"
                       </p>
                     )}
@@ -1249,7 +1298,7 @@ function UserThreadsDialog({
             ) : (
               <div className="flex-1 flex flex-col items-center justify-center text-muted-foreground space-y-4">
                 <MessageSquare className="h-12 w-12 opacity-10" />
-                <p className="font-bold text-sm text-slate-400">
+                <p className="font-bold text-sm text-slate-400 " leading-relaxed>
                   Select a ticket to start chatting.
                 </p>
               </div>
@@ -1384,8 +1433,10 @@ function UserSupportDialog({ showRefund = true }: { showRefund?: boolean }) {
                         )}
                       >
                         <div className="min-w-0 pr-4">
-                          <p className="text-xs font-bold truncate">{payment.courses?.title}</p>
-                          <p className="text-[9px] text-muted-foreground mt-1">
+                          <p className="text-xs font-bold truncate " leading-relaxed>
+                            {payment.courses?.title}
+                          </p>
+                          <p className="text-[9px] text-muted-foreground mt-1 " leading-relaxed>
                             Transaction: {payment.transaction_id?.slice(0, 8)}
                           </p>
                         </div>
@@ -1396,7 +1447,10 @@ function UserSupportDialog({ showRefund = true }: { showRefund?: boolean }) {
                     ))}
                   {payments.filter((p: any) => p.status === "completed").length === 0 && (
                     <div className="text-center py-10 border border-dashed rounded-2xl bg-slate-50/50">
-                      <p className="text-xs text-muted-foreground italic font-medium">
+                      <p
+                        className="text-xs text-muted-foreground italic font-medium "
+                        leading-relaxed
+                      >
                         No eligible courses found for refund.
                       </p>
                     </div>
@@ -1454,7 +1508,10 @@ function UserSupportDialog({ showRefund = true }: { showRefund?: boolean }) {
               {createTicketMutation.isPending ? "Submitting..." : "Submit Support Ticket"}
             </Button>
           </DialogFooter>
-          <p className="text-[9px] text-center text-muted-foreground mt-4 font-medium uppercase tracking-widest">
+          <p
+            className="text-[9px] text-center text-muted-foreground mt-4 font-medium uppercase tracking-normal "
+            leading-relaxed
+          >
             {!isRefundRequest && !subject
               ? "Please enter a subject"
               : isRefundRequest && !selectedCourseId
@@ -1498,6 +1555,19 @@ function Dashboard() {
     queryKey: ["user-organizations", user?.id],
     queryFn: () => fetchUserOrganizations(user!.id),
     enabled: !!user?.id,
+  });
+
+  const { data: branding } = useQuery({
+    queryKey: ["platform-branding"],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("system_settings")
+        .select("*")
+        .eq("key", "site_branding")
+        .maybeSingle();
+      return (data?.value as any) || { name: "LearnLab", logo_url: "" };
+    },
+    staleTime: 1000 * 60 * 5,
   });
 
   const myOrgs = useMemo(() => {
@@ -1775,13 +1845,18 @@ function Dashboard() {
                     initial={{ rotate: -10, scale: 0.8 }}
                     animate={{ rotate: 0, scale: 1 }}
                     transition={{ duration: 0.5 }}
-                    className="h-14 w-14 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-xl flex items-center justify-center shadow-2xl"
+                    className="h-14 w-14 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-xl flex items-center justify-center shadow-2xl overflow-hidden p-1"
                   >
-                    <Sparkles className="h-7 w-7 text-indigo-400 fill-indigo-400/20" />
+                    <img 
+                      src={branding?.logo_url || "/avatars/LEARNLAB.png"} 
+                      alt="Logo" 
+                      className="h-full w-full object-contain rounded-xl" 
+                      onError={(e) => { e.currentTarget.src = "/avatars/LEARNLAB.png"; e.currentTarget.onerror = null; }}
+                    />
                   </motion.div>
                   <div className="space-y-2">
-                    <h2 className="text-4xl font-black italic tracking-tighter uppercase leading-[0.9] text-transparent bg-clip-text bg-gradient-to-br from-white via-white to-white/40">
-                      Welcome to <br /> LearnLab
+                    <h2 className="text-4xl font-black italic tracking-normal uppercase leading-[0.9] text-transparent bg-clip-text bg-gradient-to-br from-white via-white to-white/40">
+                      Welcome to <br /> {branding?.name || "LearnLab"}
                     </h2>
                     <div className="h-1 w-12 bg-indigo-500 rounded-full" />
                   </div>
@@ -1804,10 +1879,10 @@ function Dashboard() {
               {/* Right Side: Selection */}
               <div className="flex-1 p-12 lg:p-16 bg-white space-y-12">
                 <div className="space-y-3">
-                  <h3 className="text-3xl font-black text-zinc-900 tracking-tight leading-none">
+                  <h3 className="text-3xl font-black text-zinc-900 tracking-normal leading-none">
                     How will you use the lab?
                   </h3>
-                  <p className="text-zinc-500 font-medium">
+                  <p className="text-zinc-500 font-medium " leading-relaxed>
                     Choose your primary path to customize your experience.
                   </p>
                 </div>
@@ -1823,7 +1898,7 @@ function Dashboard() {
                     </div>
                     <div className="space-y-2">
                       <h4 className="text-xl font-black text-zinc-900">Student</h4>
-                      <p className="text-xs text-zinc-500 font-medium leading-relaxed">
+                      <p className="text-xs text-zinc-500 font-medium " leading-relaxed>
                         Learn new skills, complete assignments, and earn verified certificates.
                       </p>
                     </div>
@@ -1842,7 +1917,7 @@ function Dashboard() {
                     </div>
                     <div className="space-y-2">
                       <h4 className="text-xl font-black text-zinc-900">Creator</h4>
-                      <p className="text-xs text-zinc-500 font-medium leading-relaxed">
+                      <p className="text-xs text-zinc-500 font-medium " leading-relaxed>
                         Build courses, teach global students, and manage your educational business.
                       </p>
                     </div>
@@ -1852,7 +1927,10 @@ function Dashboard() {
                   </button>
                 </div>
 
-                <p className="text-center text-[10px] font-black text-zinc-400 uppercase tracking-widest">
+                <p
+                  className="text-center text-[10px] font-black text-zinc-400 uppercase tracking-normal "
+                  leading-relaxed
+                >
                   Secure Choice • Path can be changed later in settings
                 </p>
               </div>
@@ -1865,18 +1943,26 @@ function Dashboard() {
       <aside className="hidden w-64 shrink-0 flex-col border-r border-border bg-sidebar md:flex z-30">
         <div className="flex items-center gap-3 px-6 h-14 border-b border-border">
           <Link to="/" className="flex items-center gap-2.5 group">
-            <div className="h-7 w-7 rounded-lg bg-primary flex items-center justify-center text-primary-foreground shadow-lg shadow-primary/20 group-hover:scale-105 transition-transform">
-              <Sparkles className="h-4 w-4 fill-current" />
+            <div className="h-8 w-8 rounded-lg flex items-center justify-center shadow-lg shadow-primary/20 group-hover:scale-105 transition-transform overflow-hidden bg-white border border-slate-100 p-0.5">
+              <img 
+                src={branding?.logo_url || "/avatars/LEARNLAB.png"} 
+                alt="Logo" 
+                className="h-full w-full object-contain rounded-md" 
+                onError={(e) => { e.currentTarget.src = "/avatars/LEARNLAB.png"; e.currentTarget.onerror = null; }}
+              />
             </div>
             <span className="text-[14px] font-bold tracking-tight text-foreground uppercase italic tracking-widest leading-none">
-              LearnLab
+              {branding?.name || "LearnLab"}
             </span>
           </Link>
         </div>
 
         <div className="flex-1 overflow-y-auto p-4 space-y-8">
           <div className="space-y-1">
-            <p className="px-4 text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-3">
+            <p
+              className="px-4 text-[10px] font-black text-muted-foreground uppercase tracking-normal mb-3 "
+              leading-relaxed
+            >
               Menu
             </p>
             <Link
@@ -1918,7 +2004,6 @@ function Dashboard() {
               </Link>
             )}
           </div>
-
         </div>
       </aside>
 
@@ -1937,9 +2022,12 @@ function Dashboard() {
                 <ArrowLeft className="h-4 w-4" />
               </Link>
             </Button>
-            
+
             <div className="flex items-center gap-2">
-              <Link to="/" className="text-[11px] font-black uppercase tracking-widest text-muted-foreground hover:text-primary transition-colors">
+              <Link
+                to="/"
+                className="text-[11px] font-black uppercase tracking-widest text-muted-foreground hover:text-primary transition-colors"
+              >
                 {lang === "th" ? "หน้าหลัก" : "Home"}
               </Link>
               <ChevronRight className="h-3 w-3 text-muted-foreground/50" />
@@ -1947,7 +2035,7 @@ function Dashboard() {
                 {lang === "th" ? "แดชบอร์ด" : "Dashboard"}
               </span>
               <ChevronRight className="h-3 w-3 text-muted-foreground/50" />
-              <h2 className="text-[11px] font-black tracking-tight text-primary uppercase italic tracking-widest leading-none">
+              <h2 className="text-[11px] font-black tracking-normal text-primary uppercase italic tracking-normal leading-none">
                 {activeTab === "overview"
                   ? t("overview")
                   : activeTab === "certificates"
@@ -1979,6 +2067,7 @@ function Dashboard() {
                   <img
                     src={profile.avatar_url}
                     className="w-full h-full object-cover rounded-full"
+                    onError={(e) => { e.currentTarget.style.display = 'none'; }}
                   />
                 ) : (
                   profile?.name?.[0] || "U"
@@ -1996,7 +2085,11 @@ function Dashboard() {
                   )}
                 </div>
                 <span className="text-[9px] font-bold uppercase tracking-widest text-slate-400 leading-none">
-                  {profile?.role === "admin" ? "Admin" : profile?.role === "creator" ? "Creator" : "Student"}
+                  {profile?.role === "admin"
+                    ? "Admin"
+                    : profile?.role === "creator"
+                      ? "Creator"
+                      : "Student"}
                 </span>
               </div>
             </div>
@@ -2014,14 +2107,14 @@ function Dashboard() {
                 {/* GREETING */}
                 <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
                   <div className="space-y-1.5">
-                    <h1 className="text-3xl font-black tracking-tight text-foreground uppercase italic leading-none text-slate-900 font-sans">
+                    <h1 className="text-3xl font-black tracking-normal text-foreground uppercase italic leading-none text-slate-900 font-sans">
                       {isAdmin
                         ? t("adminConsole")
                         : isCreator
                           ? t("creatorStudio")
                           : `${t("welcomeBack")}, ${profile?.name?.split(" ")[0] || "Learner"}`}
                     </h1>
-                    <p className="text-muted-foreground text-sm font-medium">
+                    <p className="text-muted-foreground text-sm font-medium " leading-relaxed>
                       {isAdmin
                         ? "Manage and monitor platform health."
                         : isCreator
@@ -2047,7 +2140,8 @@ function Dashboard() {
                           className="h-11 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground font-black uppercase tracking-widest text-[11px] px-6 shadow-lg shadow-primary/20 gap-2 transition-all active:scale-95"
                         >
                           <Link to="/create" search={{ mode: "login" } as any}>
-                            <Plus className="h-4 w-4" /> {lang === "th" ? "สร้างด้วยตัวเอง" : "Manual Create"}
+                            <Plus className="h-4 w-4" />{" "}
+                            {lang === "th" ? "สร้างด้วยตัวเอง" : "Manual Create"}
                           </Link>
                         </Button>
                       </>
@@ -2180,7 +2274,7 @@ function Dashboard() {
                     {isAdmin ? (
                       <>
                         <section className="space-y-6">
-                          <h3 className="text-xs font-black uppercase tracking-[0.2em] text-muted-foreground/70 px-2">
+                          <h3 className="text-xs font-black uppercase tracking-normal text-muted-foreground/70 px-2">
                             System Management
                           </h3>
                           <Card className="border-border/40 bg-card shadow-sm rounded-2xl p-8 text-slate-900">
@@ -2190,7 +2284,10 @@ function Dashboard() {
                               </div>
                               <div>
                                 <h4 className="text-xl font-bold">Admin Control Center</h4>
-                                <p className="text-sm text-muted-foreground max-w-sm mt-2">
+                                <p
+                                  className="text-sm text-muted-foreground max-w-sm mt-2 "
+                                  leading-relaxed
+                                >
                                   You have full access to the platform. Manage users, monitor
                                   courses, and oversee financial operations from the central
                                   administration.
@@ -2208,10 +2305,12 @@ function Dashboard() {
                         <section className="space-y-8">
                           <div className="flex items-center justify-between px-2">
                             <div className="space-y-1">
-                              <h3 className="text-xs font-black uppercase tracking-[0.2em] text-muted-foreground/70">
+                              <h3 className="text-xs font-black uppercase tracking-normal text-muted-foreground/70">
                                 {t("myLearningJourney")}
                               </h3>
-                              <p className="text-2xl font-black text-slate-900">{t("myCourses")}</p>
+                              <p className="text-2xl font-black text-slate-900 " leading-relaxed>
+                                {t("myCourses")}
+                              </p>
                             </div>
                             <Badge
                               variant="outline"
@@ -2237,7 +2336,7 @@ function Dashboard() {
                                         {t("recentlyActive")}
                                       </span>
                                     </div>
-                                    <h2 className="text-lg font-black tracking-tight leading-tight line-clamp-1">
+                                    <h2 className="text-lg font-black tracking-normal leading-tight line-clamp-1">
                                       {enrollments[0].course.title}
                                     </h2>
                                     <div className="space-y-1.5">
@@ -2270,7 +2369,8 @@ function Dashboard() {
                                         lessonId: enrollments[0].last_lesson_id || undefined,
                                       }}
                                     >
-                                      {t("continueLearning")} <ChevronRight className="h-3 w-3 ml-1" />
+                                      {t("continueLearning")}{" "}
+                                      <ChevronRight className="h-3 w-3 ml-1" />
                                     </Link>
                                   </Button>
                                 </div>
@@ -2335,10 +2435,16 @@ function Dashboard() {
                                             )}
                                           </div>
                                           <div>
-                                            <p className="font-bold text-foreground group-hover:text-primary transition-colors line-clamp-1">
+                                            <p
+                                              className="font-bold text-foreground group-hover:text-primary transition-colors line-clamp-1 "
+                                              leading-relaxed
+                                            >
                                               {en.course.title}
                                             </p>
-                                            <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-tighter">
+                                            <p
+                                              className="text-[10px] text-muted-foreground font-medium uppercase tracking-normal "
+                                              leading-relaxed
+                                            >
                                               Enrolled{" "}
                                               {new Date(en.enrolled_at || "").toLocaleDateString()}
                                             </p>
@@ -2360,16 +2466,6 @@ function Dashboard() {
                                       </TableCell>
                                       <TableCell>
                                         <div className="flex items-center gap-2">
-                                          <div className="h-6 w-6 rounded-full bg-secondary border border-border overflow-hidden flex items-center justify-center text-[10px] font-bold">
-                                            {en.course.instructor?.avatar_url ? (
-                                              <img
-                                                src={en.course.instructor.avatar_url}
-                                                className="w-full h-full object-cover"
-                                              />
-                                            ) : (
-                                              en.course.instructor?.name?.[0] || "I"
-                                            )}
-                                          </div>
                                           <span className="text-xs font-semibold text-muted-foreground">
                                             {en.course.instructor?.name || "Instructor"}
                                           </span>
@@ -2410,7 +2506,7 @@ function Dashboard() {
                     ) : (
                       <>
                         <section className="space-y-6">
-                          <h3 className="text-xs font-black uppercase tracking-[0.2em] text-muted-foreground/70 px-2">
+                          <h3 className="text-xs font-black uppercase tracking-normal text-muted-foreground/70 px-2">
                             Inventory Control
                           </h3>
                           <Card className="border-border/40 bg-card shadow-sm rounded-2xl overflow-hidden text-slate-900">
@@ -2541,7 +2637,7 @@ function Dashboard() {
                         </section>
 
                         <section className="space-y-6 text-slate-900">
-                          <h3 className="text-xs font-black uppercase tracking-[0.2em] text-muted-foreground/70 px-2">
+                          <h3 className="text-xs font-black uppercase tracking-normal text-muted-foreground/70 px-2">
                             Sales Insights
                           </h3>
                           <CreatorSalesHistory creatorId={user.id} />
@@ -2556,7 +2652,7 @@ function Dashboard() {
 
                     {false && !isCreator && !isAdmin && (
                       <section className="space-y-6">
-                        <h3 className="text-xs font-black uppercase tracking-[0.2em] text-muted-foreground/70 px-2">
+                        <h3 className="text-xs font-black uppercase tracking-normal text-muted-foreground/70 px-2">
                           Corporate
                         </h3>
                         {myOrgs.length > 0 ? (
@@ -2569,11 +2665,17 @@ function Dashboard() {
                                 <div className="space-y-4">
                                   <div className="flex items-center gap-3">
                                     <Building2 className="h-5 w-5 text-indigo-600" />
-                                    <p className="text-sm font-bold text-indigo-900">
+                                    <p
+                                      className="text-sm font-bold text-indigo-900 "
+                                      leading-relaxed
+                                    >
                                       {uo.organizations?.name}
                                     </p>
                                   </div>
-                                  <p className="text-[10px] text-indigo-700 font-bold uppercase tracking-widest">
+                                  <p
+                                    className="text-[10px] text-indigo-700 font-bold uppercase tracking-normal "
+                                    leading-relaxed
+                                  >
                                     Role: {uo.role}
                                   </p>
                                   <div className="pt-2 border-t border-indigo-100">
@@ -2590,7 +2692,10 @@ function Dashboard() {
                           <Card className="border-border bg-secondary/10 shadow-none rounded-2xl p-6 text-slate-900">
                             <div className="space-y-3 text-center">
                               <Building2 className="h-8 w-8 text-muted-foreground/20 mx-auto" />
-                              <p className="text-[10px] text-muted-foreground font-medium">
+                              <p
+                                className="text-[10px] text-muted-foreground font-medium "
+                                leading-relaxed
+                              >
                                 Not part of an organization.
                               </p>
                             </div>
@@ -2601,16 +2706,21 @@ function Dashboard() {
 
                     {false && !isCreator && !isAdmin && (
                       <section className="space-y-6">
-                        <h3 className="text-xs font-black uppercase tracking-[0.2em] text-muted-foreground/70 px-2">
+                        <h3 className="text-xs font-black uppercase tracking-normal text-muted-foreground/70 px-2">
                           Discover
                         </h3>
                         <Card className="border-primary/20 bg-primary/[0.02] shadow-none rounded-2xl p-6 border-l-2 border-l-primary text-slate-900">
                           <div className="space-y-4">
                             <div className="flex items-center gap-3">
                               <BookOpen className="h-5 w-5 text-primary" />
-                              <p className="text-sm font-bold text-foreground">Explore Catalog</p>
+                              <p className="text-sm font-bold text-foreground " leading-relaxed>
+                                Explore Catalog
+                              </p>
                             </div>
-                            <p className="text-xs text-muted-foreground font-medium leading-relaxed">
+                            <p
+                              className="text-xs text-muted-foreground font-medium "
+                              leading-relaxed
+                            >
                               Find your next challenge in our curated library of expert-led courses.
                             </p>
                             <Button asChild size="sm" className="w-full rounded-lg h-9 font-bold">
@@ -2646,7 +2756,11 @@ function Dashboard() {
               <div className="relative group">
                 <div className="h-24 w-24 rounded-full bg-secondary border-2 border-border overflow-hidden flex items-center justify-center group-hover:border-primary/50 transition-colors shadow-inner">
                   {profile?.avatar_url ? (
-                    <img src={profile.avatar_url} className="h-full w-full object-cover" />
+                    <img 
+                      src={profile.avatar_url} 
+                      className="h-full w-full object-cover" 
+                      onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                    />
                   ) : (
                     <UserCircle className="h-12 w-12 text-muted-foreground/30" />
                   )}
