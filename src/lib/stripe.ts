@@ -8,8 +8,8 @@ const apiKey = (process.env.STRIPE_SECRET_KEY || STRIPE_SECRET_KEY)?.trim();
 // Only initialize Stripe if an API key is provided to prevent SSR crashes
 const stripe = apiKey
   ? new Stripe(apiKey, {
-      apiVersion: "2026-04-22.dahlia" as any,
-    })
+    apiVersion: "2026-04-22.dahlia" as any,
+  })
   : null;
 
 export const issueStripeRefund = createServerFn({ method: "POST" }).handler(async (ctx: any) => {

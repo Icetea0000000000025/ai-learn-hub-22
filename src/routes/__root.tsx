@@ -10,6 +10,7 @@ import {
 import { Toaster } from "@/components/ui/sonner";
 import { AuthProvider } from "@/lib/auth";
 import { I18nProvider } from "@/lib/i18n";
+import { WebAvatar } from "@/components/web-avatar";
 
 import appCss from "../styles.css?url";
 
@@ -120,6 +121,19 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     ],
     links: [
       {
+        rel: "preconnect",
+        href: "https://fonts.googleapis.com",
+      },
+      {
+        rel: "preconnect",
+        href: "https://fonts.gstatic.com",
+        crossOrigin: "anonymous",
+      },
+      {
+        rel: "stylesheet",
+        href: "https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap",
+      },
+      {
         rel: "stylesheet",
         href: appCss,
       },
@@ -153,8 +167,9 @@ function RootComponent() {
       <I18nProvider>
         <AuthProvider>
           <Outlet />
-          <Toaster />
         </AuthProvider>
+        <Toaster />
+        <WebAvatar />
       </I18nProvider>
     </QueryClientProvider>
   );
