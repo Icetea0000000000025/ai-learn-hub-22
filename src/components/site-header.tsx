@@ -277,7 +277,7 @@ export function SiteHeader() {
           >
             {t("welcome")}
           </Link>
-          
+
           {user && (
             <Link
               to="/dashboard"
@@ -323,10 +323,10 @@ export function SiteHeader() {
             >
               <Globe className="h-4 w-4" />
             </Button>
-            
+
             {langOpen && (
-              <div 
-                aria-label="Language Options" 
+              <div
+                aria-label="Language Options"
                 className="absolute right-0 top-full mt-2 w-40 rounded-xl p-2 shadow-xl bg-white border border-border z-50 flex flex-col gap-1"
               >
                 <button

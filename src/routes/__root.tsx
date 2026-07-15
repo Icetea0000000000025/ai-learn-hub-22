@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
   Outlet,
@@ -11,6 +12,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { AuthProvider } from "@/lib/auth";
 import { I18nProvider } from "@/lib/i18n";
 import { WebAvatar } from "@/components/web-avatar";
+import { pushDebugLog } from "@/lib/debug";
 
 import appCss from "../styles.css?url";
 
@@ -161,6 +163,40 @@ function RootShell({ children }: { children: React.ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+
+  useEffect(() => {
+    pushDebugLog(`__root.tsx mounted`);
+
+    const onBeforeUnload = (e: BeforeUnloadEvent) => {
+      pushDebugLog(`window.beforeunload triggered`);
+    };
+    const onPageHide = (e: PageTransitionEvent) => {
+      pushDebugLog(`window.pagehide triggered`);
+    };
+    const onPageShow = (e: PageTransitionEvent) => {
+      pushDebugLog(`window.pageshow triggered`);
+    };
+
+    window.addEventListener("beforeunload", onBeforeUnload);
+    window.addEventListener("pagehide", onPageHide);
+    window.addEventListener("pageshow", onPageShow);
+
+    return () => {
+      pushDebugLog(`__root.tsx unmounted`);
+      window.removeEventListener("beforeunload", onBeforeUnload);
+      window.removeEventListener("pagehide", onPageHide);
+      window.removeEventListener("pageshow", onPageShow);
+    };
+  }, []);
+
+  const router = useRouter();
+  useEffect(() => {
+    const unsubscribe = router.history.subscribe((newLocation) => {
+      pushDebugLog(`TanStack Router location changed to: ${newLocation.location.href}`);
+    });
+    return () => unsubscribe();
+  }, [router]);
+
 
   return (
     <QueryClientProvider client={queryClient}>

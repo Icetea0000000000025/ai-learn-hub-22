@@ -1,6 +1,8 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import { Bot, RefreshCw, X } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
+import { Card } from "@/components/ui/card";
+import { pushDebugLog } from "@/lib/debug";
 
 const AVATARS = [
   { name: "Botnoi", image: "/avatars/Botnoi.png" },
@@ -26,16 +28,23 @@ export function WebAvatar() {
   const [mounted, setMounted] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedAvatar, setSelectedAvatar] = useState<string | null>(null);
-
+  const [isAvatarEnabled, setIsAvatarEnabled] = useState(false);
 
   // Restore avatar from localStorage after mount
   useEffect(() => {
+    pushDebugLog(`<WebAvatar /> mounted, initial isModalOpen: ${isModalOpen}, selectedAvatar: ${selectedAvatar}`);
     if (mounted) {
       const savedAvatar = localStorage.getItem("webavatar_selected");
-      if (savedAvatar) {
+      const isActive = sessionStorage.getItem("webavatar_active_session");
+      // อวตารต้องไม่เปิดเองในครั้งแรก ต้องรอผู้ใช้กดเปิด (isActive === "true")
+      if (savedAvatar && isActive === "true") {
         setSelectedAvatar(savedAvatar);
+        setIsAvatarEnabled(true);
       }
     }
+    return () => {
+      pushDebugLog(`<WebAvatar /> unmounted!`);
+    };
   }, [mounted]);
 
   // Dragging & Resizing state
@@ -45,11 +54,52 @@ export function WebAvatar() {
   const dragStart = useRef({ x: 0, y: 0 });
   const isResizing = useRef(false);
   const resizeStart = useRef({ w: 0, h: 0, x: 0, y: 0 });
-  const rafId = useRef<number | null>(null);
 
   // Ref for the React Component Lifecycle
   const containerRef = useRef<HTMLDivElement>(null);
   const boxRef = useRef<HTMLDivElement>(null);
+
+  // --- TEMPORARY LOGGING INTERCEPTORS ---
+  useEffect(() => {
+    // Intercept fetch for token
+    const originalFetch = window.fetch;
+    window.fetch = async function (...args) {
+      const url = typeof args[0] === 'string' ? args[0] : (args[0] && (args[0] as Request).url ? (args[0] as Request).url : '');
+      if (url.includes('generateavatartoken') || url.includes('token')) {
+        const timestamp = new Date().toISOString();
+        const widgetConfig = (window as any).ChatWidgetConfig;
+        const widgetId = widgetConfig ? widgetConfig.widgetId : 'unknown';
+        pushDebugLog(`[DEBUG-TOKEN] Token request started at ${timestamp}`, { widgetId, url });
+        try {
+          const res = await originalFetch.apply(this, args);
+          const clonedRes = res.clone();
+          const text = await clonedRes.text();
+          pushDebugLog(`[DEBUG-TOKEN] Token response at ${new Date().toISOString()}`, { status: res.status, body: text });
+          return res;
+        } catch (e) {
+          pushDebugLog(`[DEBUG-TOKEN] Token request error`, e);
+          throw e;
+        }
+      }
+      return originalFetch.apply(this, args);
+    };
+
+    // Intercept clicks on call button
+    const handleGlobalClick = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      // Class name based on chat-widget.js minified strings or common keywords
+      if (target.closest('.bcw-rt-call-btn-wrap') || target.closest('.bcw-rt-call-btn') || target.closest('[id*="call"]')) {
+        pushDebugLog(`[DEBUG-CLICK] Call button clicked at ${new Date().toISOString()}`);
+      }
+    };
+    document.addEventListener('click', handleGlobalClick, true);
+
+    return () => {
+      window.fetch = originalFetch;
+      document.removeEventListener('click', handleGlobalClick, true);
+    };
+  }, []);
+  // --------------------------------------
 
   // CRITICAL: Only render on client side. This prevents SSR hydration issues.
   useEffect(() => {
@@ -60,13 +110,14 @@ export function WebAvatar() {
       mode: "realtime-widget",
       widgetId: "learn-lab",
       avatarUrl: "Botnoi",
-      greetingInstruction: "กรุณาทักทายผู้ใช้เป็นภาษาไทย ด้วยน้ำเสียงอบอุ่น เป็นมิตร และพูดสั้นกระชับ",
+      greetingInstruction: "คุณคือผู้ช่วยของแพลตฟอร์มการเรียนรู้ \nหน้าที่คือแนะนำการใช้งาน \nให้ตอบสั้นๆกระชับและสุภาพ",
       enableBubble: "false",
       showBubble: false,
       showText: false,
       cameraOffset: "0,0,0"
     };
   }, []);
+
   // Set initial position + global event listeners (client-only)
   useEffect(() => {
     if (!mounted) return;
@@ -79,105 +130,87 @@ export function WebAvatar() {
 
     // Listen for navigate event (use SPA routing to prevent WebAudio disconnect)
     const handleNavigate = (e: Event) => {
-      const customEvent = e as CustomEvent<{ target: string }>;
+      e.preventDefault();
+      e.stopPropagation();
+      if (e.stopImmediatePropagation) {
+        e.stopImmediatePropagation();
+      }
+
+      const customEvent = e as CustomEvent<any>;
+      pushDebugLog(`webavatar-navigate event received`, customEvent.detail);
+
       if (customEvent.detail && customEvent.detail.target) {
         const target = customEvent.detail.target;
         try {
           const url = new URL(target, window.location.origin);
-          if (url.origin === window.location.origin) {
-            navigate({ to: url.pathname + url.search + url.hash as any });
-          } else {
-            window.location.href = target;
-          }
-        } catch {
-          window.location.href = target;
+          pushDebugLog(`Calling navigate() to: ${url.pathname}`);
+          navigate({ to: url.pathname as any });
+        } catch (err) {
+          pushDebugLog(`Calling navigate() to fallback: ${target}`);
+          navigate({ to: target as any });
         }
       }
     };
 
-    window.addEventListener("webavatar-navigate", handleNavigate);
+    window.addEventListener("webavatar-navigate", handleNavigate, { capture: true });
 
-    // Global pointer events for dragging and resizing (120FPS Optimized with requestAnimationFrame)
     const handlePointerMove = (e: PointerEvent) => {
-      if (!isDragging.current && !isResizing.current) return;
+      if (isDragging.current) {
+        setBoxPos({
+          x: e.clientX - dragStart.current.x,
+          y: e.clientY - dragStart.current.y
+        });
+      } else if (isResizing.current) {
+        const newWidth = Math.max(280, resizeStart.current.w - (e.clientX - resizeStart.current.x));
+        const newHeight = Math.max(320, resizeStart.current.h - (e.clientY - resizeStart.current.y));
 
-      if (rafId.current) {
-        cancelAnimationFrame(rafId.current);
+        setBoxSize({ width: newWidth, height: newHeight });
+        setBoxPos(prev => ({
+          x: prev.x + (boxSize.width - newWidth),
+          y: prev.y + (boxSize.height - newHeight)
+        }));
       }
-
-      rafId.current = requestAnimationFrame(() => {
-        if (isDragging.current && boxRef.current) {
-          const newX = e.clientX - dragStart.current.x;
-          const newY = e.clientY - dragStart.current.y;
-
-          // Direct DOM update (no React re-render)
-          boxRef.current.style.left = `${newX}px`;
-          boxRef.current.style.top = `${newY}px`;
-
-        } else if (isResizing.current && boxRef.current) {
-          const newW = Math.max(resizeStart.current.w + (e.clientX - resizeStart.current.x), 200);
-          const newH = Math.max(resizeStart.current.h + (e.clientY - resizeStart.current.y), 300);
-
-          // Direct DOM update (no React re-render)
-          boxRef.current.style.width = `${newW}px`;
-          boxRef.current.style.height = `${newH}px`;
-        }
-      });
     };
 
     const handlePointerUp = () => {
-      if (rafId.current) {
-        cancelAnimationFrame(rafId.current);
-        rafId.current = null;
-      }
-      if (isDragging.current && boxRef.current) {
-        isDragging.current = false;
-        document.body.style.userSelect = "auto";
-        // Sync final position to state
-        setBoxPos({
-          x: parseInt(boxRef.current.style.left || "0", 10),
-          y: parseInt(boxRef.current.style.top || "0", 10)
-        });
-      }
-
-      if (isResizing.current && boxRef.current) {
-        isResizing.current = false;
-        document.body.style.userSelect = "auto";
-        // Sync final size to state
-        setBoxSize({
-          width: parseInt(boxRef.current.style.width || "0", 10),
-          height: parseInt(boxRef.current.style.height || "0", 10)
-        });
-      }
+      isDragging.current = false;
+      isResizing.current = false;
+      document.body.style.userSelect = "";
     };
 
     window.addEventListener("pointermove", handlePointerMove);
     window.addEventListener("pointerup", handlePointerUp);
 
     return () => {
-      window.removeEventListener("webavatar-navigate", handleNavigate);
+      window.removeEventListener("webavatar-navigate", handleNavigate, { capture: true });
       window.removeEventListener("pointermove", handlePointerMove);
       window.removeEventListener("pointerup", handlePointerUp);
     };
-  }, [mounted, navigate]);
+  }, [mounted, navigate, boxSize.width, boxSize.height]);
 
   // Strict React Way: Handle Avatar Selection Lifecycle
   useEffect(() => {
-    if (!mounted || !selectedAvatar || !containerRef.current) return;
+    pushDebugLog(`Avatar selection state evaluated:`, { selectedAvatar, isAvatarEnabled, mounted });
+
+    if (!mounted || !isAvatarEnabled || !selectedAvatar || !containerRef.current) {
+      return;
+    }
 
     const initAvatar = () => {
-      // 1. ตรวจสอบและเคลียร์ของเก่า
+      pushDebugLog(`[DEBUG-INIT] initAvatar() called at ${new Date().toISOString()} for: ${selectedAvatar}`);
+      // 1. ตรวจสอบและเคลียร์ของเก่า (ทำลายและสร้างใหม่ตามวิธีเดิมที่ทำงานได้)
       if ((window as any).WebAvatar) {
         try {
+          pushDebugLog(`[DEBUG-INIT] window.WebAvatar.disconnect() called by initAvatar`);
           (window as any).WebAvatar.disconnect();
         } catch (e) {
           console.error("Failed to disconnect WebAvatar:", e);
         }
       }
 
-      // หน่วงเวลาให้ disconnect ทำงานเสร็จ
+      // เผื่อเวลาให้ disconnect ทำงานให้เสร็จ
       setTimeout(() => {
-        // ล้าง Global Objects ที่ขัดขวางการโหลดซ้ำทั้งหมด (CRITICAL FIX)
+        // ล้างตัวแปร Global Objects เพื่อบังคับให้โหลดใหม่ทั้งหมด
         const widgetGlobals = [
           "WebAvatar",
           "__bcwInitialized",
@@ -190,20 +223,20 @@ export function WebAvatar() {
           if (k.startsWith("webpackChunk")) delete (window as any)[k];
         });
 
-        // 2. ลบ Script tag เดิมออกจาก DOM
+        // 2. ลบ Script tag ตัวเก่าออกจาก DOM
         document.querySelectorAll('script[src*="chat-widget.js"]').forEach(s => s.remove());
 
-        // 3. ล้าง DOM ภายใน
+        // 3. ล้าง DOM เก่าทิ้ง
         if (containerRef.current) {
           containerRef.current.innerHTML = "";
         }
 
-        // 4. อัปเดต window.ChatWidgetConfig (บังคับเซ็ตใหม่ทุกครั้งป้องกันบั๊กลืม Context แล้วพูดจีน)
+        // 4. สร้างคอนฟิกใหม่  window.ChatWidgetConfig
         (window as any).ChatWidgetConfig = {
           mode: "realtime-fullscreen",
           widgetId: "learn-lab",
           avatarUrl: selectedAvatar,
-          greetingInstruction: "กรุณาทักทายผู้ใช้เป็นภาษาไทย ด้วยน้ำเสียงอบอุ่น เป็นมิตร และพูดสั้นกระชับ",
+          greetingInstruction: "คุณคือผู้ช่วยของแพลตฟอร์มการเรียนรู้ \nหน้าที่คือแนะนำการใช้งาน \nให้ตอบสั้นๆกระชับและสุภาพ",
           enableBubble: "false",
           showBubble: false,
           showText: false,
@@ -211,11 +244,12 @@ export function WebAvatar() {
           container: containerRef.current
         };
 
-        // 5. สร้างและ append tag script ใหม่ พร้อม Cache Buster
+        // 5. โหลดสคริปต์ใหม่ append tag script ลงไป พร้อมใส่ Cache Buster
         const script = document.createElement("script");
         script.id = `webavatar-jssdk-${Date.now()}`;
         script.src = `https://webavatar.didthat.cc/chat-widget.js?t=${Date.now()}`;
         script.async = true;
+        pushDebugLog(`[DEBUG-INJECT] Injecting chat-widget.js script tag at ${new Date().toISOString()}`);
         document.body.appendChild(script);
       }, 150);
     };
@@ -224,8 +258,10 @@ export function WebAvatar() {
   }, [mounted, selectedAvatar]);
 
   const cleanupScript = useCallback(() => {
+    pushDebugLog(`cleanupScript() started`);
     if ((window as any).WebAvatar) {
       try {
+        pushDebugLog(`window.WebAvatar.disconnect() called by cleanupScript`);
         (window as any).WebAvatar.disconnect();
       } catch (e) {
         console.error("Failed to disconnect WebAvatar:", e);
@@ -239,26 +275,30 @@ export function WebAvatar() {
   }, []);
 
   const disableWebAvatar = useCallback(() => {
+    pushDebugLog(`disableWebAvatar() started`);
+    setIsAvatarEnabled(false);
     cleanupScript();
     setTimeout(() => {
       if (containerRef.current) {
         containerRef.current.innerHTML = "";
       }
       setSelectedAvatar(null);
-      localStorage.removeItem("webavatar_selected");
+      // เราเก็บ webavatar_selected ไว้ เผื่อเปิดใหม่จะได้จำตัวล่าสุด
+      sessionStorage.removeItem("webavatar_active_session");
     }, 150);
   }, [cleanupScript]);
 
-  // Cleanup on unmount (Don't clear localStorage or state here, just script)
   useEffect(() => {
     if (!mounted) return;
     return () => {
-      cleanupScript();
+      // ไม่เรียก cleanupScript() ตอน unmount เพื่อป้องกันเสียงถูกตัดเวลาเปลี่ยนหน้า SPA
     };
-  }, [mounted, cleanupScript]);
+  }, [mounted]);
 
   const handleSelectAvatar = (avatar: string) => {
     setIsModalOpen(false);
+    setIsAvatarEnabled(true);
+    sessionStorage.setItem("webavatar_active_session", "true");
     setSelectedAvatar(avatar);
     localStorage.setItem("webavatar_selected", avatar);
   };
