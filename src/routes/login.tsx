@@ -1,5 +1,7 @@
 import { createFileRoute, Link, useNavigate, useSearch } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -36,6 +38,19 @@ export const Route = createFileRoute("/login")({
 function LoginPage() {
   const { lang, t } = useI18n();
   const { mode: initialMode, redirect: redirectPath } = Route.useSearch();
+
+  const { data: branding } = useQuery({
+    queryKey: ["platform-branding"],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("system_settings")
+        .select("*")
+        .eq("key", "site_branding")
+        .maybeSingle();
+      return (data?.value as any) || { name: "LearnLab", logo_url: "" };
+    },
+    staleTime: 1000 * 60 * 5,
+  });
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [mode, setMode] = useState<"login" | "signup" | "forgot" | "reset">(initialMode);
@@ -92,112 +107,27 @@ function LoginPage() {
   };
 
   return (
-    <div className="flex min-h-screen w-full bg-zinc-950 overflow-hidden font-sans selection:bg-indigo-500/30 selection:text-indigo-200">
+    <div className="flex min-h-screen w-full bg-slate-50 overflow-hidden font-sans selection:bg-indigo-500/10 selection:text-indigo-900 relative">
       {/* --- BACKGROUND DECORATION --- */}
-      <div className="fixed inset-0 z-0">
-        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-indigo-500/10 blur-[120px] rounded-full" />
-        <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-purple-500/10 blur-[120px] rounded-full" />
-        <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 pointer-events-none" />
+      <div className="fixed inset-0 z-0 bg-white">
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]" />
+        <div className="absolute top-0 right-0 w-[50%] h-[50%] bg-primary/5 blur-[120px] rounded-full translate-x-1/3 -translate-y-1/3 pointer-events-none" />
+        <div className="absolute bottom-0 left-0 w-[50%] h-[50%] bg-purple-500/5 blur-[120px] rounded-full -translate-x-1/3 translate-y-1/3 pointer-events-none" />
       </div>
 
-      {/* --- LEFT SIDE: THE BRAND & VISUAL --- */}
-      <div className="hidden lg:flex w-1/2 relative z-10 flex-col p-16 justify-between border-r border-white/5 bg-white/[0.02] backdrop-blur-3xl">
-        <Link to="/" className="flex items-center gap-3 group w-fit">
-          <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white shadow-lg shadow-indigo-500/20 group-hover:scale-105 transition-transform duration-500">
-            <Sparkles className="h-5 w-5 fill-current" />
-          </div>
-          <span className="text-xl font-black tracking-tighter text-white uppercase italic">
-            LearnLab
-          </span>
-        </Link>
-
-        <div className="space-y-12 max-w-lg">
-          <div className="space-y-6">
-            <motion.h2
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-              className="text-6xl font-bold tracking-tight text-white leading-[0.95]"
-            >
-              Master any skill <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400 italic font-black">
-                driven by AI.
-              </span>
-            </motion.h2>
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.1 }}
-              className="text-lg text-zinc-400 font-medium leading-relaxed"
-            >
-              {lang === "th"
-                ? "เข้าร่วมกับผู้เรียนกว่า 50,000 คนทั่วโลก และเริ่มสร้างเส้นทางการเรียนรู้เฉพาะตัวได้ในไม่กี่วินาที"
-                : "Join 50,000+ learners worldwide and start generating personalized educational journeys in seconds."}
-            </motion.p>
-          </div>
-
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="grid grid-cols-2 gap-4"
-          >
-            {[
-              {
-                icon: Zap,
-                label: lang === "th" ? "การสร้างด้วย AI" : "AI Generation",
-                sub: lang === "th" ? "รวดเร็วดั่งแสง" : "Fast as light",
-              },
-              {
-                icon: ShieldCheck,
-                label: lang === "th" ? "เส้นทางที่ตรวจสอบแล้ว" : "Verified Paths",
-                sub: lang === "th" ? "คัดสรรโดยผู้เชี่ยวชาญ" : "Expert curated",
-              },
-              {
-                icon: Globe,
-                label: lang === "th" ? "เข้าถึงได้ทั่วโลก" : "Global Access",
-                sub: lang === "th" ? "เรียนรู้ได้ทุกที่" : "Learn anywhere",
-              },
-              {
-                icon: Sparkles,
-                label: lang === "th" ? "การประเมินอัจฉริยะ" : "Smart Assessments",
-                sub: lang === "th" ? "การทดสอบเฉพาะบุคคล" : "Personalized tests",
-              },
-            ].map((item, idx) => (
-              <div
-                key={idx}
-                className="p-5 rounded-2xl bg-white/[0.03] border border-white/5 hover:bg-white/[0.05] transition-colors group"
-              >
-                <item.icon className="h-5 w-5 text-indigo-400 mb-3 group-hover:scale-110 transition-transform" />
-                <p className="text-sm font-bold text-white leading-none">{item.label}</p>
-                <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest mt-1.5">
-                  {item.sub}
-                </p>
-              </div>
-            ))}
-          </motion.div>
-        </div>
-
-        <div className="flex items-center gap-6">
-          <p className="text-xs font-bold text-zinc-500 uppercase tracking-[0.2em]">
-            {lang === "th" ? "ได้รับความไว้วางใจจากทีมงานที่" : "Trusted by teams at"}
-          </p>
-          <div className="flex items-center gap-6 opacity-30 grayscale invert font-black tracking-tighter">
-            <span>TECHCORP</span>
-            <span>DATAFLOW</span>
-            <span>NEXTGEN</span>
-          </div>
-        </div>
-      </div>
-
-      {/* --- RIGHT SIDE: LOGIN FORM --- */}
+      {/* --- LOGIN FORM --- */}
       <div className="flex-1 flex flex-col relative z-10 p-8 lg:p-24 justify-center items-center">
-        <Link to="/" className="lg:hidden flex items-center gap-2 mb-12 group">
-          <div className="h-8 w-8 rounded-lg bg-indigo-500 flex items-center justify-center text-white shadow-lg">
-            <Sparkles className="h-4 w-4 fill-current" />
+        <Link to="/" className="flex items-center gap-2 mb-12 group">
+          <div className="h-10 w-10 rounded-xl flex items-center justify-center text-white shadow-lg overflow-hidden bg-white border border-slate-100 p-0.5">
+            <img 
+              src={branding?.logo_url || "/avatars/LEARNLAB.png"} 
+              alt="Logo" 
+              className="h-full w-full object-contain rounded-lg" 
+              onError={(e) => { e.currentTarget.src = "/avatars/LEARNLAB.png"; e.currentTarget.onerror = null; }}
+            />
           </div>
-          <span className="text-lg font-black tracking-tight text-white uppercase italic">
-            LearnLab
+          <span className="text-xl font-black tracking-tight text-slate-900 uppercase italic">
+            {branding?.name || "LearnLab"}
           </span>
         </Link>
 
@@ -207,13 +137,13 @@ function LoginPage() {
           transition={{ duration: 0.4 }}
           className="w-full max-w-[420px] space-y-10"
         >
-          <div className="space-y-2 text-center lg:text-left">
-            <h1 className="text-4xl font-bold tracking-tight text-white leading-none">
+          <div className="space-y-2 text-center">
+            <h1 className="text-4xl font-bold tracking-tight text-slate-900 leading-none">
               {mode === "login" && t("loginHeader")}
               {mode === "signup" && t("signupHeader")}
               {mode === "forgot" && t("resetPasswordHeader")}
             </h1>
-            <p className="text-zinc-400 font-medium">
+            <p className="text-slate-500 font-medium">
               {mode === "login" && t("loginSub")}
               {mode === "signup" && t("signupSub")}
               {mode === "forgot" && t("resetPasswordSub")}
@@ -240,14 +170,14 @@ function LoginPage() {
                         className={cn(
                           "flex items-center gap-3 p-4 rounded-2xl border transition-all text-left",
                           role === "student"
-                            ? "bg-indigo-500/10 border-indigo-500/50 text-white"
-                            : "bg-white/[0.02] border-white/5 text-zinc-500 hover:bg-white/[0.04]",
+                            ? "bg-indigo-50 border-indigo-200 text-indigo-900 shadow-sm"
+                            : "bg-slate-50/50 border-slate-200 text-slate-500 hover:bg-slate-50 hover:text-slate-700",
                         )}
                       >
                         <UserCircle
                           className={cn(
                             "h-5 w-5",
-                            role === "student" ? "text-indigo-400" : "text-zinc-600",
+                            role === "student" ? "text-indigo-600" : "text-slate-400",
                           )}
                         />
                         <div>
@@ -265,14 +195,14 @@ function LoginPage() {
                         className={cn(
                           "flex items-center gap-3 p-4 rounded-2xl border transition-all text-left",
                           role === "creator"
-                            ? "bg-purple-500/10 border-purple-500/50 text-white"
-                            : "bg-white/[0.02] border-white/5 text-zinc-500 hover:bg-white/[0.04]",
+                            ? "bg-purple-50 border-purple-200 text-purple-900 shadow-sm"
+                            : "bg-slate-50/50 border-slate-200 text-slate-500 hover:bg-slate-50 hover:text-slate-700",
                         )}
                       >
                         <Briefcase
                           className={cn(
                             "h-5 w-5",
-                            role === "creator" ? "text-purple-400" : "text-zinc-600",
+                            role === "creator" ? "text-purple-600" : "text-slate-400",
                           )}
                         />
                         <div>
@@ -290,18 +220,19 @@ function LoginPage() {
               </AnimatePresence>
 
               <div className="space-y-2">
-                <Label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest ml-1">
+                <Label htmlFor="email" className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">
                   {t("emailLabel")}
                 </Label>
                 <div className="relative group">
-                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-600 group-focus-within:text-indigo-400 transition-colors" />
+                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-focus-within:text-indigo-600 transition-colors" />
                   <Input
+                    id="email"
                     type="email"
                     placeholder="name@example.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
-                    className="h-14 bg-white/[0.02] border-white/5 rounded-2xl pl-12 text-white focus-visible:ring-indigo-500/50 focus-visible:border-indigo-500 transition-all placeholder:text-zinc-700"
+                    className="h-14 bg-white border-slate-200 rounded-2xl pl-12 text-slate-900 focus-visible:ring-indigo-500/20 focus-visible:border-indigo-500 transition-all placeholder:text-slate-400 shadow-sm"
                   />
                 </div>
               </div>
@@ -309,28 +240,29 @@ function LoginPage() {
               {mode !== "forgot" && (
                 <div className="space-y-2">
                   <div className="flex items-center justify-between ml-1">
-                    <Label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">
+                    <Label htmlFor="password" className="text-[10px] font-black text-slate-500 uppercase tracking-widest">
                       {t("passwordLabel")}
                     </Label>
                     {mode === "login" && (
                       <button
                         type="button"
                         onClick={() => setMode("forgot")}
-                        className="text-[10px] font-black text-indigo-400 hover:text-indigo-300 uppercase tracking-widest"
+                        className="text-[10px] font-black text-indigo-600 hover:text-indigo-700 uppercase tracking-widest"
                       >
                         {t("forgotPasswordLink")}
                       </button>
                     )}
                   </div>
                   <div className="relative group">
-                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-600 group-focus-within:text-indigo-400 transition-colors" />
+                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-focus-within:text-indigo-600 transition-colors" />
                     <Input
+                      id="password"
                       type="password"
                       placeholder="••••••••"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       required
-                      className="h-14 bg-white/[0.02] border-white/5 rounded-2xl pl-12 text-white focus-visible:ring-indigo-500/50 focus-visible:border-indigo-500 transition-all placeholder:text-zinc-700"
+                      className="h-14 bg-white border-slate-200 rounded-2xl pl-12 text-slate-900 focus-visible:ring-indigo-500/20 focus-visible:border-indigo-500 transition-all placeholder:text-slate-400 shadow-sm"
                     />
                   </div>
                 </div>
@@ -358,7 +290,7 @@ function LoginPage() {
               <button
                 type="button"
                 onClick={() => setMode("login")}
-                className="w-full text-center text-[10px] font-black text-zinc-500 hover:text-white uppercase tracking-widest flex items-center justify-center gap-2"
+                className="w-full text-center text-[10px] font-black text-slate-500 hover:text-slate-900 uppercase tracking-widest flex items-center justify-center gap-2"
               >
                 <ChevronLeft className="h-3 w-3" />{" "}
                 {lang === "th" ? "กลับสู่หน้าเข้าสู่ระบบ" : "Back to Login"}
@@ -366,23 +298,14 @@ function LoginPage() {
             )}
           </form>
 
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-              <span className="w-full border-t border-white/5" />
-            </div>
-            <div className="relative flex justify-center text-[10px] font-black uppercase tracking-[0.3em]">
-              <span className="bg-zinc-950 px-4 text-zinc-600">
-                {lang === "th" ? "ระบบล็อกอินที่ปลอดภัย" : "Secure Authentication"}
-              </span>
-            </div>
-          </div>
+
 
           <Button
             type="button"
             variant="outline"
             onClick={handleGoogleLogin}
             disabled={isGoogleLoading || isLoading}
-            className="w-full h-14 rounded-2xl bg-white/[0.02] border-white/5 hover:bg-white/[0.05] text-white font-bold text-sm transition-all active:scale-[0.98] group relative overflow-hidden"
+            className="w-full h-14 rounded-2xl bg-white border-slate-200 hover:bg-slate-50 hover:text-slate-900 text-slate-700 font-bold text-sm transition-all active:scale-[0.98] group relative overflow-hidden shadow-sm"
           >
             {isGoogleLoading ? (
               <Loader2 className="h-5 w-5 animate-spin" />
@@ -412,11 +335,11 @@ function LoginPage() {
           </Button>
 
           {mode !== "forgot" && (
-            <p className="text-center text-sm font-medium text-zinc-500">
+            <p className="text-center text-sm font-medium text-slate-500">
               {mode === "login" ? t("noAccountText") : t("haveAccountText")}{" "}
               <button
                 onClick={() => setMode(mode === "login" ? "signup" : "login")}
-                className="text-indigo-400 hover:text-indigo-300 font-bold underline underline-offset-4 decoration-indigo-400/30"
+                className="text-indigo-600 hover:text-indigo-700 font-bold underline underline-offset-4 decoration-indigo-600/30"
               >
                 {mode === "login"
                   ? lang === "th"
@@ -432,17 +355,17 @@ function LoginPage() {
 
         <footer className="mt-auto pt-12 flex flex-col items-center gap-4 text-center">
           {" "}
-          <p className="text-[10px] font-bold text-zinc-600 uppercase tracking-widest">
+          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
             © 2026 LearnLab AI. All rights reserved.
           </p>
-          <div className="flex items-center gap-6 text-[10px] font-black text-zinc-500 uppercase tracking-widest">
-            <Link to="/privacy" className="hover:text-zinc-300 transition-colors">
+          <div className="flex items-center gap-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">
+            <Link to="/privacy" className="hover:text-slate-600 transition-colors">
               {lang === "th" ? "นโยบายความเป็นส่วนตัว" : "Privacy"}
             </Link>
-            <Link to="/terms" className="hover:text-zinc-300 transition-colors">
+            <Link to="/terms" className="hover:text-slate-600 transition-colors">
               {lang === "th" ? "ข้อกำหนดการใช้งาน" : "Terms"}
             </Link>
-            <Link to="/about" className="hover:text-zinc-300 transition-colors">
+            <Link to="/about" className="hover:text-slate-600 transition-colors">
               {lang === "th" ? "ฝ่ายช่วยเหลือ" : "Support"}
             </Link>
           </div>

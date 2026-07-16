@@ -1426,25 +1426,23 @@ function CourseDetail() {
     <SiteLayout>
       <div className="bg-background min-h-screen text-slate-900 font-sans selection:bg-primary/10 selection:text-primary overflow-x-hidden pb-32">
         {isPreviewMode && (
-          <div className="bg-slate-900 text-white py-3 px-6 flex items-center justify-between sticky top-0 z-[100] shadow-2xl animate-in slide-in-from-top duration-500">
+          <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-[100] bg-slate-900/95 backdrop-blur-xl text-white py-3 px-6 flex items-center justify-between shadow-2xl animate-in slide-in-from-bottom-10 duration-500 rounded-2xl border border-white/10 w-[90%] max-w-lg">
             <div className="flex items-center gap-4">
               <div className="h-8 w-8 rounded-lg bg-primary/20 flex items-center justify-center text-primary border border-primary/20">
                 <Eye className="h-4 w-4" />
               </div>
               <div>
-                <p className="text-[10px] font-black uppercase tracking-[0.2em] leading-none mb-1">
-                  {lang === "th" ? "โหมดดูตัวอย่างอัจฉริยะ" : "Smart Preview Mode"}
+                <p className="text-[10px] font-black uppercase tracking-[0.2em] leading-none mb-1 text-slate-200">
+                  {lang === "th" ? "โหมดดูตัวอย่าง" : "Preview Mode"}
                 </p>
                 <p className="text-xs font-medium text-slate-400">
                   {lang === "th" ? (
                     <>
-                      กำลังดูตัวอย่างหลักสูตรในฐานะ{" "}
-                      <span className="text-emerald-400">นักเรียนที่ลงทะเบียนเรียน</span>
+                      ดูในฐานะ <span className="text-emerald-400">นักเรียน</span>
                     </>
                   ) : (
                     <>
-                      Viewing course as an{" "}
-                      <span className="text-emerald-400">enrolled student</span>.
+                      Viewing as <span className="text-emerald-400">Student</span>
                     </>
                   )}
                 </p>
@@ -1453,11 +1451,11 @@ function CourseDetail() {
             <Button
               size="sm"
               variant="outline"
-              className="h-9 px-5 rounded-lg border-white/10 bg-white/5 hover:bg-white/10 text-white font-bold text-xs transition-all"
+              className="h-9 px-5 rounded-lg border-white/10 bg-white/5 hover:bg-white/10 text-white font-bold text-xs transition-all ml-4"
               onClick={() => setIsPreviewMode(false)}
             >
               <ArrowLeft className="h-3.5 w-3.5 mr-2" />{" "}
-              {lang === "th" ? "กลับไปที่หน้าแก้ไข" : "Back to Editor"}
+              {lang === "th" ? "กลับ" : "Back"}
             </Button>
           </div>
         )}

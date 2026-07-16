@@ -133,10 +133,10 @@ export async function fetchUserEnrollments(userId: string): Promise<EnrollmentWi
           status: row.course.status || undefined,
           instructor: row.course.profiles
             ? {
-                name: row.course.profiles.name,
-                avatar_url: row.course.profiles.avatar_url,
-                role: row.course.profiles.role,
-              }
+              name: row.course.profiles.name,
+              avatar_url: row.course.profiles.avatar_url,
+              role: row.course.profiles.role,
+            }
             : undefined,
         },
       };

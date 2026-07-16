@@ -1,4 +1,4 @@
-import { Link } from "@tanstack/react-router";
+import { Link, useRouterState } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/auth";
 import { useI18n } from "@/lib/i18n";
@@ -19,6 +19,7 @@ import {
   Tag,
   Globe,
   Bell,
+  ArrowLeft,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -111,6 +112,9 @@ export function SiteHeader() {
   const { user, profile, loading, signOut } = useAuth();
   const { lang, setLang, t } = useI18n();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [langOpen, setLangOpen] = useState(false);
+  const { location } = useRouterState();
+  const isTopLevel = ["/", "/browse", "/pricing"].includes(location.pathname);
 
   // Fetch dynamic branding from settings
   const { data: branding } = useQuery({
@@ -148,10 +152,14 @@ export function SiteHeader() {
                     to="/"
                     className="flex items-center gap-3 transition-transform hover:scale-105"
                     onClick={() => setIsMobileMenuOpen(false)}
+                    aria-label="Go to homepage"
                   >
-                    <div className="h-9 w-9 rounded-xl bg-primary flex items-center justify-center text-primary-foreground shadow-lg shadow-primary/20">
-                      <Sparkles className="h-5 w-5 fill-current" />
-                    </div>
+                    <img 
+                      src={branding?.logo_url || "/avatars/LEARNLAB.png"} 
+                      alt="Logo" 
+                      className="h-9 w-9 rounded-xl object-contain shadow-sm border border-border/50 bg-white" 
+                      onError={(e) => { e.currentTarget.src = "/avatars/LEARNLAB.png"; e.currentTarget.onerror = null; }}
+                    />
                     <span className="text-base font-black tracking-tight text-foreground uppercase italic tracking-wider">
                       {branding?.name || "LearnLab"}
                     </span>
@@ -159,7 +167,7 @@ export function SiteHeader() {
                 </div>
 
                 <div className="flex-1 overflow-y-auto p-4 space-y-8">
-                  <div className="space-y-1">
+                  <nav aria-label="Mobile Navigation" className="space-y-1">
                     <p className="px-4 text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] mb-4">
                       Navigation
                     </p>
@@ -184,10 +192,10 @@ export function SiteHeader() {
                     >
                       <Tag className="h-4 w-4 opacity-70" /> {t("pricing")}
                     </Link>
-                  </div>
+                  </nav>
 
                   {user && (
-                    <div className="space-y-1">
+                    <nav aria-label="Workspace Navigation" className="space-y-1">
                       <p className="px-4 text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] mb-4">
                         Workspace
                       </p>
@@ -207,7 +215,7 @@ export function SiteHeader() {
                           <ShieldCheck className="h-4 w-4 opacity-70" /> {t("adminArea")}
                         </Link>
                       )}
-                    </div>
+                    </nav>
                   )}
                 </div>
 
@@ -228,13 +236,32 @@ export function SiteHeader() {
             </SheetContent>
           </Sheet>
 
+          {/* Back Button */}
+          {!isTopLevel && (
+            <Button
+              variant="outline"
+              size="icon"
+              asChild
+              className="mr-2 h-9 w-9 rounded-xl border-slate-200 hover:bg-slate-100 hidden sm:flex shadow-sm transition-all hover:scale-105 active:scale-95"
+              title="กลับหน้าหลัก"
+            >
+              <Link to="/">
+                <ArrowLeft className="h-4 w-4 text-slate-700" />
+              </Link>
+            </Button>
+          )}
+
           <Link
             to="/"
             className="flex items-center gap-3 group transition-transform hover:scale-105 active:scale-95"
+            aria-label="Go to homepage"
           >
-            <div className="h-9 w-9 rounded-xl bg-primary flex items-center justify-center text-primary-foreground shadow-lg shadow-primary/20 group-hover:shadow-primary/40 transition-all duration-300">
-              <Sparkles className="h-5 w-5 fill-current" />
-            </div>
+            <img 
+              src={branding?.logo_url || "/avatars/LEARNLAB.png"} 
+              alt="Logo" 
+              className="h-9 w-9 rounded-xl object-contain shadow-md shadow-primary/10 border border-border/50 group-hover:shadow-primary/20 transition-all duration-300 bg-white" 
+              onError={(e) => { e.currentTarget.src = "/avatars/LEARNLAB.png"; e.currentTarget.onerror = null; }}
+            />
             <span className="text-base font-black tracking-tighter text-foreground hidden sm:inline-block uppercase italic tracking-[0.05em]">
               {branding?.name || "LearnLab"}
             </span>
@@ -242,7 +269,7 @@ export function SiteHeader() {
         </div>
 
         {/* Desktop Nav */}
-        <nav className="hidden items-center gap-8 text-[13px] text-muted-foreground font-black uppercase tracking-widest md:flex">
+        <nav aria-label="Desktop Navigation" className="hidden items-center gap-8 text-[13px] text-muted-foreground font-black uppercase tracking-widest md:flex">
           <Link
             to="/"
             className="hover:text-primary transition-colors"
@@ -250,6 +277,17 @@ export function SiteHeader() {
           >
             {t("welcome")}
           </Link>
+
+          {user && (
+            <Link
+              to="/dashboard"
+              className="hover:text-primary transition-colors"
+              activeProps={{ className: "text-primary" }}
+            >
+              {t("dashboard")}
+            </Link>
+          )}
+
           <Link
             to="/browse"
             className="hover:text-primary transition-colors"
@@ -272,58 +310,66 @@ export function SiteHeader() {
           <NotificationBell />
 
           {/* Language Switcher */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-9 w-9 rounded-xl text-muted-foreground hover:text-foreground hover:bg-secondary/50 border border-transparent hover:border-border transition-all"
-              >
-                <Globe className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent
-              align="end"
-              className="w-40 rounded-2xl p-2 shadow-2xl bg-white border-border"
+          <div className="relative">
+            <Button
+              id="lang-switcher-btn"
+              variant="ghost"
+              size="icon"
+              onClick={() => setLangOpen(!langOpen)}
+              aria-label="Change Language"
+              data-current-lang={lang}
+              title="Change Language"
+              className="h-9 w-9 rounded-xl text-muted-foreground hover:text-foreground hover:bg-secondary/50 border border-transparent hover:border-border transition-all"
             >
-              <DropdownMenuItem
-                onClick={() => setLang("en")}
-                className={cn(
-                  "rounded-xl px-3 py-2 text-xs font-black uppercase tracking-widest cursor-pointer transition-colors",
-                  lang === "en"
-                    ? "bg-primary/10 text-primary"
-                    : "text-muted-foreground hover:bg-slate-50",
-                )}
+              <Globe className="h-4 w-4" />
+            </Button>
+
+            {langOpen && (
+              <div
+                aria-label="Language Options"
+                className="absolute right-0 top-full mt-2 w-40 rounded-xl p-2 shadow-xl bg-white border border-border z-50 flex flex-col gap-1"
               >
-                English
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => setLang("th")}
-                className={cn(
-                  "rounded-xl px-3 py-2 text-xs font-black uppercase tracking-widest cursor-pointer transition-colors mt-1",
-                  lang === "th"
-                    ? "bg-primary/10 text-primary"
-                    : "text-muted-foreground hover:bg-slate-50",
-                )}
-              >
-                ภาษาไทย
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+                <button
+                  id="lang-th-btn"
+                  onClick={() => { setLang("th"); setLangOpen(false); }}
+                  className={cn("w-full px-3 py-2 rounded-lg cursor-pointer flex items-center justify-between text-sm text-left transition-colors", lang === "th" ? "bg-primary/10 text-primary font-bold" : "text-muted-foreground hover:bg-secondary/80 hover:text-foreground")}
+                  aria-label="ภาษาไทย"
+                >
+                  ภาษาไทย (TH)
+                </button>
+                <button
+                  id="lang-en-btn"
+                  onClick={() => { setLang("en"); setLangOpen(false); }}
+                  className={cn("w-full px-3 py-2 rounded-lg cursor-pointer flex items-center justify-between text-sm text-left transition-colors", lang === "en" ? "bg-primary/10 text-primary font-bold" : "text-muted-foreground hover:bg-secondary/80 hover:text-foreground")}
+                  aria-label="English"
+                >
+                  English (EN)
+                </button>
+              </div>
+            )}
+          </div>
 
           {user ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
                   variant="ghost"
-                  className="relative h-10 w-10 rounded-xl p-0 hover:bg-secondary/80 border border-border/50 shadow-sm overflow-hidden transition-all"
+                  className="h-10 px-2.5 py-2 rounded-2xl hover:bg-secondary/80 border border-transparent hover:border-border/50 shadow-none overflow-hidden transition-all flex items-center gap-2.5"
                 >
-                  <Avatar className="h-full w-full rounded-none">
+                  <Avatar className="h-6 w-6 rounded-lg">
                     <AvatarImage src={profile?.avatar_url || ""} />
-                    <AvatarFallback className="bg-primary/5 text-primary text-[10px] font-black uppercase">
+                    <AvatarFallback className="bg-primary/10 text-primary text-[9px] font-black uppercase">
                       {profile?.name?.[0] || "U"}
                     </AvatarFallback>
                   </Avatar>
+                  <div className="hidden sm:flex flex-col items-start text-left">
+                    <span className="text-[11px] font-black text-foreground leading-tight truncate max-w-[100px]">
+                      {profile?.name || "Member"}
+                    </span>
+                    <span className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground leading-none">
+                      {profile?.role === "admin" ? "Admin" : profile?.role === "creator" ? "Creator" : "Student"}
+                    </span>
+                  </div>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent
