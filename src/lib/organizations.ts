@@ -392,7 +392,9 @@ export const deleteOrganization = createServerFn({ method: "POST" }).handler(asy
 
 export const repairMissingPackages = createServerFn({ method: "POST" }).handler(
   async (ctx: any) => {
-    const { orgId, userId } = ctx.data;
+    const auth = await requireUser();
+    const { orgId } = ctx.data;
+    const userId = auth.userId;
     const adminDb = getAdminDb();
 
     // 1. Get all completed payments for this user/org that are NOT fulfilled
