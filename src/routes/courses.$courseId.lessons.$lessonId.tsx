@@ -1159,7 +1159,11 @@ function LessonPlayerPage() {
                               prose-pre:bg-slate-900 prose-pre:border prose-pre:border-slate-800 prose-pre:rounded-2xl"
                         >
                           {lesson.body_text ? (
-                            <div dangerouslySetInnerHTML={{ __html: lesson.body_text }} />
+                            <div
+                              dangerouslySetInnerHTML={{
+                                __html: DOMPurify.sanitize(lesson.body_text),
+                              }}
+                            />
                           ) : !lesson.attachment_url ? (
                             <div className="py-24 text-center text-slate-300 italic border-2 border-dashed border-slate-100 rounded-[3rem] bg-white/50">
                               {lang === "th"

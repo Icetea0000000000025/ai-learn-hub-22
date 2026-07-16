@@ -1,6 +1,7 @@
 import { supabase, getAdminDb } from "./supabase";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import { requireUser } from "./server-auth";
 
 export async function fetchQuizzesByCourse(courseId: string) {
   // First get all lesson IDs for this course
@@ -114,6 +115,7 @@ export async function createQuizInternal(input: any) {
  * SERVER FUNCTION: Create a quiz.
  */
 export const createQuiz = createServerFn({ method: "POST" }).handler(async (ctx: any) => {
+  await requireUser();
   return createQuizInternal(ctx.data);
 });
 
@@ -136,6 +138,7 @@ export async function updateQuizInternal(id: string, updates: any) {
  * SERVER FUNCTION: Update a quiz.
  */
 export const updateQuiz = createServerFn({ method: "POST" }).handler(async (ctx: any) => {
+  await requireUser();
   const { id, updates } = ctx.data;
   return updateQuizInternal(id, updates);
 });
@@ -154,6 +157,7 @@ export async function createQuestionInternal(input: any) {
  * SERVER FUNCTION: Create a question.
  */
 export const createQuestion = createServerFn({ method: "POST" }).handler(async (ctx: any) => {
+  await requireUser();
   return createQuestionInternal(ctx.data);
 });
 
@@ -171,6 +175,7 @@ export async function deleteQuestionInternal(id: string) {
  * SERVER FUNCTION: Delete a question.
  */
 export const deleteQuestion = createServerFn({ method: "POST" }).handler(async (ctx: any) => {
+  await requireUser();
   const payload = ctx?.data ?? ctx;
   const id = typeof payload === "string" ? payload : payload?.id;
   return deleteQuestionInternal(id);
@@ -190,6 +195,7 @@ export async function createOptionInternal(input: any) {
  * SERVER FUNCTION: Create an option.
  */
 export const createOption = createServerFn({ method: "POST" }).handler(async (ctx: any) => {
+  await requireUser();
   return createOptionInternal(ctx.data);
 });
 

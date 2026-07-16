@@ -5,6 +5,7 @@ import { createLessonInternal } from "./lessons";
 import { z } from "zod";
 import { GEMINI_API_KEY, SUPABASE_URL, SUPABASE_ANON_KEY, SUBSCRIPTION_PLANS } from "./config";
 import { supabase, getAdminDb } from "./supabase";
+import { requireUser } from "./server-auth";
 
 // --- SCHEMAS ---
 
@@ -336,7 +337,8 @@ async function generateVideoWithBotnoi(script: string, botnoiKey?: string) {
 // --- PUBLIC FUNCTIONS ---
 
 export const generateCourseWithAI = createServerFn({ method: "POST" }).handler(async (ctx: any) => {
-  const { topic, userId } = ctx.data;
+  const { topic } = ctx.data;
+  const { userId } = await requireUser();
   const apiKey = GEMINI_API_KEY || process.env.GEMINI_API_KEY;
 
   if (!apiKey) throw new Error("GEMINI_API_KEY is not configured.");
@@ -389,7 +391,8 @@ export const generateCourseWithAI = createServerFn({ method: "POST" }).handler(a
 });
 
 export const generateQuizWithAI = createServerFn({ method: "POST" }).handler(async (ctx: any) => {
-  const { topic, objective, difficulty, userId } = ctx.data;
+  const { topic, objective, difficulty } = ctx.data;
+  const { userId } = await requireUser();
   const apiKey = GEMINI_API_KEY || process.env.GEMINI_API_KEY;
 
   if (!apiKey) throw new Error("GEMINI_API_KEY is not configured.");
@@ -427,7 +430,8 @@ export const generateQuizWithAI = createServerFn({ method: "POST" }).handler(asy
 
 export const generateCertificateDescription = createServerFn({ method: "POST" }).handler(
   async (ctx: any) => {
-    const { name, courseTitle, userId } = ctx.data;
+    const { name, courseTitle } = ctx.data;
+    const { userId } = await requireUser();
     const apiKey = GEMINI_API_KEY || process.env.GEMINI_API_KEY;
 
     if (!apiKey) throw new Error("GEMINI_API_KEY is not configured.");
@@ -530,7 +534,8 @@ async function snapshotAIImage(imageUrl: string, userId?: string): Promise<strin
 }
 
 export const generateCourseImage = createServerFn({ method: "POST" }).handler(async (ctx: any) => {
-  const { title, description, userId } = ctx.data;
+  const { title, description } = ctx.data;
+  const { userId } = await requireUser();
   const apiKey = GEMINI_API_KEY || process.env.GEMINI_API_KEY;
 
   if (!apiKey) throw new Error("GEMINI_API_KEY is not configured.");
@@ -572,7 +577,8 @@ export const generateCourseImage = createServerFn({ method: "POST" }).handler(as
 
 export const generateLessonResource = createServerFn({ method: "POST" }).handler(
   async (ctx: any) => {
-    const { title, content, userId } = ctx.data;
+    const { title, content } = ctx.data;
+    const { userId } = await requireUser();
     const apiKey = GEMINI_API_KEY || process.env.GEMINI_API_KEY;
 
     if (!apiKey) throw new Error("GEMINI_API_KEY is not configured.");
@@ -617,7 +623,8 @@ export const generateLessonResource = createServerFn({ method: "POST" }).handler
 
 export const generateLessonContent = createServerFn({ method: "POST" }).handler(
   async (ctx: any) => {
-    const { title, moduleTitle, userId } = ctx.data;
+    const { title, moduleTitle } = ctx.data;
+    const { userId } = await requireUser();
     const apiKey = GEMINI_API_KEY || process.env.GEMINI_API_KEY;
 
     if (!apiKey) throw new Error("GEMINI_API_KEY is not configured.");
@@ -658,7 +665,8 @@ import { COURSE_CATEGORIES } from "./config";
 
 export const generateCourseMetadata = createServerFn({ method: "POST" }).handler(
   async (ctx: any) => {
-    const { topic, userId } = ctx.data;
+    const { topic } = ctx.data;
+  const { userId } = await requireUser();
     const apiKey = GEMINI_API_KEY || process.env.GEMINI_API_KEY;
 
     if (!apiKey) throw new Error("GEMINI_API_KEY is not configured.");
@@ -790,7 +798,8 @@ export async function saveGeneratedCourse(generated: AIGeneratedCourse, creatorI
 }
 
 export const explainTermWithAI = createServerFn({ method: "POST" }).handler(async (ctx: any) => {
-  const { term, context, userId } = ctx.data;
+  const { term, context } = ctx.data;
+  const { userId } = await requireUser();
   const apiKey = GEMINI_API_KEY || process.env.GEMINI_API_KEY;
 
   if (!apiKey) throw new Error("GEMINI_API_KEY is not configured.");
@@ -852,7 +861,7 @@ export const explainTermWithAI = createServerFn({ method: "POST" }).handler(asyn
 
 export const getPersonalizedLearningPath = createServerFn({ method: "POST" }).handler(
   async (ctx: any) => {
-    const { userId } = ctx.data;
+    const { userId } = await requireUser();
     const apiKey = GEMINI_API_KEY || process.env.GEMINI_API_KEY;
 
     if (!apiKey) throw new Error("GEMINI_API_KEY is not configured.");

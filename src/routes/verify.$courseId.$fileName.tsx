@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Loader2, ChevronLeft, FileText, Download, Sparkles, AlertCircle } from "lucide-react";
 import { useState, useEffect } from "react";
 import ReactMarkdown from "react-markdown";
+import DOMPurify from "dompurify";
 import { supabase } from "@/lib/supabase";
 import { SelectionTermExplainer } from "@/components/selection-term-explainer";
 
@@ -175,7 +176,11 @@ function ResourceViewerPage() {
               "
               >
                 {content?.trim().startsWith("<!DOCTYPE html>") ? (
-                  <div dangerouslySetInnerHTML={{ __html: content || "" }} />
+                  <div
+                    dangerouslySetInnerHTML={{
+                      __html: DOMPurify.sanitize(content || ""),
+                    }}
+                  />
                 ) : (
                   <ReactMarkdown>{content || ""}</ReactMarkdown>
                 )}

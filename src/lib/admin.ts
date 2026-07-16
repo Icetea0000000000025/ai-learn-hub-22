@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { supabase, getAdminDb } from "./supabase";
 import { mapCourse } from "./courses";
+import { requireAdmin } from "./server-auth";
 
 export type StudentProgress = {
   student: {
@@ -31,6 +32,7 @@ export type StudentProgress = {
  * Resilient fetch for all payments using Server Function to bypass RLS.
  */
 export const fetchAllPayments = createServerFn({ method: "GET" }).handler(async () => {
+  await requireAdmin();
   try {
     const db = await getAdminDb();
 
@@ -104,6 +106,7 @@ export const fetchAllPayments = createServerFn({ method: "GET" }).handler(async 
 });
 
 export const fetchPlatformStats = createServerFn({ method: "GET" }).handler(async () => {
+  await requireAdmin();
   const db = await getAdminDb();
 
   const { count: userCount, error: userError } = await db
@@ -210,6 +213,7 @@ export const fetchPlatformStats = createServerFn({ method: "GET" }).handler(asyn
 });
 
 export const fetchRevenueByMonth = createServerFn({ method: "GET" }).handler(async () => {
+  await requireAdmin();
   const db = await getAdminDb();
   const { data, error } = await db
     .from("payments")
@@ -254,6 +258,7 @@ export const fetchRevenueByMonth = createServerFn({ method: "GET" }).handler(asy
 });
 
 export const fetchRevenueByDay = createServerFn({ method: "POST" }).handler(async (ctx: any) => {
+  await requireAdmin();
   const { year, month } = ctx.data as { year: number; month: number };
   const db = await getAdminDb();
   const startDate = new Date(year, month, 1).toISOString();

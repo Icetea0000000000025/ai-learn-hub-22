@@ -1,5 +1,6 @@
 import { supabase, getAdminDb } from "./supabase";
 import { createServerFn } from "@tanstack/react-start";
+import { requireUser } from "./server-auth";
 import Stripe from "stripe";
 
 export async function fetchUserOrganizations(userId: string) {
@@ -76,8 +77,10 @@ export async function checkCourseLicense(orgId: string, courseId: string) {
 
 export const claimOrganizationSeat = createServerFn({ method: "POST" }).handler(
   async (ctx: any) => {
+    const auth = await requireUser();
     const payload = ctx?.data ?? ctx;
-    const { orgId, courseId, userId } = payload;
+    const { orgId, courseId } = payload;
+    const userId = auth.userId;
     const adminDb = getAdminDb();
 
     // 1. Check if seat available
@@ -128,6 +131,7 @@ export const claimOrganizationSeat = createServerFn({ method: "POST" }).handler(
 
 export const removeCourseFromMember = createServerFn({ method: "POST" }).handler(
   async (ctx: any) => {
+    await requireUser();
     const { memberId, courseId } = ctx.data;
     const adminDb = getAdminDb();
 
@@ -173,7 +177,9 @@ export const removeCourseFromMember = createServerFn({ method: "POST" }).handler
 );
 
 export const assignCourseToMember = createServerFn({ method: "POST" }).handler(async (ctx: any) => {
-  const { memberId, courseId, assignedBy } = ctx.data;
+  const auth = await requireUser();
+  const { memberId, courseId } = ctx.data;
+  const assignedBy = auth.userId;
   const adminDb = getAdminDb();
 
   // 1. Add assignment
@@ -220,7 +226,10 @@ export const assignCourseToMember = createServerFn({ method: "POST" }).handler(a
 });
 
 export const inviteMemberToOrg = createServerFn({ method: "POST" }).handler(async (ctx: any) => {
-  const { email, orgId, invitedBy } = ctx.data;
+  const auth = await requireUser();
+  const { email, orgId } = ctx.data;
+  const invitedBy = auth.userId;
+  void invitedBy;
   const adminDb = getAdminDb();
 
   // 1. Find user by email
@@ -275,7 +284,9 @@ export const inviteMemberToOrg = createServerFn({ method: "POST" }).handler(asyn
 
 export const provisionFreeCourseToOrg = createServerFn({ method: "POST" }).handler(
   async (ctx: any) => {
-    const { orgId, courseId, userId } = ctx.data;
+    const auth = await requireUser();
+    const { orgId, courseId } = ctx.data;
+    const userId = auth.userId;
     const adminDb = getAdminDb();
 
     // 1. Verify Organization Ownership
@@ -331,9 +342,22 @@ export const provisionFreeCourseToOrg = createServerFn({ method: "POST" }).handl
 );
 
 export const deleteOrganization = createServerFn({ method: "POST" }).handler(async (ctx: any) => {
+  const auth = await requireUser();
   const payload = ctx?.data ?? ctx;
   const orgId = typeof payload === "string" ? payload : payload?.orgId;
   const adminDb = getAdminDb();
+
+  // Only the owner may delete the organization
+  const { data: org } = await adminDb
+    .from("organizations")
+    .select("owner_id")
+    .eq("id", orgId)
+    .single();
+  if (!org || (org as any).owner_id !== auth.userId) {
+    throw new Error("Forbidden");
+  }
+
+
 
   // 1. Get member IDs
   const { data: memberRows } = await adminDb
@@ -368,7 +392,9 @@ export const deleteOrganization = createServerFn({ method: "POST" }).handler(asy
 
 export const repairMissingPackages = createServerFn({ method: "POST" }).handler(
   async (ctx: any) => {
-    const { orgId, userId } = ctx.data;
+    const auth = await requireUser();
+    const { orgId } = ctx.data;
+    const userId = auth.userId;
     const adminDb = getAdminDb();
 
     // 1. Get all completed payments for this user/org that are NOT fulfilled

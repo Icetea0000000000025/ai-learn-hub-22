@@ -1,7 +1,7 @@
 import type Stripe from "stripe";
 import { createClient } from "@supabase/supabase-js";
 import { SUPABASE_ANON_KEY } from "../lib/config";
-import { WEBHOOK_LOGS, addLog } from "./webhook-log";
+import { addLog } from "./webhook-log";
 import { runFulfillment } from "./fulfillment";
 import { recordPayment } from "./payments";
 import type { ResolvedEnv } from "./env";
@@ -11,27 +11,8 @@ export async function handleWebhook(
   resolved: ResolvedEnv,
   stripeClient: Stripe | null,
 ): Promise<Response> {
-  const { effectiveApiKey, effectiveWebhookSecret, serviceRoleKey, effectiveSupabaseUrl } = resolved;
+  const { effectiveWebhookSecret, serviceRoleKey, effectiveSupabaseUrl } = resolved;
 
-  if (request.method === "GET") {
-    return new Response(
-      JSON.stringify({
-        status: "active",
-        diagnostics: {
-          hasStripeKey: !!effectiveApiKey,
-          hasWebhookSecret: !!effectiveWebhookSecret,
-          webhookSecretLength: effectiveWebhookSecret?.length || 0,
-          hasServiceKey: !!serviceRoleKey,
-          serviceKeyLength: serviceRoleKey?.length || 0,
-          hasUrl: !!effectiveSupabaseUrl,
-          url: effectiveSupabaseUrl,
-          stripeVersion: "2026-04-22.dahlia",
-        },
-        logs: WEBHOOK_LOGS,
-      }),
-      { headers: { "Content-Type": "application/json" } },
-    );
-  }
   if (request.method !== "POST") return new Response("Method Not Allowed", { status: 405 });
 
   try {

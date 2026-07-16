@@ -191,7 +191,7 @@ function RootComponent() {
 
   const router = useRouter();
   useEffect(() => {
-    const unsubscribe = router.history.subscribe((newLocation) => {
+    const unsubscribe = router.history.subscribe((newLocation: any) => {
       pushDebugLog(`TanStack Router location changed to: ${newLocation.location.href}`);
     });
     return () => unsubscribe();
