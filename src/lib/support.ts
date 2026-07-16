@@ -1,7 +1,7 @@
 import { supabase, getAdminDb } from "./supabase";
 import { issueStripeRefund } from "./stripe";
 import { createServerFn } from "@tanstack/react-start";
-import { SUPABASE_URL } from "./config";
+import { requireAdmin } from "./server-auth";
 
 export async function createSupportThread(userId: string, subject: string, initialMessage: string) {
   const { data: thread, error: threadError } = await supabase
