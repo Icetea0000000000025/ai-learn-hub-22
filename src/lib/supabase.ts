@@ -20,10 +20,12 @@ export function getAdminDb() {
 
   let serviceKey = (
     env.SUPABASE_SERVICE_ROLE_KEY ||
+    env.SB_SERVICE_ROLE_KEY ||
     env.SERVICE_ROLE_KEY ||
-    env.VITE_SUPABASE_SERVICE_ROLE_KEY ||
     globalEnv?.SUPABASE_SERVICE_ROLE_KEY ||
-    (globalThis as any).process?.env?.SUPABASE_SERVICE_ROLE_KEY
+    globalEnv?.SB_SERVICE_ROLE_KEY ||
+    (globalThis as any).process?.env?.SUPABASE_SERVICE_ROLE_KEY ||
+    (globalThis as any).process?.env?.SB_SERVICE_ROLE_KEY
   )?.trim();
 
   // Robust cleaning
