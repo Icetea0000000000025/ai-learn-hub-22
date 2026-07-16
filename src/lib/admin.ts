@@ -258,6 +258,7 @@ export const fetchRevenueByMonth = createServerFn({ method: "GET" }).handler(asy
 });
 
 export const fetchRevenueByDay = createServerFn({ method: "POST" }).handler(async (ctx: any) => {
+  await requireAdmin();
   const { year, month } = ctx.data as { year: number; month: number };
   const db = await getAdminDb();
   const startDate = new Date(year, month, 1).toISOString();
