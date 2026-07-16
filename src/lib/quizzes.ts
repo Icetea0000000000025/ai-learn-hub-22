@@ -195,6 +195,7 @@ export async function createOptionInternal(input: any) {
  * SERVER FUNCTION: Create an option.
  */
 export const createOption = createServerFn({ method: "POST" }).handler(async (ctx: any) => {
+  await requireUser();
   return createOptionInternal(ctx.data);
 });
 
