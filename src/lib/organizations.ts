@@ -226,7 +226,10 @@ export const assignCourseToMember = createServerFn({ method: "POST" }).handler(a
 });
 
 export const inviteMemberToOrg = createServerFn({ method: "POST" }).handler(async (ctx: any) => {
-  const { email, orgId, invitedBy } = ctx.data;
+  const auth = await requireUser();
+  const { email, orgId } = ctx.data;
+  const invitedBy = auth.userId;
+  void invitedBy;
   const adminDb = getAdminDb();
 
   // 1. Find user by email
