@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { supabase, getAdminDb } from "./supabase";
 import { mapCourse } from "./courses";
+import { requireAdmin } from "./server-auth";
 
 export type StudentProgress = {
   student: {
