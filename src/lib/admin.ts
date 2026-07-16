@@ -213,6 +213,7 @@ export const fetchPlatformStats = createServerFn({ method: "GET" }).handler(asyn
 });
 
 export const fetchRevenueByMonth = createServerFn({ method: "GET" }).handler(async () => {
+  await requireAdmin();
   const db = await getAdminDb();
   const { data, error } = await db
     .from("payments")
