@@ -1,5 +1,6 @@
 import { supabase, getAdminDb } from "./supabase";
 import { createServerFn } from "@tanstack/react-start";
+import { requireUser } from "./server-auth";
 import Stripe from "stripe";
 
 export async function fetchUserOrganizations(userId: string) {
