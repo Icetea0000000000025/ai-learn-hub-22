@@ -342,7 +342,20 @@ export const provisionFreeCourseToOrg = createServerFn({ method: "POST" }).handl
 );
 
 export const deleteOrganization = createServerFn({ method: "POST" }).handler(async (ctx: any) => {
+  const auth = await requireUser();
   const payload = ctx?.data ?? ctx;
+  const orgId = typeof payload === "string" ? payload : payload?.orgId;
+  const adminDb = getAdminDb();
+
+  // Only the owner may delete the organization
+  const { data: org } = await adminDb
+    .from("organizations")
+    .select("owner_id")
+    .eq("id", orgId)
+    .single();
+  if (!org || (org as any).owner_id !== auth.userId) {
+    throw new Error("Forbidden");
+  }
   const orgId = typeof payload === "string" ? payload : payload?.orgId;
   const adminDb = getAdminDb();
 
