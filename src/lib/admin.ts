@@ -106,6 +106,7 @@ export const fetchAllPayments = createServerFn({ method: "GET" }).handler(async 
 });
 
 export const fetchPlatformStats = createServerFn({ method: "GET" }).handler(async () => {
+  await requireAdmin();
   const db = await getAdminDb();
 
   const { count: userCount, error: userError } = await db
