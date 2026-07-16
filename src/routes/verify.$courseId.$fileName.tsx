@@ -176,7 +176,11 @@ function ResourceViewerPage() {
               "
               >
                 {content?.trim().startsWith("<!DOCTYPE html>") ? (
-                  <div dangerouslySetInnerHTML={{ __html: content || "" }} />
+                  <div
+                    dangerouslySetInnerHTML={{
+                      __html: DOMPurify.sanitize(content || ""),
+                    }}
+                  />
                 ) : (
                   <ReactMarkdown>{content || ""}</ReactMarkdown>
                 )}
