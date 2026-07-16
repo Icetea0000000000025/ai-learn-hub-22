@@ -138,6 +138,7 @@ export async function updateQuizInternal(id: string, updates: any) {
  * SERVER FUNCTION: Update a quiz.
  */
 export const updateQuiz = createServerFn({ method: "POST" }).handler(async (ctx: any) => {
+  await requireUser();
   const { id, updates } = ctx.data;
   return updateQuizInternal(id, updates);
 });
