@@ -157,6 +157,7 @@ export async function createQuestionInternal(input: any) {
  * SERVER FUNCTION: Create a question.
  */
 export const createQuestion = createServerFn({ method: "POST" }).handler(async (ctx: any) => {
+  await requireUser();
   return createQuestionInternal(ctx.data);
 });
 
