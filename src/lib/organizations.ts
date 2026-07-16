@@ -177,7 +177,9 @@ export const removeCourseFromMember = createServerFn({ method: "POST" }).handler
 );
 
 export const assignCourseToMember = createServerFn({ method: "POST" }).handler(async (ctx: any) => {
-  const { memberId, courseId, assignedBy } = ctx.data;
+  const auth = await requireUser();
+  const { memberId, courseId } = ctx.data;
+  const assignedBy = auth.userId;
   const adminDb = getAdminDb();
 
   // 1. Add assignment
