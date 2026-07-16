@@ -32,6 +32,7 @@ export type StudentProgress = {
  * Resilient fetch for all payments using Server Function to bypass RLS.
  */
 export const fetchAllPayments = createServerFn({ method: "GET" }).handler(async () => {
+  await requireAdmin();
   try {
     const db = await getAdminDb();
 
