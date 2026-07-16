@@ -131,6 +131,7 @@ export const claimOrganizationSeat = createServerFn({ method: "POST" }).handler(
 
 export const removeCourseFromMember = createServerFn({ method: "POST" }).handler(
   async (ctx: any) => {
+    await requireUser();
     const { memberId, courseId } = ctx.data;
     const adminDb = getAdminDb();
 
