@@ -27,6 +27,7 @@ import {
   ExternalLink,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import DOMPurify from "dompurify";
 import { QuizPlayer } from "@/components/quiz-player";
 import { useAuth } from "@/lib/auth";
 import { fetchCourseById } from "@/lib/courses";
