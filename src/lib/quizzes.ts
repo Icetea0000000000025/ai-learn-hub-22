@@ -115,6 +115,7 @@ export async function createQuizInternal(input: any) {
  * SERVER FUNCTION: Create a quiz.
  */
 export const createQuiz = createServerFn({ method: "POST" }).handler(async (ctx: any) => {
+  await requireUser();
   return createQuizInternal(ctx.data);
 });
 
