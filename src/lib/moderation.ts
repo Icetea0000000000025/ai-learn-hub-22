@@ -1,6 +1,7 @@
 import { supabase, getAdminDb } from "./supabase";
 import type { ReportInsert, ReportUpdate } from "./database.types";
 import { createServerFn } from "@tanstack/react-start";
+import { requireAdmin } from "./server-auth";
 
 export async function submitReport(report: ReportInsert) {
   const { data, error } = await supabase.from("reports").insert(report).select().single();
