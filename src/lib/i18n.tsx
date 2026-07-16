@@ -658,7 +658,7 @@ type I18nContextType = {
 const I18nContext = createContext<I18nContextType | undefined>(undefined);
 
 export function I18nProvider({ children }: { children: React.ReactNode }) {
-  const [lang, setLang] = useState<Language>("en");
+  const [lang, setLang] = useState<Language>("th");
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -677,7 +677,7 @@ export function I18nProvider({ children }: { children: React.ReactNode }) {
   }, [lang, mounted]);
 
   const t = (key: keyof typeof translations.en, params?: Record<string, string | number>) => {
-    const currentLang = mounted ? lang : "en";
+    const currentLang = mounted ? lang : "th";
     const currentTranslations = translations[currentLang] as Record<string, string>;
     const enTranslations = translations.en as Record<string, string>;
     let text = currentTranslations[key] || enTranslations[key] || key;
