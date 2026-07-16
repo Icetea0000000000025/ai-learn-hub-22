@@ -5,6 +5,7 @@ import { createLessonInternal } from "./lessons";
 import { z } from "zod";
 import { GEMINI_API_KEY, SUPABASE_URL, SUPABASE_ANON_KEY, SUBSCRIPTION_PLANS } from "./config";
 import { supabase, getAdminDb } from "./supabase";
+import { requireUser } from "./server-auth";
 
 // --- SCHEMAS ---
 
