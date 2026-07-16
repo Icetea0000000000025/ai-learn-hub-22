@@ -143,6 +143,7 @@ export async function fetchUserUsageHistory(userId: string) {
  * SERVER FUNCTION: Process a full refund via Stripe and database.
  */
 export const processRefund = createServerFn({ method: "POST" }).handler(async (ctx: any) => {
+  await requireAdmin();
   const payload = ctx?.data ?? ctx;
   const paymentId = typeof payload === "string" ? payload : payload?.paymentId;
   const adminDb = getAdminDb();
@@ -188,6 +189,7 @@ export const processRefund = createServerFn({ method: "POST" }).handler(async (c
  * SERVER FUNCTION: Permanently delete a transaction record.
  */
 export const deletePaymentRecord = createServerFn({ method: "POST" }).handler(async (ctx: any) => {
+  await requireAdmin();
   const payload = ctx?.data ?? ctx;
   const paymentId = typeof payload === "string" ? payload : payload?.paymentId;
   const adminDb = getAdminDb();
@@ -195,40 +197,7 @@ export const deletePaymentRecord = createServerFn({ method: "POST" }).handler(as
 
   if (error) {
     console.error("[DELETE ERROR]", error);
-    if (
-      error.message.includes("API key") ||
-      error.code === "PGRST301" ||
-      error.message.includes("JWT")
-    ) {
-      const url = (
-        process.env.SUPABASE_URL ||
-        (process.env as any).VITE_SUPABASE_URL ||
-        SUPABASE_URL
-      )?.trim();
-      const urlHost = url ? new URL(url).hostname : "unknown";
-      const rawKey =
-        (
-          process.env.SUPABASE_SERVICE_ROLE_KEY ||
-          process.env.SERVICE_ROLE_KEY ||
-          (process.env as any).VITE_SUPABASE_SERVICE_ROLE_KEY ||
-          (globalThis as any).process?.env?.SUPABASE_SERVICE_ROLE_KEY ||
-          (globalThis as any).env?.SUPABASE_SERVICE_ROLE_KEY
-        )?.trim() || "";
-
-      const maskedKey =
-        rawKey.length > 8 ? `${rawKey.slice(0, 4)}...${rawKey.slice(-4)}` : "too short";
-
-      const keySource = process.env.SUPABASE_SERVICE_ROLE_KEY
-        ? "process.env"
-        : (process.env as any).VITE_SUPABASE_SERVICE_ROLE_KEY
-          ? "VITE_ env"
-          : "other";
-
-      throw new Error(
-        `Supabase Auth Error: The Service Role Key (Source: ${keySource}, Length: ${rawKey.length}, Masked: ${maskedKey}) is rejected by ${urlHost}. Please check your Supabase Dashboard -> Settings -> API and ensure you are using the 'service_role' key, NOT the 'anon' key.`,
-      );
-    }
-    throw error;
+    throw new Error("Failed to delete payment record.");
   }
   return true;
 });
@@ -237,6 +206,7 @@ export const deletePaymentRecord = createServerFn({ method: "POST" }).handler(as
  * SERVER FUNCTION: Permanently delete multiple transaction records at once.
  */
 export const deletePaymentRecords = createServerFn({ method: "POST" }).handler(async (ctx: any) => {
+  await requireAdmin();
   const payload = ctx?.data ?? ctx;
   const paymentIds = Array.isArray(payload) ? payload : payload?.paymentIds; // Array of IDs
   if (!Array.isArray(paymentIds) || paymentIds.length === 0) return true;
@@ -246,21 +216,11 @@ export const deletePaymentRecords = createServerFn({ method: "POST" }).handler(a
 
   if (error) {
     console.error("[BULK DELETE ERROR]", error);
-    throw error;
+    throw new Error("Failed to delete payment records.");
   }
   return true;
 });
 
-function getAdminDbKeyLength() {
-  const serviceKey = (
-    process.env.SUPABASE_SERVICE_ROLE_KEY ||
-    process.env.SERVICE_ROLE_KEY ||
-    (process.env as any).VITE_SUPABASE_SERVICE_ROLE_KEY ||
-    (globalThis as any).process?.env?.SUPABASE_SERVICE_ROLE_KEY ||
-    (globalThis as any).env?.SUPABASE_SERVICE_ROLE_KEY
-  )?.trim();
-  return serviceKey?.length || 0;
-}
 
 export async function fetchUserThreads(userId: string) {
   const { data, error } = await supabase
