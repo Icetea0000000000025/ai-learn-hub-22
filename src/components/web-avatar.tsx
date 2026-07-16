@@ -24,7 +24,7 @@ const AVATARS = [
  * Uses TanStack Router for navigation to prevent hard reloads that disconnect WebAudio.
  */
 export function WebAvatar() {
-  const navigate = useNavigate({ strict: false });
+  const navigate = useNavigate();
   const [mounted, setMounted] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedAvatar, setSelectedAvatar] = useState<string | null>(null);

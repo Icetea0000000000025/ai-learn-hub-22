@@ -218,6 +218,20 @@ export async function fetchCourseById(id: string) {
     }
   }
 
+  // Fetch actual student count from enrollments table to ensure accuracy
+  try {
+    const { count } = await supabase
+      .from("enrollments")
+      .select("*", { count: "exact", head: true })
+      .eq("course_id", id);
+      
+    if (count !== null) {
+      data.students = count;
+    }
+  } catch (err) {
+    console.error("Failed to fetch student count:", err);
+  }
+
   return mapCourse(data);
 }
 

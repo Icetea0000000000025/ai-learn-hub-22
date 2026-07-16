@@ -92,16 +92,22 @@ function Home() {
       <div className="bg-background font-sans selection:bg-primary/10 selection:text-primary-foreground">
         {/* --- HERO SECTION --- */}
         <section id="hero-section" aria-label="Hero Section" className="relative overflow-hidden pt-20 lg:pt-32 pb-24">
+          {/* Faint bg_hero Image */}
+          <div className="absolute inset-0 bg-[url('/avatars/bg_hero.png')] bg-cover bg-center opacity-10 pointer-events-none" />
+          
           <div className="absolute inset-0 bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]" />
           <div className="absolute top-0 right-0 w-[50%] h-full bg-primary/5 blur-[120px] rounded-full translate-x-1/3 -translate-y-1/3 pointer-events-none" />
 
           <div className="mx-auto max-w-7xl px-6 relative z-10">
-            <div className="text-center space-y-10 max-w-5xl mx-auto">
+            <div className="text-center space-y-10 max-w-5xl mx-auto relative">
+              {/* Soft halo effect for text readability */}
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-3xl h-[120%] bg-white/60 blur-[100px] -z-10 rounded-full pointer-events-none" />
+
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5 }}
-                className="inline-flex items-center gap-3 px-4 py-2 rounded-full border border-primary/20 bg-primary/5 text-primary text-[10px] font-black uppercase tracking-[0.2em]"
+                className="inline-flex items-center gap-3 px-4 py-2 rounded-full border border-primary/20 bg-primary/5 text-primary text-[10px] font-black uppercase tracking-[0.2em] backdrop-blur-sm"
               >
                 <Sparkles className="h-3.5 w-3.5 fill-current" />
                 {t("heroSubtitle")}
@@ -111,7 +117,7 @@ function Home() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.7, delay: 0.1 }}
-                className="text-6xl lg:text-8xl font-bold tracking-normal text-foreground leading-[0.95]"
+                className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-normal text-[#635BFF] leading-tight pb-2 drop-shadow-sm"
               >
                 {lang === "th" ? (
                   <span className="whitespace-nowrap">เรียนรู้เหนือความคาดหมาย</span>
@@ -127,36 +133,47 @@ function Home() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.7, delay: 0.2 }}
-                className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed font-medium"
+                className="text-xl text-slate-700 max-w-2xl mx-auto leading-relaxed font-semibold drop-shadow-sm"
               >
                 {t("heroDesc")}
               </motion.p>
 
+              {/* --- FLOATING TAGS (GLASSMORPHISM) --- */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.7, delay: 0.3 }}
-                className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4"
+                className="flex flex-wrap justify-center gap-3 sm:gap-4 mt-12 max-w-3xl mx-auto"
               >
-                <Button
-                  asChild
-                  size="lg"
-                  className="h-14 px-10 text-base font-black rounded-2xl bg-primary hover:bg-primary/90 text-primary-foreground shadow-2xl shadow-primary/20"
-                >
-                  <Link to={user ? "/dashboard" : "/login"} aria-label={user ? "Go to Dashboard" : "Start Journey"}>
-                    {user ? t("dashboard") : t("startJourney")}{" "}
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </Link>
-                </Button>
-                <Button
-                  asChild
-                  variant="outline"
-                  size="lg"
-                  className="h-14 px-10 text-base font-bold rounded-2xl border-border bg-background hover:bg-secondary transition-all"
-                >
-                  <Link to="/browse" aria-label="View full course catalog">{t("viewCatalog")}</Link>
-                </Button>
+                {[
+                  { name: "Development", delay: 0 },
+                  { name: "AI / Productivity", delay: 0.2 },
+                  { name: "Design", delay: 0.4 },
+                  { name: "Marketing", delay: 0.1 },
+                  { name: "Business", delay: 0.3 },
+                  { name: "Finance & Accounting", delay: 0.5 },
+                ].map((tag) => (
+                  <motion.div
+                    key={tag.name}
+                    animate={{ y: [0, -8, 0] }}
+                    transition={{
+                      duration: 4,
+                      repeat: Infinity,
+                      ease: "easeInOut",
+                      delay: tag.delay,
+                    }}
+                  >
+                    <Link
+                      to="/browse"
+                      search={{ category: tag.name }}
+                      className="block px-6 py-3 rounded-full bg-white/90 backdrop-blur-xl border border-primary/10 shadow-[0_8px_24px_-6px_rgba(0,0,0,0.1)] text-slate-800 font-semibold hover:bg-white hover:border-primary/30 hover:shadow-[0_8px_32px_-6px_rgba(99,91,255,0.25)] hover:text-primary hover:-translate-y-1 transition-all active:scale-95"
+                    >
+                      {tag.name}
+                    </Link>
+                  </motion.div>
+                ))}
               </motion.div>
+
             </div>
           </div>
         </section>
