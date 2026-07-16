@@ -24,6 +24,7 @@ export async function fetchAllReports() {
  * SERVER FUNCTION: Update report status (Admin only)
  */
 export const updateReportStatus = createServerFn({ method: "POST" }).handler(async (ctx: any) => {
+  await requireAdmin();
   const { id, status } = ctx.data;
   const adminDb = getAdminDb();
 
