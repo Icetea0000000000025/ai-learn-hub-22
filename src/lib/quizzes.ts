@@ -175,6 +175,7 @@ export async function deleteQuestionInternal(id: string) {
  * SERVER FUNCTION: Delete a question.
  */
 export const deleteQuestion = createServerFn({ method: "POST" }).handler(async (ctx: any) => {
+  await requireUser();
   const payload = ctx?.data ?? ctx;
   const id = typeof payload === "string" ? payload : payload?.id;
   return deleteQuestionInternal(id);
