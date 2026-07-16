@@ -11,7 +11,7 @@ export async function handleWebhook(
   resolved: ResolvedEnv,
   stripeClient: Stripe | null,
 ): Promise<Response> {
-  const { effectiveApiKey, effectiveWebhookSecret, serviceRoleKey, effectiveSupabaseUrl } = resolved;
+  const { effectiveWebhookSecret, serviceRoleKey, effectiveSupabaseUrl } = resolved;
 
   if (request.method !== "POST") return new Response("Method Not Allowed", { status: 405 });
 
