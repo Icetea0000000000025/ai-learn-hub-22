@@ -1,7 +1,7 @@
 import type Stripe from "stripe";
 import { createClient } from "@supabase/supabase-js";
 import { SUPABASE_ANON_KEY } from "../lib/config";
-import { WEBHOOK_LOGS, addLog } from "./webhook-log";
+import { addLog } from "./webhook-log";
 import { runFulfillment } from "./fulfillment";
 import { recordPayment } from "./payments";
 import type { ResolvedEnv } from "./env";
