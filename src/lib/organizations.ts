@@ -284,7 +284,9 @@ export const inviteMemberToOrg = createServerFn({ method: "POST" }).handler(asyn
 
 export const provisionFreeCourseToOrg = createServerFn({ method: "POST" }).handler(
   async (ctx: any) => {
-    const { orgId, courseId, userId } = ctx.data;
+    const auth = await requireUser();
+    const { orgId, courseId } = ctx.data;
+    const userId = auth.userId;
     const adminDb = getAdminDb();
 
     // 1. Verify Organization Ownership
