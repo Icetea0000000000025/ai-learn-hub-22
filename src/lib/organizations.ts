@@ -356,8 +356,8 @@ export const deleteOrganization = createServerFn({ method: "POST" }).handler(asy
   if (!org || (org as any).owner_id !== auth.userId) {
     throw new Error("Forbidden");
   }
-  const orgId = typeof payload === "string" ? payload : payload?.orgId;
-  const adminDb = getAdminDb();
+
+
 
   // 1. Get member IDs
   const { data: memberRows } = await adminDb
