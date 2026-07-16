@@ -43,6 +43,7 @@ export const updateReportStatus = createServerFn({ method: "POST" }).handler(asy
  * SERVER FUNCTION: Delete a report (Dismiss)
  */
 export const deleteReport = createServerFn({ method: "POST" }).handler(async (ctx: any) => {
+  await requireAdmin();
   const payload = ctx?.data ?? ctx;
   const reportId = typeof payload === "string" ? payload : payload?.id;
   const adminDb = getAdminDb();
