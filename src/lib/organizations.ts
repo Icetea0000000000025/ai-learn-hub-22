@@ -77,8 +77,10 @@ export async function checkCourseLicense(orgId: string, courseId: string) {
 
 export const claimOrganizationSeat = createServerFn({ method: "POST" }).handler(
   async (ctx: any) => {
+    const auth = await requireUser();
     const payload = ctx?.data ?? ctx;
-    const { orgId, courseId, userId } = payload;
+    const { orgId, courseId } = payload;
+    const userId = auth.userId;
     const adminDb = getAdminDb();
 
     // 1. Check if seat available
