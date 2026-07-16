@@ -1,6 +1,7 @@
 import { supabase, getAdminDb } from "./supabase";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import { requireUser } from "./server-auth";
 
 export async function fetchQuizzesByCourse(courseId: string) {
   // First get all lesson IDs for this course
