@@ -124,18 +124,16 @@ function CourseCard({
               className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
               onError={(e) => {
                 const target = e.target as HTMLImageElement;
-                if (target.src.includes("pollinations.ai")) {
-                  const sep = target.src.includes("?") ? "&" : "?";
-                  setTimeout(() => {
-                    target.src = `${target.src}${sep}retry=${Date.now()}`;
-                  }, 2000);
-                }
+                target.onerror = null;
+                target.src = "/avatars/LEARNLAB.png";
               }}
             />
           ) : (
-            <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-slate-100 to-slate-200">
-              <BookOpen className="h-10 w-10 text-slate-300" />
-            </div>
+            <img
+              src="/avatars/LEARNLAB.png"
+              className="w-full h-full object-cover"
+              alt={course.title}
+            />
           )}
 
           {/* Top badges */}

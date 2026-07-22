@@ -573,15 +573,9 @@ function CreateCoursePage() {
                               target.style.opacity = "1";
                             }}
                             onError={(e) => {
-                              console.warn("Image load failed, retrying...");
                               const target = e.target as HTMLImageElement;
-                              // Force reload by adding a timestamp if it's from pollinations
-                              if (imageUrl.includes("pollinations.ai")) {
-                                const separator = imageUrl.includes("?") ? "&" : "?";
-                                setTimeout(() => {
-                                  target.src = `${imageUrl}${separator}retry=${Date.now()}`;
-                                }, 2000);
-                              }
+                              target.onerror = null;
+                              target.src = "/avatars/LEARNLAB.png";
                             }}
                           />
 

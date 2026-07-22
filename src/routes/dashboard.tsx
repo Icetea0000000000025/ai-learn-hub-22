@@ -2061,38 +2061,51 @@ function Dashboard() {
               )}
             </div>
 
-            <div className="flex items-center gap-3 px-3 py-1.5 rounded-full bg-secondary/50 border border-border/50">
-              <div className="h-5 w-5 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-[9px]">
-                {profile?.avatar_url ? (
-                  <img
-                    src={profile.avatar_url}
-                    className="w-full h-full object-cover rounded-full"
-                    onError={(e) => { e.currentTarget.style.display = 'none'; }}
-                  />
-                ) : (
-                  profile?.name?.[0] || "U"
-                )}
-              </div>
-              <div className="flex flex-col items-start gap-1">
-                <div className="flex items-center gap-1.5">
-                  <span className="text-[11px] font-black text-slate-900 leading-none">
-                    {profile?.name || "Member"}
-                  </span>
-                  {profile?.org_request_status === "approved" && (
-                    <Badge className="h-3.5 px-1 bg-indigo-600 text-[7px] font-black text-white border-none rounded-[4px] uppercase tracking-widest flex items-center gap-0.5">
-                      <Zap className="h-2 w-2 fill-current text-amber-300" /> PRO
-                    </Badge>
-                  )}
+            <DropdownMenu>
+              <DropdownMenuTrigger className="focus:outline-none">
+                <div className="flex items-center gap-3 px-3 py-1.5 rounded-full bg-secondary/50 border border-border/50 hover:bg-secondary/70 transition-colors cursor-pointer">
+                  <div className="h-5 w-5 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-[9px]">
+                    {profile?.avatar_url ? (
+                      <img
+                        src={profile.avatar_url}
+                        className="w-full h-full object-cover rounded-full"
+                        onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                      />
+                    ) : (
+                      profile?.name?.[0] || "U"
+                    )}
+                  </div>
+                  <div className="flex flex-col items-start gap-1">
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-[11px] font-black text-slate-900 leading-none text-left">
+                        {profile?.name || "Member"}
+                      </span>
+                      {profile?.org_request_status === "approved" && (
+                        <Badge className="h-3.5 px-1 bg-indigo-600 text-[7px] font-black text-white border-none rounded-[4px] uppercase tracking-widest flex items-center gap-0.5">
+                          <Zap className="h-2 w-2 fill-current text-amber-300" /> PRO
+                        </Badge>
+                      )}
+                    </div>
+                    <span className="text-[9px] font-bold uppercase tracking-widest text-slate-400 leading-none">
+                      {profile?.role === "admin"
+                        ? "Admin"
+                        : profile?.role === "creator"
+                          ? "Creator"
+                          : "Student"}
+                    </span>
+                  </div>
                 </div>
-                <span className="text-[9px] font-bold uppercase tracking-widest text-slate-400 leading-none">
-                  {profile?.role === "admin"
-                    ? "Admin"
-                    : profile?.role === "creator"
-                      ? "Creator"
-                      : "Student"}
-                </span>
-              </div>
-            </div>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56 p-2 rounded-2xl shadow-xl">
+                <DropdownMenuItem
+                  onClick={handleSignOut}
+                  className="rounded-xl font-bold text-red-600 focus:text-red-700 focus:bg-red-50 py-3 cursor-pointer"
+                >
+                  <LogOut className="mr-3 h-4 w-4" />
+                  {t("logout")}
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </header>
 
@@ -2418,20 +2431,15 @@ function Dashboard() {
                                                 className="w-full h-full object-cover"
                                                 onError={(e) => {
                                                   const target = e.target as HTMLImageElement;
-                                                  if (target.src.includes("pollinations.ai")) {
-                                                    const sep = target.src.includes("?")
-                                                      ? "&"
-                                                      : "?";
-                                                    setTimeout(() => {
-                                                      target.src = `${target.src}${sep}retry=${Date.now()}`;
-                                                    }, 2000);
-                                                  }
+                                                  target.onerror = null;
+                                                  target.src = "/avatars/LEARNLAB.png";
                                                 }}
                                               />
                                             ) : (
-                                              <div className="w-full h-full flex items-center justify-center bg-primary/5 text-primary/20">
-                                                <BookOpen className="h-5 w-5" />
-                                              </div>
+                                              <img
+                                                src="/avatars/LEARNLAB.png"
+                                                className="w-full h-full object-cover"
+                                              />
                                             )}
                                           </div>
                                           <div>

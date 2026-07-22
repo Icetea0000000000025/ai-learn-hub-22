@@ -504,9 +504,17 @@ function UserDetail() {
                               <img
                                 src={en.course.imageUrl}
                                 className="h-full w-full object-cover"
+                                onError={(e) => {
+                                  const target = e.target as HTMLImageElement;
+                                  target.onerror = null;
+                                  target.src = "/avatars/LEARNLAB.png";
+                                }}
                               />
                             ) : (
-                              <BookOpen className="h-5 w-5 text-muted-foreground/30" />
+                              <img
+                                src="/avatars/LEARNLAB.png"
+                                className="h-full w-full object-cover"
+                              />
                             )}
                           </div>
                           <div className="min-0 flex-1">
