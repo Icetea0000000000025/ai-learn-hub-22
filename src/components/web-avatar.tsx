@@ -19,6 +19,8 @@ const AVATARS = [
   { name: "Volley", image: "/avatars/Volley.png" }
 ];
 
+const MALE_AVATARS = ["Botnoi", "Scientist"];
+
 /**
  * WebAvatar Component — SPA Optimized
  * Uses TanStack Router for navigation to prevent hard reloads that disconnect WebAudio.
@@ -232,9 +234,10 @@ export function WebAvatar() {
         }
 
         // 4. สร้างคอนฟิกใหม่  window.ChatWidgetConfig
+        const isMale = MALE_AVATARS.includes(selectedAvatar);
         (window as any).ChatWidgetConfig = {
           mode: "realtime-fullscreen",
-          widgetId: "learn-lab",
+          widgetId: isMale ? "learn-lab" : "learn-lab-girl",
           avatarUrl: selectedAvatar,
           greetingInstruction: "คุณคือผู้ช่วยของแพลตฟอร์มการเรียนรู้ \nหน้าที่คือแนะนำการใช้งาน \nให้ตอบสั้นๆกระชับและสุภาพ",
           enableBubble: "false",

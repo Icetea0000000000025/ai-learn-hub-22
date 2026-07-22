@@ -383,8 +383,23 @@ function CheckoutPage() {
               <CardContent className="p-6 space-y-4">
                 <div className="flex gap-4">
                   <div className="h-16 w-24 bg-muted rounded overflow-hidden shrink-0">
-                    {course.imageUrl && (
-                      <img src={course.imageUrl} className="w-full h-full object-cover" alt="" />
+                    {course.imageUrl ? (
+                      <img 
+                        src={course.imageUrl} 
+                        className="w-full h-full object-cover" 
+                        alt="" 
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.onerror = null;
+                          target.src = "/avatars/LEARNLAB.png";
+                        }}
+                      />
+                    ) : (
+                      <img
+                        src="/avatars/LEARNLAB.png"
+                        className="w-full h-full object-cover"
+                        alt=""
+                      />
                     )}
                   </div>
                   <div className="min-w-0">

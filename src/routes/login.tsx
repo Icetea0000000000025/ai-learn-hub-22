@@ -62,14 +62,14 @@ function LoginPage() {
 
   useEffect(() => {
     if (user && mode !== "reset") {
-      const rawTarget = redirectPath || "/dashboard";
+      const rawTarget = redirectPath || "/";
       const target = String(rawTarget); // Force to string to avoid primitive conversion errors
 
       // Ensure target is a valid relative path to prevent external redirects or weird values
       if (target.startsWith("/")) {
         void navigate({ to: target as any });
       } else {
-        void navigate({ to: "/dashboard" });
+        void navigate({ to: "/" });
       }
     }
   }, [user, navigate, mode, redirectPath]);
