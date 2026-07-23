@@ -6,17 +6,17 @@ import { pushDebugLog } from "@/lib/debug";
 
 const AVATARS = [
   { name: "Botnoi", image: "/avatars/Botnoi.png", widgetId: "learn-lab" },
-  { name: "Blossom", image: "/avatars/Blossom.png", widgetId: "learn-lab-girl" },
-  { name: "Bocchi", image: "/avatars/Bocchi.png", widgetId: "learn-lab-girl" },
+  { name: "Blossom", image: "/avatars/Blossom.png", widgetId: "learn-lab-blossom" },
+  { name: "Bocchi", image: "/avatars/Bocchi.png", widgetId: "learn-lab-bocchi" },
   { name: "Formal_outfit", image: "/avatars/Formal_outfit.png", widgetId: "learn-lab-tuxedo" },
   { name: "Kitagawa", image: "/avatars/Kitagawa.png", widgetId: "learn-lab-girl" },
   { name: "Prez", image: "/avatars/Prez.png", widgetId: "learn-lab-girl" },
   { name: "Private", image: "/avatars/Private.png", widgetId: "learn-lab-girl" },
   { name: "sample", image: "/avatars/sample.png", widgetId: "learn-lab-girl-purple" },
   { name: "Scientist", image: "/avatars/Scientist.png", widgetId: "learn-lab-uncle" },
-  { name: "TMGS", image: "/avatars/TMGS.png", widgetId: "learn-lab-girl" },
-  { name: "TrackField", image: "/avatars/TrackField.png", widgetId: "learn-lab-girl" },
-  { name: "Volley", image: "/avatars/Volley.png", widgetId: "learn-lab-girl" }
+  { name: "TMGS", image: "/avatars/TMGS.png", widgetId: "learn-lab-TMGS" },
+  { name: "TrackField", image: "/avatars/TrackField.png", widgetId: "learn-lab-TrackField" },
+  { name: "Volley", image: "/avatars/Volley.png", widgetId: "learn-lab-Volley" }
 ];
 
 /**
