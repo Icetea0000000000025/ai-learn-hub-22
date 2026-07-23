@@ -5,21 +5,19 @@ import { Card } from "@/components/ui/card";
 import { pushDebugLog } from "@/lib/debug";
 
 const AVATARS = [
-  { name: "Botnoi", image: "/avatars/Botnoi.png" },
-  { name: "Blossom", image: "/avatars/Blossom.png" },
-  { name: "Bocchi", image: "/avatars/Bocchi.png" },
-  { name: "Formal_outfit", image: "/avatars/Formal_outfit.png" },
-  { name: "Kitagawa", image: "/avatars/Kitagawa.png" },
-  { name: "Prez", image: "/avatars/Prez.png" },
-  { name: "Private", image: "/avatars/Private.png" },
-  { name: "sample", image: "/avatars/sample.png" },
-  { name: "Scientist", image: "/avatars/Scientist.png" },
-  { name: "TMGS", image: "/avatars/TMGS.png" },
-  { name: "TrackField", image: "/avatars/TrackField.png" },
-  { name: "Volley", image: "/avatars/Volley.png" }
+  { name: "Botnoi", image: "/avatars/Botnoi.png", widgetId: "learn-lab" },
+  { name: "Blossom", image: "/avatars/Blossom.png", widgetId: "learn-lab-girl" },
+  { name: "Bocchi", image: "/avatars/Bocchi.png", widgetId: "learn-lab-girl" },
+  { name: "Formal_outfit", image: "/avatars/Formal_outfit.png", widgetId: "learn-lab-tuxedo" },
+  { name: "Kitagawa", image: "/avatars/Kitagawa.png", widgetId: "learn-lab-girl" },
+  { name: "Prez", image: "/avatars/Prez.png", widgetId: "learn-lab-girl" },
+  { name: "Private", image: "/avatars/Private.png", widgetId: "learn-lab-girl" },
+  { name: "sample", image: "/avatars/sample.png", widgetId: "learn-lab-girl-purple" },
+  { name: "Scientist", image: "/avatars/Scientist.png", widgetId: "learn-lab-uncle" },
+  { name: "TMGS", image: "/avatars/TMGS.png", widgetId: "learn-lab-girl" },
+  { name: "TrackField", image: "/avatars/TrackField.png", widgetId: "learn-lab-girl" },
+  { name: "Volley", image: "/avatars/Volley.png", widgetId: "learn-lab-girl" }
 ];
-
-const MALE_AVATARS = ["Botnoi", "Scientist"];
 
 /**
  * WebAvatar Component — SPA Optimized
@@ -234,10 +232,10 @@ export function WebAvatar() {
         }
 
         // 4. สร้างคอนฟิกใหม่  window.ChatWidgetConfig
-        const isMale = MALE_AVATARS.includes(selectedAvatar);
+        const avatarConfig = AVATARS.find(a => a.name === selectedAvatar);
         (window as any).ChatWidgetConfig = {
           mode: "realtime-fullscreen",
-          widgetId: isMale ? "learn-lab" : "learn-lab-girl",
+          widgetId: avatarConfig?.widgetId || "learn-lab",
           avatarUrl: selectedAvatar,
           greetingInstruction: "คุณคือผู้ช่วยของแพลตฟอร์มการเรียนรู้ \nหน้าที่คือแนะนำการใช้งาน \nให้ตอบสั้นๆกระชับและสุภาพ",
           enableBubble: "false",
