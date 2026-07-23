@@ -59,6 +59,64 @@ export function WebAvatar() {
   const containerRef = useRef<HTMLDivElement>(null);
   const boxRef = useRef<HTMLDivElement>(null);
 
+  // --- CONNECTION TRACKERS FOR FORCE CLEANUP ---
+  useEffect(() => {
+    if (typeof window !== 'undefined' && !(window as any).__rtcTrackerInstalled) {
+      (window as any).__rtcTrackerInstalled = true;
+      (window as any).__activeRTCs = new Set();
+      (window as any).__activeSockets = new Set();
+      (window as any).__activeMediaStreams = new Set();
+      
+      // 1. Track WebRTC
+      const OriginalRTC = window.RTCPeerConnection;
+      if (OriginalRTC) {
+        class TrackedRTC extends OriginalRTC {
+          constructor(...args: any[]) {
+            super(...(args as [any]));
+            (window as any).__activeRTCs.add(this);
+            this.addEventListener('iceconnectionstatechange', () => {
+              if (this.iceConnectionState === 'closed' || this.iceConnectionState === 'failed') {
+                (window as any).__activeRTCs.delete(this);
+              }
+            });
+          }
+        }
+        window.RTCPeerConnection = TrackedRTC as any;
+      }
+
+      // 2. Track WebSocket (Exclude local dev servers like Vite HMR)
+      const OriginalWebSocket = window.WebSocket;
+      class TrackedWebSocket extends OriginalWebSocket {
+        constructor(...args: any[]) {
+          super(...(args as [any]));
+          const url = args[0]?.toString() || '';
+          if (!url.includes('localhost') && !url.includes('127.0.0.1') && !url.includes('192.168')) {
+            (window as any).__activeSockets.add(this);
+            this.addEventListener('close', () => {
+              (window as any).__activeSockets.delete(this);
+            });
+          }
+        }
+      }
+      window.WebSocket = TrackedWebSocket as any;
+
+      // 3. Track MediaStreams (Microphone/Camera)
+      if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        const originalGetUserMedia = navigator.mediaDevices.getUserMedia.bind(navigator.mediaDevices);
+        navigator.mediaDevices.getUserMedia = async (constraints) => {
+          try {
+            const stream = await originalGetUserMedia(constraints);
+            (window as any).__activeMediaStreams.add(stream);
+            return stream;
+          } catch (e) {
+            throw e;
+          }
+        };
+      }
+    }
+  }, []);
+  // ---------------------------------------------
+
   // --- TEMPORARY LOGGING INTERCEPTORS ---
   useEffect(() => {
     // Intercept fetch for token
@@ -242,10 +300,12 @@ export function WebAvatar() {
     // หน่วงเวลาเล็กน้อยให้ teardown ของรอบก่อนหน้าทำงานให้เสร็จก่อนสร้างตัวใหม่
     const timer = setTimeout(initAvatar, 300);
 
-    // Teardown: เรียก disconnect() ตอน unmount/เปลี่ยน avatar ตามที่ระบุในข้อ 2 ของ Integration Guide
+    // Teardown: เรียก disconnect() และบังคับตัดการเชื่อมต่อทั้งหมด ตอนเปลี่ยน avatar หรือ unmount
     return () => {
       isCancelled = true;
       clearTimeout(timer);
+
+      // 1. Official disconnect
       if ((window as any).WebAvatar) {
         try {
           pushDebugLog(`[DEBUG-TEARDOWN] window.WebAvatar.disconnect() called`);
@@ -253,6 +313,43 @@ export function WebAvatar() {
         } catch (e) {
           console.error("Failed to disconnect WebAvatar:", e);
         }
+      }
+
+      // 2. Undocumented fallback disconnects
+      try { (window as any).BotnoiChatWidget?.endCall?.(); } catch(e) {}
+      try { (window as any).BotnoiLiveProvider?.disconnect?.(); } catch(e) {}
+
+      // 3. Force Kill WebRTC Connections
+      if ((window as any).__activeRTCs) {
+        (window as any).__activeRTCs.forEach((pc: RTCPeerConnection) => {
+          try { pc.close(); } catch(e) {}
+        });
+        (window as any).__activeRTCs.clear();
+      }
+
+      // 4. Force Kill WebSockets
+      if ((window as any).__activeSockets) {
+        (window as any).__activeSockets.forEach((ws: WebSocket) => {
+          try { ws.close(); } catch(e) {}
+        });
+        (window as any).__activeSockets.clear();
+      }
+
+      // 5. Force Stop Media Elements and Microphone
+      document.querySelectorAll('audio, video').forEach(m => {
+        const media = m as HTMLMediaElement;
+        media.pause();
+        media.srcObject = null;
+        media.remove();
+      });
+
+      if ((window as any).__activeMediaStreams) {
+        (window as any).__activeMediaStreams.forEach((stream: MediaStream) => {
+          stream.getTracks().forEach(track => {
+            try { track.stop(); track.enabled = false; } catch(e) {}
+          });
+        });
+        (window as any).__activeMediaStreams.clear();
       }
     };
   }, [mounted, isAvatarEnabled, selectedAvatar]);
@@ -267,6 +364,33 @@ export function WebAvatar() {
         console.error("Failed to disconnect WebAvatar:", e);
       }
     }
+    
+    // Force Kill All Connections
+    try { (window as any).BotnoiChatWidget?.endCall?.(); } catch(e) {}
+    if ((window as any).__activeRTCs) {
+      (window as any).__activeRTCs.forEach((pc: RTCPeerConnection) => { try { pc.close(); } catch(e) {} });
+      (window as any).__activeRTCs.clear();
+    }
+    if ((window as any).__activeSockets) {
+      (window as any).__activeSockets.forEach((ws: WebSocket) => { try { ws.close(); } catch(e) {} });
+      (window as any).__activeSockets.clear();
+    }
+    document.querySelectorAll('audio, video').forEach(m => {
+      const media = m as HTMLMediaElement;
+      media.pause();
+      media.srcObject = null;
+      media.remove();
+    });
+    
+    if ((window as any).__activeMediaStreams) {
+      (window as any).__activeMediaStreams.forEach((stream: MediaStream) => {
+        stream.getTracks().forEach(track => {
+          try { track.stop(); track.enabled = false; } catch(e) {}
+        });
+      });
+      (window as any).__activeMediaStreams.clear();
+    }
+
     setTimeout(() => {
       const widgetGlobals = ["WebAvatar", "__bcwInitialized", "BotnoiChatWidget", "BotnoiLiveProvider"];
       widgetGlobals.forEach(g => delete (window as any)[g]);
