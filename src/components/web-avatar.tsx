@@ -188,7 +188,7 @@ export function WebAvatar() {
     };
   }, [mounted, navigate, boxSize.width, boxSize.height]);
 
-  // Strict React Way: Handle Avatar Selection Lifecycle
+  // Strict React Way: Handle Avatar Selection Lifecycle (as per Section 2 of Integration Guide)
   useEffect(() => {
     pushDebugLog(`Avatar selection state evaluated:`, { selectedAvatar, isAvatarEnabled, mounted });
 
@@ -196,67 +196,66 @@ export function WebAvatar() {
       return;
     }
 
+    let isCancelled = false;
+
     const initAvatar = () => {
+      if (isCancelled) return;
+      
       pushDebugLog(`[DEBUG-INIT] initAvatar() called at ${new Date().toISOString()} for: ${selectedAvatar}`);
-      // 1. ตรวจสอบและเคลียร์ของเก่า (ทำลายและสร้างใหม่ตามวิธีเดิมที่ทำงานได้)
+      
+      // 1. ล้าง DOM เก่าทิ้ง
+      if (containerRef.current) {
+        containerRef.current.innerHTML = "";
+      }
+
+      // 2. ล้าง Script tag ตัวเก่า และ Global Objects เพื่อให้สคริปต์โหลดใหม่ได้สมบูรณ์
+      document.getElementById('webavatar-jssdk')?.remove();
+      const widgetGlobals = ["WebAvatar", "__bcwInitialized", "BotnoiChatWidget", "BotnoiLiveProvider"];
+      widgetGlobals.forEach(g => delete (window as any)[g]);
+      Object.keys(window).forEach(k => {
+        if (k.startsWith("webpackChunk")) delete (window as any)[k];
+      });
+
+      // 3. สร้างคอนฟิกใหม่  window.ChatWidgetConfig
+      const avatarConfig = AVATARS.find(a => a.name === selectedAvatar);
+      (window as any).ChatWidgetConfig = {
+        mode: "realtime-fullscreen",
+        widgetId: avatarConfig?.widgetId || "learn-lab",
+        avatarUrl: selectedAvatar,
+        greetingInstruction: "คุณคือผู้ช่วยของแพลตฟอร์มการเรียนรู้ \nหน้าที่คือแนะนำการใช้งาน \nให้ตอบสั้นๆกระชับและสุภาพ",
+        enableBubble: "false",
+        showBubble: false,
+        showText: false,
+        cameraOffset: "0,0,0",
+        container: containerRef.current
+      };
+
+      // 4. โหลดสคริปต์ใหม่ ตามคู่มือ Section 2 (ไม่ใช้ Date.now() cache buster เพื่อลดปัญหา script ซ้ำซ้อน)
+      const script = document.createElement("script");
+      script.id = 'webavatar-jssdk';
+      script.src = 'https://webavatar.didthat.cc/chat-widget.js';
+      script.async = true;
+      pushDebugLog(`[DEBUG-INJECT] Injecting chat-widget.js script tag`);
+      document.body.appendChild(script);
+    };
+
+    // หน่วงเวลาเล็กน้อยให้ teardown ของรอบก่อนหน้าทำงานให้เสร็จก่อนสร้างตัวใหม่
+    const timer = setTimeout(initAvatar, 300);
+
+    // Teardown: เรียก disconnect() ตอน unmount/เปลี่ยน avatar ตามที่ระบุในข้อ 2 ของ Integration Guide
+    return () => {
+      isCancelled = true;
+      clearTimeout(timer);
       if ((window as any).WebAvatar) {
         try {
-          pushDebugLog(`[DEBUG-INIT] window.WebAvatar.disconnect() called by initAvatar`);
+          pushDebugLog(`[DEBUG-TEARDOWN] window.WebAvatar.disconnect() called`);
           (window as any).WebAvatar.disconnect();
         } catch (e) {
           console.error("Failed to disconnect WebAvatar:", e);
         }
       }
-
-      // เผื่อเวลาให้ disconnect ทำงานให้เสร็จ
-      setTimeout(() => {
-        // ล้างตัวแปร Global Objects เพื่อบังคับให้โหลดใหม่ทั้งหมด
-        const widgetGlobals = [
-          "WebAvatar",
-          "__bcwInitialized",
-          "BotnoiChatWidget",
-          "BotnoiLiveProvider"
-        ];
-        widgetGlobals.forEach(g => delete (window as any)[g]);
-
-        Object.keys(window).forEach(k => {
-          if (k.startsWith("webpackChunk")) delete (window as any)[k];
-        });
-
-        // 2. ลบ Script tag ตัวเก่าออกจาก DOM
-        document.querySelectorAll('script[src*="chat-widget.js"]').forEach(s => s.remove());
-
-        // 3. ล้าง DOM เก่าทิ้ง
-        if (containerRef.current) {
-          containerRef.current.innerHTML = "";
-        }
-
-        // 4. สร้างคอนฟิกใหม่  window.ChatWidgetConfig
-        const avatarConfig = AVATARS.find(a => a.name === selectedAvatar);
-        (window as any).ChatWidgetConfig = {
-          mode: "realtime-fullscreen",
-          widgetId: avatarConfig?.widgetId || "learn-lab",
-          avatarUrl: selectedAvatar,
-          greetingInstruction: "คุณคือผู้ช่วยของแพลตฟอร์มการเรียนรู้ \nหน้าที่คือแนะนำการใช้งาน \nให้ตอบสั้นๆกระชับและสุภาพ",
-          enableBubble: "false",
-          showBubble: false,
-          showText: false,
-          cameraOffset: "0,0,0",
-          container: containerRef.current
-        };
-
-        // 5. โหลดสคริปต์ใหม่ append tag script ลงไป พร้อมใส่ Cache Buster
-        const script = document.createElement("script");
-        script.id = `webavatar-jssdk-${Date.now()}`;
-        script.src = `https://webavatar.didthat.cc/chat-widget.js?t=${Date.now()}`;
-        script.async = true;
-        pushDebugLog(`[DEBUG-INJECT] Injecting chat-widget.js script tag at ${new Date().toISOString()}`);
-        document.body.appendChild(script);
-      }, 150);
     };
-
-    initAvatar();
-  }, [mounted, selectedAvatar]);
+  }, [mounted, isAvatarEnabled, selectedAvatar]);
 
   const cleanupScript = useCallback(() => {
     pushDebugLog(`cleanupScript() started`);
@@ -271,8 +270,8 @@ export function WebAvatar() {
     setTimeout(() => {
       const widgetGlobals = ["WebAvatar", "__bcwInitialized", "BotnoiChatWidget", "BotnoiLiveProvider"];
       widgetGlobals.forEach(g => delete (window as any)[g]);
-      document.querySelectorAll('script[src*="chat-widget.js"]').forEach(s => s.remove());
-    }, 150);
+      document.getElementById('webavatar-jssdk')?.remove();
+    }, 300); // Allow more time for WebRTC to cleanly disconnect
   }, []);
 
   const disableWebAvatar = useCallback(() => {
